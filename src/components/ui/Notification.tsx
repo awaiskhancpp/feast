@@ -102,11 +102,16 @@ export function NotificationBell() {
 
       <div
         role="menu"
-        className={`absolute right-0 top-full mt-2 w-[400px] origin-top-right rounded-2xl border border-gray-100 bg-white shadow-xl transition-all duration-150 z-50 ${
-          isOpen
-            ? 'opacity-100 scale-100 pointer-events-auto'
-            : 'opacity-0 scale-95 pointer-events-none'
-        }`}
+        className={`fixed sm:absolute
+    top-16 sm:top-full
+    left-2 right-2
+    sm:left-auto sm:right-0
+    sm:w-[400px]
+    rounded-2xl border border-gray-100 bg-white shadow-xl transition-all duration-150 z-50 ${
+      isOpen
+        ? 'opacity-100 scale-100 pointer-events-auto'
+        : 'opacity-0 scale-95 pointer-events-none'
+    }`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <h3 className="text-base font-bold text-gray-900">Notifications</h3>
