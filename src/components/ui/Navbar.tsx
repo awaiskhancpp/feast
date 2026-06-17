@@ -5,6 +5,19 @@ import Image from 'next/image'
 import { NotificationBell } from './Notification'
 
 export function Navbar() {
+  const hour = new Date().getHours()
+
+  let greeting = 'Good Evening'
+
+  if (hour >= 5 && hour < 12) {
+    greeting = 'Good Morning'
+  } else if (hour >= 12 && hour < 17) {
+    greeting = 'Good Afternoon'
+  } else if (hour >= 17 && hour < 21) {
+    greeting = 'Good Evening'
+  } else {
+    greeting = 'Good Night'
+  }
   return (
     // No more fixed/top-0/left-20/right-0/z-40 — that was all compensating for being
     // pulled out of flow. flex-shrink-0 keeps the height locked at 96px (h-24) even if
@@ -12,7 +25,7 @@ export function Navbar() {
     <div className="h-24 w-full flex-shrink-0 bg-white border-b border-gray-200 px-8 flex items-center justify-between">
       {/* Left Section: Greeting */}
       <div className="flex-shrink-0">
-        <h1 className="text-lg font-semibold text-gray-900">Good Morning, Cris!</h1>
+        <h1 className="text-lg font-semibold text-gray-900">{greeting}, Cris!</h1>
         <p className="text-sm text-gray-500">
           Offer top-notch service to cater to your customers' needs.
         </p>
