@@ -44,6 +44,7 @@ const sidebarItems = [
 
 export function Sidebar() {
   const [activeItem, setActiveItem] = useState('dashboard')
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <div className="sticky top-0 h-screen w-20 flex-shrink-0 flex flex-col items-center py-6 gap-4 bg-white border-r border-gray-200 overflow-hidden">

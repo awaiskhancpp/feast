@@ -4,7 +4,7 @@ import { Search } from 'lucide-react'
 import Image from 'next/image'
 import { NotificationBell } from './Notification'
 
-export function Navbar() {
+export function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
   const hour = new Date().getHours()
   let greeting = 'Good Evening'
   if (hour >= 5 && hour < 12) greeting = 'Good Morning'

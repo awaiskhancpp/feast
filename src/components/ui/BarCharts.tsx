@@ -1,5 +1,5 @@
 'use client'
-
+import { useEffect, useState } from 'react'
 import {
   BarChart,
   Bar,
@@ -42,11 +42,23 @@ const CustomTooltip = ({ active, payload }: any) => {
 }
 
 export function MonthlySalesChart() {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-100">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-900">Monthly Sales</h3>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-blue-600" />
             <span className="text-sm text-gray-600">Food</span>
@@ -61,16 +73,32 @@ export function MonthlySalesChart() {
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={isMobile ? 260 : 320}>
+        <BarChart
+          data={chartData}
+          margin={{
+            top: 20,
+            right: isMobile ? 5 : 30,
+            left: isMobile ? -20 : 0,
+            bottom: 0,
+          }}
+          barCategoryGap={isMobile ? '30%' : '15%'}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
           <XAxis
             dataKey="month"
+            interval={isMobile ? 1 : 0}
             stroke="#9ca3af"
             style={{ fontSize: '12px' }}
             axisLine={{ stroke: '#e5e7eb' }}
           />
-          <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} axisLine={false} tickLine={false} />
+          <YAxis
+            hide={isMobile}
+            stroke="#9ca3af"
+            style={{ fontSize: '12px' }}
+            axisLine={false}
+            tickLine={false}
+          />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(139, 92, 246, 0.05)' }} />
           <Bar
             dataKey="food"

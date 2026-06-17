@@ -85,15 +85,15 @@ export function TransactionTable() {
 
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-100">
-      <div className="flex justify-between mb-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
         <div className="">
           <h3 className="text-lg font-semibold text-gray-900">Transaction History</h3>
           <p className="text-xs text-gray-500">
             Keep track of every transaction effortlessly with our detailed transaction history.
           </p>
         </div>
-        <div className="flex gap-3 items-center">
-          <div className="flex items-center relative">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <div className="relative flex-1 md:flex-none">
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400">
               <Image src="/icons/searchIcon.svg" alt="" width={20} height={20} />
             </div>
@@ -106,7 +106,7 @@ export function TransactionTable() {
             />
           </div>
           <div className="flex gap-3 ">
-            <button className="relative flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <button className="relative flex items-center whitespace-nowrap gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
               Sort by
               <ChevronDown className="w-4 h-4" />
               <select
@@ -121,8 +121,8 @@ export function TransactionTable() {
 
       {/* Search & Sort */}
 
-      {/* Table */}
-      <div className="overflow-x-auto">
+      {/* Desktop Table */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-100">
@@ -134,14 +134,15 @@ export function TransactionTable() {
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
             </tr>
           </thead>
+
           <tbody>
             {sortedData.map((transaction) => (
               <tr key={transaction.id} className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="py-4 px-4 text-[#000910]">{transaction.order}</td>
-                <td className="py-4 px-4 text-[#000910]">{transaction.date}</td>
-                <td className="py-4 px-4 text-[#000910]">{transaction.table}</td>
-                <td className="py-4 px-4 text-[#000910]">{transaction.items}</td>
-                <td className="py-4 px-4 text-[#000910]">{transaction.amount}</td>
+                <td className="py-4 px-4">{transaction.order}</td>
+                <td className="py-4 px-4">{transaction.date}</td>
+                <td className="py-4 px-4">{transaction.table}</td>
+                <td className="py-4 px-4">{transaction.items}</td>
+                <td className="py-4 px-4">{transaction.amount}</td>
                 <td className="py-4 px-4">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(transaction.status)}`}
@@ -153,6 +154,50 @@ export function TransactionTable() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="space-y-4 md:hidden">
+        {sortedData.map((transaction) => (
+          <div
+            key={transaction.id}
+            className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-gray-900">{transaction.order}</h4>
+
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(transaction.status)}`}
+              >
+                {transaction.status}
+              </span>
+            </div>
+
+            {/* Details */}
+            <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
+              <div>
+                <p className="text-gray-500">Date</p>
+                <p className="font-medium text-gray-900">{transaction.date}</p>
+              </div>
+
+              <div>
+                <p className="text-gray-500">Table</p>
+                <p className="font-medium text-gray-900">{transaction.table}</p>
+              </div>
+
+              <div>
+                <p className="text-gray-500">Order Items</p>
+                <p className="font-medium text-gray-900">{transaction.items}</p>
+              </div>
+
+              <div>
+                <p className="text-gray-500">Total Amount</p>
+                <p className="font-semibold text-gray-900">{transaction.amount}</p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )

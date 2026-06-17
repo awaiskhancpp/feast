@@ -16,7 +16,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
   return (
     <html lang="en">
-      <body className=" w-full min-w-[1280px]">
+      <body className=" w-full ">
         <main>{children}</main>
       </body>
     </html>
