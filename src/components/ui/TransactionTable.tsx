@@ -106,13 +106,13 @@ export function TransactionTable() {
             />
           </div>
           <div className="flex gap-3 ">
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <button className="relative flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
               Sort by
               <ChevronDown className="w-4 h-4" />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortKey)}
-                className="absolute opacity-0 w-full cursor-pointer"
+                className="absolute inset-0 opacity-0 w-full cursor-pointer"
               />
             </button>
           </div>

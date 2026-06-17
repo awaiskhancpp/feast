@@ -77,12 +77,17 @@ export function TopSellingChart() {
       </div>
       <div className="space-y-3">
         {chartData.map((item, idx) => (
-          <div key={idx} className="flex items-center gap-3 justify-between">
-            <div className="flex gap-2 items-center">
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx] }} />
-              <span className="text-sm text-gray-700">{item.name}</span>
+          <div key={idx} className="flex items-center justify-between gap-2">
+            <div className="flex gap-2 items-center min-w-0">
+              <div
+                className="w-3 h-3 rounded-full flex-shrink-0"
+                style={{ backgroundColor: COLORS[idx] }}
+              />
+              <span className="text-sm text-gray-700 truncate">{item.name}</span>
             </div>
-            <span className="text-sm font-semibold text-gray-900">{item.value} Sales</span>
+            <span className="text-sm font-semibold text-gray-900 flex-shrink-0">
+              {item.value} Sales
+            </span>
           </div>
         ))}
       </div>

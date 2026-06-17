@@ -6,7 +6,7 @@ import Image from 'next/image'
 
 export default function Dashboard() {
   return (
-    <div className="space-y-6 pt-4">
+    <div className="space-y-6 pt-4 ">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
         {/* Card 1 — sm: full, md: half, lg: 3/12 */}
         <div className="lg:col-span-3">
