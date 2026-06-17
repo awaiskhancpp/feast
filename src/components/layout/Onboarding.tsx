@@ -47,9 +47,9 @@ export default function OnBoarding() {
   }, [current])
 
   return (
-    <section className="grid grid-cols-12 h-screen">
-      {/* ── Left panel — carousel ── */}
-      <div className="hidden lg:block col-span-7 relative overflow-hidden">
+    <section className="grid grid-cols-12 min-h-screen">
+      {/* ── Left panel — carousel, lg and up only ── */}
+      <div className="hidden lg:block lg:col-span-6 xl:col-span-7 relative overflow-hidden">
         {/* All images stacked; only the active one is visible */}
         {reviews.map((r, i) => (
           <div
@@ -68,7 +68,7 @@ export default function OnBoarding() {
         {/* Bottom content */}
         <div className="absolute bottom-0 left-0 right-0 px-10 pb-10">
           {/* Text blocks — cross-fade with a subtle upward float */}
-          <div className="relative h-[200px]">
+          <div className="relative lg:h-[250px] xl:h-[200px]">
             {reviews.map((r, i) => (
               <div
                 key={i}
@@ -110,7 +110,8 @@ export default function OnBoarding() {
         </div>
       </div>
 
-      <div className="col-span-5 flex justify-center items-center">
+      {/* ── Right panel — pin login: full width until lg, then 5/12 ── */}
+      <div className="col-span-12 lg:col-span-6 xl:col-span-5 flex justify-center items-center px-4 py-10">
         <PinLoginLayout />
       </div>
     </section>

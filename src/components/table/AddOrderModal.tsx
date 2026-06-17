@@ -1,0 +1,208 @@
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
+import { ArrowLeft, ChevronDown, Minus, Plus, X } from 'lucide-react'
+import { CUSTOMERS } from './tableData'
+import type { OrderDraft, OrderType, TableItem } from './types'
+import { cn } from './utils'
+
+type AddOrderModalProps = {
+  open: boolean
+  table: TableItem | null
+  onClose: () => void
+  onCreateOrder: (draft: OrderDraft) => void
+}
+
+export default function AddOrderModal({ open, table, onClose, onCreateOrder }: AddOrderModalProps) {
+  const [orderType, setOrderType] = useState<OrderType>('dine-in')
+  const [customerName, setCustomerName] = useState('Nicolas Zelensky')
+  const [guestCount, setGuestCount] = useState(5)
+  const [customerMenuOpen, setCustomerMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (!open) return
+
+    setOrderType('dine-in')
+    setCustomerName('Nicolas Zelensky')
+    setGuestCount(5)
+    setCustomerMenuOpen(false)
+  }, [open, table?.id])
+
+  const visibleCustomers = useMemo(() => {
+    const query = customerName.trim().toLowerCase()
+    if (!query) return CUSTOMERS
+
+    return CUSTOMERS.filter((customer) => customer.name.toLowerCase().includes(query))
+  }, [customerName])
+
+  if (!open || !table) return null
+
+  const createOrder = () => {
+    onCreateOrder({
+      orderType,
+      tableId: table.id,
+      customerName: customerName.trim() || 'Walk-in Customer',
+      guests: guestCount,
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 px-4 py-6 backdrop-blur-[1px]">
+      <form
+        className="w-full max-w-[330px] rounded-2xl bg-white p-5 shadow-[0_18px_60px_rgba(26,31,44,0.18)]"
+        onSubmit={(event) => {
+          event.preventDefault()
+          createOrder()
+        }}
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <button
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50"
+            type="button"
+            onClick={onClose}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h2 className="text-base font-bold text-slate-950">Add New Order</h2>
+          <button
+            className="grid h-8 w-8 place-items-center border border-[#8d70ff] text-[#8d70ff] hover:bg-[#f6f3ff]"
+            type="button"
+            onClick={onClose}
+            aria-label="Close add order"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mb-5 grid grid-cols-2 gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
+          <OrderTypeButton
+            active={orderType === 'dine-in'}
+            label="Dine in"
+            onClick={() => setOrderType('dine-in')}
+          />
+          <OrderTypeButton
+            active={orderType === 'takeaway'}
+            label="Take away"
+            onClick={() => setOrderType('takeaway')}
+          />
+        </div>
+
+        <div className="space-y-3">
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold text-slate-950">Table</span>
+            <input
+              className="h-10 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 outline-none"
+              value={`T-${table.id}`}
+              readOnly
+            />
+          </label>
+
+          <label className="relative block">
+            <span className="mb-1.5 block text-xs font-semibold text-slate-950">Customer Name</span>
+            <div className="relative">
+              <input
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 pr-9 text-sm text-slate-700 outline-none focus:border-[#6066ed] focus:ring-1 focus:ring-[#6066ed]"
+                value={customerName}
+                onChange={(event) => {
+                  setCustomerName(event.target.value)
+                  setCustomerMenuOpen(true)
+                }}
+                onFocus={() => setCustomerMenuOpen(true)}
+              />
+              <button
+                className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center text-[#8d70ff]"
+                type="button"
+                onClick={() => setCustomerMenuOpen((current) => !current)}
+                aria-label="Toggle customer list"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </div>
+
+            {customerMenuOpen ? (
+              <div className="absolute left-0 right-0 top-[68px] z-20 overflow-hidden rounded-md bg-white py-1 shadow-[0_12px_30px_rgba(24,29,42,0.16)]">
+                {visibleCustomers.map((customer) => (
+                  <button
+                    className={cn(
+                      'flex h-8 w-full items-center px-4 text-left text-xs text-slate-600 hover:bg-slate-50',
+                      customer.name === customerName && 'bg-slate-50 font-semibold text-slate-950',
+                    )}
+                    type="button"
+                    key={customer.id}
+                    onClick={() => {
+                      setCustomerName(customer.name)
+                      setCustomerMenuOpen(false)
+                    }}
+                  >
+                    {customer.name}
+                  </button>
+                ))}
+                <button
+                  className="flex h-8 w-full items-center px-4 text-left text-xs text-slate-600 hover:bg-slate-50"
+                  type="button"
+                  onClick={() => setCustomerMenuOpen(false)}
+                >
+                  Custom...
+                </button>
+              </div>
+            ) : null}
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold text-slate-950">Guest</span>
+            <div className="flex h-10 w-full items-center justify-between rounded-md border border-slate-200 bg-white px-2">
+              <button
+                className="grid h-6 w-6 place-items-center rounded bg-slate-100 text-slate-500 disabled:opacity-40"
+                type="button"
+                disabled={guestCount <= 1}
+                onClick={() => setGuestCount((count) => Math.max(1, count - 1))}
+              >
+                <Minus className="h-3.5 w-3.5" />
+              </button>
+
+              <span className="flex-1 text-center text-xs text-slate-600">{guestCount}</span>
+
+              <button
+                className="grid h-6 w-6 place-items-center rounded bg-[#6066ed] text-white"
+                type="button"
+                onClick={() => setGuestCount((count) => count + 1)}
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </label>
+        </div>
+
+        <button
+          className="mt-7 h-11 w-full rounded-lg bg-[#6066ed] text-sm font-semibold text-white shadow-[0_8px_18px_rgba(96,102,237,0.28)] hover:bg-[#555beb]"
+          type="submit"
+        >
+          Create Order
+        </button>
+      </form>
+    </div>
+  )
+}
+
+function OrderTypeButton({
+  active,
+  label,
+  onClick,
+}: {
+  active: boolean
+  label: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      className={cn(
+        'h-9 rounded-md text-xs font-semibold text-slate-500 transition',
+        active && 'bg-white text-[#6066ed] shadow-sm',
+      )}
+      type="button"
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  )
+}
