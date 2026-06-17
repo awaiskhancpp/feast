@@ -121,10 +121,6 @@ export function TransactionTable() {
           </div>
         </div>
       </div>
-
-      {/* Search & Sort */}
-
-      {/* Desktop Table */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
