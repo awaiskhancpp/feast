@@ -10,5 +10,9 @@ export default async function HomePage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
-  return <Dashboard />
+  return (
+    <div className="px-4 xl:px-8 pb-8 pt-2">
+      <Dashboard />
+    </div>
+  )
 }

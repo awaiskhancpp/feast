@@ -8,7 +8,7 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
       <Sidebar />
       <div className="flex flex-col flex-1 min-w-0">
         <Navbar />
-        <main className="flex-1 px-4 xl:px-8 pb-8 pt-2">{children}</main>
+        <main className="flex-1">{children}</main>
       </div>
     </div>
   )

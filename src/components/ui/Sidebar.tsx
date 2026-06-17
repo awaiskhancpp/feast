@@ -24,8 +24,8 @@ const sidebarItems = [
     id: 'reservation',
     icon: '/icons/clockIcon.svg',
     active: '/icons/clockHighlighted.svg',
-    label: 'Reservation',
-    href: '#',
+    label: 'transaction history',
+    href: '/history',
   },
   {
     id: 'user',
