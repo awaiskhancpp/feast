@@ -6,6 +6,7 @@ export default function TransactionHistory() {
       <div className="col-span-8">
         <TransactionTable />
       </div>
+      <div className="grid-cols-4"></div>
     </div>
   )
 }

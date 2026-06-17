@@ -1,4 +1,11 @@
-import type { Customer, MenuCategory, MenuItem, TableItem, TableStatus, TableStatusMeta } from './types'
+import type {
+  Customer,
+  MenuCategory,
+  MenuItem,
+  TableItem,
+  TableStatus,
+  TableStatusMeta,
+} from './types'
 
 export const STATUS_ORDER: TableStatus[] = ['available', 'billed', 'reserved', 'dine']
 
@@ -76,7 +83,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$6,50',
     description: 'Toasted bread topped with a mix of fresh tomatoes, basil, and olive oil.',
-    image: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 2,
@@ -84,7 +92,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$8,00',
     description: 'Lightly breaded and fried squid served with marinara sauce.',
-    image: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 3,
@@ -92,7 +101,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$12,00',
     description: 'Assorted cheeses with fruits, nuts, and crackers.',
-    image: 'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 4,
@@ -100,7 +110,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$9,50',
     description: 'Juicy wings tossed in your choice of sauce.',
-    image: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 5,
@@ -108,7 +119,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'seafood',
     price: '$9,00',
     description: 'Shrimp coated in coconut flakes and fried until crisp.',
-    image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 6,
@@ -116,7 +128,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$4,50',
     description: 'Golden and crispy potatoes, served hot with dipping sauce.',
-    image: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 7,
@@ -124,7 +137,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$5,00',
     description: 'Warm, buttery bread infused with garlic and herbs.',
-    image: 'https://images.unsplash.com/photo-1619535860434-ba1d8fa12536?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1619535860434-ba1d8fa12536?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 8,
@@ -132,7 +146,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$8,00',
     description: 'Creamy hummus served with pita bread and fresh vegetables.',
-    image: 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 9,
@@ -140,7 +155,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'main',
     price: '$7,00',
     description: 'Tender meatballs in marinara sauce, sprinkled with herbs.',
-    image: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 10,
@@ -148,7 +164,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'main',
     price: '$8,50',
     description: 'Small crispy tacos filled with seasoned meat, cheese, and salsa.',
-    image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 11,
@@ -156,7 +173,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$7,50',
     description: 'Mushrooms filled with a savory mixture of cheeses and herbs.',
-    image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 12,
@@ -164,7 +182,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$7,50',
     description: 'Tortilla chips loaded with melted cheese, jalapenos, salsa, and sour cream.',
-    image: 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 13,
@@ -172,7 +191,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$6,00',
     description: 'Thick slices of onions, battered and fried to a golden crisp.',
-    image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 14,
@@ -180,7 +200,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'appetizers',
     price: '$6,50',
     description: 'Light and crunchy rolls filled with vegetables, served with sauce.',
-    image: 'https://images.unsplash.com/photo-1548811256-1627d99e7a72?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 15,
@@ -188,6 +209,7 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'seafood',
     price: '$9,50',
     description: 'Light and crispy battered shrimp served with dipping sauce.',
-    image: 'https://images.unsplash.com/photo-1625938146369-adc83368b5dd?auto=format&fit=crop&w=600&q=80',
+    image:
+      'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=600&q=80',
   },
 ]

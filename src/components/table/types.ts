@@ -42,7 +42,16 @@ export type MenuCategory = {
   id: string
   label: string
   count: number
-  icon: 'all' | 'appetizers' | 'drink' | 'desserts' | 'coffee' | 'main' | 'salads' | 'seafood' | 'soup'
+  icon:
+    | 'all'
+    | 'appetizers'
+    | 'drink'
+    | 'desserts'
+    | 'coffee'
+    | 'main'
+    | 'salads'
+    | 'seafood'
+    | 'soup'
 }
 
 export type MenuItem = {
@@ -52,4 +61,11 @@ export type MenuItem = {
   price: string
   description: string
   image: string
+}
+
+export type CartLine = {
+  itemId: number
+  quantity: number
+  note: string
+  spicyLevel: number
 }

@@ -32,7 +32,9 @@ export default function FloorTable({ muted, selected, table, x, y }: FloorTableP
       <span
         className={cn(
           'absolute rounded-[7px] bg-white shadow-[0_1px_5px_rgba(30,35,50,0.06)]',
-          horizontal ? 'left-[27px] top-6 h-[51px] w-[94px]' : 'left-[22px] top-[21px] h-[84px] w-[52px]',
+          horizontal
+            ? 'left-[27px] top-6 h-[51px] w-[94px]'
+            : 'left-[22px] top-[21px] h-[84px] w-[52px]',
           selected && 'shadow-[0_0_0_2px_rgba(91,95,242,0.26),0_10px_20px_rgba(91,95,242,0.12)]',
         )}
       >
@@ -50,7 +52,9 @@ export default function FloorTable({ muted, selected, table, x, y }: FloorTableP
           <span
             className={cn(
               'absolute rounded bg-[#f4f3ff] px-[5px] py-[3px] text-[10px] font-medium leading-none text-[#5b5ff2]',
-              horizontal ? 'left-1/2 top-[58px] -translate-x-1/2' : 'bottom-[15px] left-1/2 -translate-x-1/2',
+              horizontal
+                ? 'left-1/2 top-[58px] -translate-x-1/2'
+                : 'bottom-[15px] left-1/2 -translate-x-1/2',
             )}
           >
             {table.time}
