@@ -78,7 +78,9 @@ export function Sidebar({
       `}
       >
         <div className="w-10 h-10 xl:w-11 xl:h-11 relative flex-shrink-0 mb-4">
-          <Image src="/icons/loginIcon.svg" alt="Logo" fill className="object-contain" />
+          <button onClick={() => onClose?.()}>
+            <Image src="/icons/loginIcon.svg" alt="Logo" fill className="object-contain" />
+          </button>
         </div>
 
         <nav className="flex flex-col gap-3 flex-1">

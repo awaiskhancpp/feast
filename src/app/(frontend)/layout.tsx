@@ -8,9 +8,9 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
   const [mobileOpen, setMobileOpen] = useState(false)
   return (
     <div className="flex h-full w-full overflow-x-clip">
-      <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(!mobileOpen)} />
       <div className="flex flex-col flex-1 min-w-0">
-        <Navbar onMenuClick={() => setMobileOpen((prev) => !prev)} />
+        <Navbar onMenuClick={() => setMobileOpen(!mobileOpen)} />
         <main className="flex-1">{children}</main>
       </div>
     </div>
