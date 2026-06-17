@@ -348,23 +348,32 @@ function CategoryButton({
   return (
     <button
       className={cn(
-        'flex min-h-[58px] w-full min-w-[170px] items-center gap-3 rounded-xl bg-white px-4 text-left transition hover:bg-slate-50',
-        active && 'bg-[#6066ed] text-white hover:bg-[#6066ed]',
+        'group flex min-h-[58px] w-full min-w-[170px] items-center gap-3 rounded-xl px-4 text-left transition',
+        active ? 'bg-primary text-white' : 'bg-white hover:bg-primary hover:text-white',
       )}
       type="button"
       onClick={onClick}
     >
       <span
         className={cn(
-          'grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-slate-50 text-slate-500',
-          active && 'bg-white/15 text-white',
+          'grid h-9 w-9 shrink-0 place-items-center rounded-lg transition',
+          active
+            ? 'bg-white/15 text-white'
+            : 'bg-slate-50 text-slate-500 group-hover:bg-white/15 group-hover:text-white',
         )}
       >
         <Icon className="h-5 w-5" />
       </span>
+
       <span className="min-w-0">
         <span className="block text-sm font-bold">{category.label}</span>
-        <span className={cn('block text-xs text-slate-500', active && 'text-white/85')}>
+
+        <span
+          className={cn(
+            'block text-xs transition',
+            active ? 'text-white/85' : 'text-slate-500 group-hover:text-white/85',
+          )}
+        >
           {category.count} Menu In Stock
         </span>
       </span>

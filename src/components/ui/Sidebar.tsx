@@ -54,7 +54,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   return (
     <div className="w-14 xl:w-18 h-full bg-white border-r border-gray-200 flex flex-col items-center py-5 gap-4">
-      <div className="w-10 h-10 xl:w-11 xl:h-11 relative flex-shrink-0 mb-4">
+      <div onClick={onClose} className="w-10 h-10 xl:w-11 xl:h-11 relative flex-shrink-0 mb-4">
         <Image src="/icons/loginIcon.svg" alt="Logo" fill className="object-contain" />
       </div>
       <nav className="flex flex-col gap-3 flex-1">

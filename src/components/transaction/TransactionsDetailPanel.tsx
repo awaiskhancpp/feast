@@ -1,6 +1,5 @@
 'use client'
-
-import { Edit3 } from 'lucide-react'
+import Image from 'next/image'
 import type { Transaction } from './transactionTypes'
 
 type TransactionDetailsPanelProps = {
@@ -53,7 +52,7 @@ export function TransactionDetailsPanel({ transaction }: TransactionDetailsPanel
                 type="button"
                 aria-label={`Edit ${line.name}`}
               >
-                <Edit3 className="h-3.5 w-3.5" />
+                <Image src="/icons/editIcon.svg" alt="" width={14} height={14} />
               </button>
               <p className="text-sm font-semibold text-gray-900">{line.price}</p>
             </div>
