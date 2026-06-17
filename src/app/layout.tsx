@@ -1,11 +1,15 @@
 import React from 'react'
 import './(frontend)/styles.css'
+import type { Viewport } from 'next'
 
 export const metadata = {
   description: 'A blank template using Payload in a Next.js app.',
   title: 'Payload Blank Template',
 }
-
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
 export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
@@ -16,7 +20,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     // — this file — that "knows" about the actual viewport. Nothing downstream needs
     // h-screen/100vh and its scrollbar-width quirks.
     <html lang="en" className="h-full">
-      <body className="h-full overflow-hidden">
+      <body className="h-full overflow-hidden min-w-[1280px]">
         <main className="h-full">{children}</main>
       </body>
     </html>

@@ -3,11 +3,13 @@ import { MonthlySalesChart } from '@/components/ui/BarCharts'
 import { TopSellingChart } from '@/components/ui/TopSellingChart'
 import { TransactionTable } from '@/components/ui/TransactionTable'
 import Image from 'next/image'
+
 export default function Dashboard() {
   return (
     <div className="space-y-6 pt-4">
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+        {/* Card 1 — sm: full, md: half, lg: 3/12 */}
+        <div className="lg:col-span-3">
           <StatCard
             label="Total Earning"
             value="$20,245"
@@ -15,7 +17,9 @@ export default function Dashboard() {
             icon={<Image src="/info.svg" alt="" width={15} height={15} />}
           />
         </div>
-        <div className="col-span-3">
+
+        {/* Card 2 — sm: full, md: half, lg: 3/12 */}
+        <div className="lg:col-span-3">
           <StatCard
             label="In Progress"
             value="15 Sales"
@@ -23,7 +27,9 @@ export default function Dashboard() {
             icon={<Image src="/info.svg" alt="" width={15} height={15} />}
           />
         </div>
-        <div className="col-span-3">
+
+        {/* Card 3 — sm: full, md: full row, lg: 3/12 */}
+        <div className="md:col-span-2 lg:col-span-3">
           <StatCard
             label="Store Visitors"
             value="132 Visitors"
@@ -31,13 +37,18 @@ export default function Dashboard() {
             icon={<Image src="/info.svg" alt="" width={15} height={15} />}
           />
         </div>
-        <div className="col-span-3 row-span-2">
+
+        {/* Top Selling — sm: full, md: full row, lg: 3/12 spanning 2 rows */}
+        <div className="md:col-span-2 lg:col-span-3 lg:row-span-2">
           <TopSellingChart />
         </div>
-        <div className="col-span-9">
+
+        {/* Monthly Sales — sm: full, md: full row, lg: 9/12 */}
+        <div className="md:col-span-2 lg:col-span-9">
           <MonthlySalesChart />
         </div>
       </div>
+
       <TransactionTable />
     </div>
   )
