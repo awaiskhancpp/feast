@@ -16,7 +16,7 @@ export function TopSellingChart() {
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-100">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 flex gap-2 items-center">
+        <h3 className="text-lg font-semibold text-gray-900 flex gap-1 items-center">
           Top Selling Items{' '}
           <svg
             width="16"

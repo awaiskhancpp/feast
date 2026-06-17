@@ -43,15 +43,15 @@ export const STATUS_META: Record<TableStatus, TableStatusMeta> = {
 export const INITIAL_TABLES: TableItem[] = [
   { id: 24, x: 4, y: 38, shape: 'horizontal', status: 'available' },
   { id: 25, x: 352, y: -70, shape: 'vertical', status: 'available' },
-  { id: 26, x: 130, y: 130, shape: 'vertical', status: 'dine', time: '03:22' },
+  { id: 26, x: -28, y: 200, shape: 'vertical', status: 'dine', time: '03:22' },
   { id: 27, x: 212, y: 30, shape: 'vertical', status: 'reserved' },
-  { id: 28, x: 336, y: 92, shape: 'vertical', status: 'dine' },
+  { id: 28, x: 212, y: 200, shape: 'vertical', status: 'dine' },
   { id: 29, x: 486, y: 92, shape: 'vertical', status: 'reserved' },
   { id: 30, x: 610, y: 32, shape: 'vertical', status: 'reserved' },
   { id: 31, x: 734, y: 92, shape: 'vertical', status: 'reserved' },
   { id: 32, x: 940, y: 38, shape: 'horizontal', status: 'billed' },
-  { id: 33, x: -28, y: 222, shape: 'horizontal', status: 'dine', time: '03:22' },
-  { id: 34, x: 212, y: 152, shape: 'vertical', status: 'billed' },
+  { id: 33, x: -28, y: 400, shape: 'horizontal', status: 'dine', time: '03:22' },
+  { id: 34, x: 400, y: 400, shape: 'vertical', status: 'billed' },
   { id: 35, x: 386, y: 222, shape: 'horizontal', status: 'dine', time: '03:22' },
 ]
 
