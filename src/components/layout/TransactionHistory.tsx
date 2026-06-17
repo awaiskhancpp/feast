@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { TransactionDetailsPanel } from '@/components/ui/TransactionsDetailPanel'
-import { TransactionTable } from '@/components/ui/TransactionTable'
-import { transactions } from '@/components/ui/transactionData'
-import type { Transaction } from '@/components/ui/transactionTypes'
+import { TransactionDetailsPanel } from '@/components/transaction/TransactionsDetailPanel'
+import { TransactionTable } from '@/components/transaction/TransactionTable'
+import { transactions } from '@/components/transaction/transactionData'
+import type { Transaction } from '@/components/transaction/transactionTypes'
 
 export default function TransactionHistory() {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(

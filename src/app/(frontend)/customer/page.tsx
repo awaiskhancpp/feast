@@ -1,3 +1,4 @@
+import CustomerListPage from '@/components/layout/Customer'
 export default function Customers() {
-  return
+  return <CustomerListPage />
 }

@@ -1,7 +1,7 @@
 import { StatCard } from '@/components/ui/StatsCard'
 import { MonthlySalesChart } from '@/components/ui/BarCharts'
 import { TopSellingChart } from '@/components/ui/TopSellingChart'
-import { TransactionTable } from '@/components/ui/TransactionTable'
+import { TransactionTable } from '@/components/transaction/TransactionTable'
 import Image from 'next/image'
 
 export default function Dashboard() {
