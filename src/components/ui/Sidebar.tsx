@@ -38,7 +38,7 @@ const sidebarItems = [
     icon: '/icons/settingsIcon.svg',
     active: '/icons/settingsHighlighted.svg',
     label: 'Settings',
-    href: '#',
+    href: '/settings',
   },
 ]
 

@@ -65,7 +65,7 @@ export default function AddOrderModal({ open, table, onClose, onCreateOrder }: A
           </button>
           <h2 className="text-sm font-bold text-slate-950 sm:text-base">Add New Order</h2>
           <button
-            className="grid h-8 w-8 place-items-center border border-[#8d70ff] text-[#8d70ff] hover:bg-[#f6f3ff]"
+            className="grid h-8 w-8 place-items-center border border-primary text-primary hover:bg-[#f6f3ff]"
             type="button"
             onClick={onClose}
             aria-label="Close add order"
@@ -150,25 +150,22 @@ export default function AddOrderModal({ open, table, onClose, onCreateOrder }: A
 
           <label className="block">
             <span className="mb-1.5 block text-xs font-semibold text-slate-950">Guest</span>
-            <div className="flex h-10 items-center rounded-md border border-slate-200 bg-white px-2">
-              <CalendarDays className="h-4 w-4 text-[#8d70ff]" />
+            <div className="flex h-10 w-full items-center justify-between rounded-md border border-slate-200 bg-white px-2">
               <button
-                className="ml-auto grid h-6 w-6 place-items-center rounded bg-slate-100 text-slate-500 disabled:opacity-40"
+                className="grid h-6 w-6 place-items-center rounded bg-slate-100 text-slate-500 disabled:opacity-40"
                 type="button"
                 disabled={guestCount <= 1}
                 onClick={() => setGuestCount((count) => Math.max(1, count - 1))}
-                aria-label="Decrease guest count"
               >
                 <Minus className="h-3.5 w-3.5" />
               </button>
-              <span className="grid w-10 place-items-center text-xs text-slate-600">
-                {guestCount}
-              </span>
+
+              <span className="flex-1 text-center text-xs text-slate-600">{guestCount}</span>
+
               <button
                 className="grid h-6 w-6 place-items-center rounded bg-[#6066ed] text-white"
                 type="button"
                 onClick={() => setGuestCount((count) => count + 1)}
-                aria-label="Increase guest count"
               >
                 <Plus className="h-3.5 w-3.5" />
               </button>
