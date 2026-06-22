@@ -15,13 +15,7 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react'
-import {
-  useEffect,
-  useState,
-  type Dispatch,
-  type InputHTMLAttributes,
-  type SetStateAction,
-} from 'react'
+import { useEffect, useState, type Dispatch, type InputHTMLAttributes, type SetStateAction } from 'react'
 import { cn } from '@/components/table/utils'
 import {
   createEmployee,
@@ -560,18 +554,18 @@ function GeneralSettingsPanel({
                     className="h-10 w-10 rounded-full object-cover"
                     unoptimized={employee.avatarUrl.startsWith('data:')}
                   />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      {employee.name}
-                    </p>
-                    <p className="text-xs capitalize text-gray-500 dark:text-slate-400">
-                      {employee.role}
-                    </p>
-                  </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    {employee.name}
+                  </p>
+                  <p className="text-xs capitalize text-gray-500 dark:text-slate-400">
+                    {employee.role}
+                  </p>
                 </div>
-                <p className="mt-3 truncate text-xs text-gray-500 dark:text-slate-400">
-                  {employee.email}
-                </p>
+              </div>
+              <p className="mt-3 truncate text-xs text-gray-500 dark:text-slate-400">
+                {employee.email}
+              </p>
                 <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
                   PIN: {employee.pin === '000000' ? '000000' : '******'}
                 </p>
@@ -687,7 +681,7 @@ function NotificationSettingsPanel({
 
           return (
             <div key={row.key} className="flex items-center gap-4 px-5 py-4">
-              <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {row.title}
                 </p>
@@ -859,32 +853,12 @@ function PrivacySettingsPanel({
         </p>
       </div>
 
-      <div className="mt-6 space-y-4">
-        <ToggleRow
-          title="Two-factor Authentication"
-          description="Require an extra verification step when signing in."
-          checked={privacy.twoFactor}
-          onToggle={() => setPrivacy((prev) => ({ ...prev, twoFactor: !prev.twoFactor }))}
-        />
-        <ToggleRow
-          title="Login Alerts"
-          description="Receive updates when someone signs into the dashboard."
-          checked={privacy.loginAlerts}
-          onToggle={() => setPrivacy((prev) => ({ ...prev, loginAlerts: !prev.loginAlerts }))}
-        />
-        <ToggleRow
-          title="Data Sharing"
-          description="Allow the app to share anonymous diagnostics for support."
-          checked={privacy.dataSharing}
-          onToggle={() => setPrivacy((prev) => ({ ...prev, dataSharing: !prev.dataSharing }))}
-        />
-        <ToggleRow
-          title="Secure Payments"
-          description="Require an extra check before sensitive payment actions."
-          checked={privacy.securePayments}
-          onToggle={() => setPrivacy((prev) => ({ ...prev, securePayments: !prev.securePayments }))}
-        />
-
+      <div className="mt-6 rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-800/60">
+        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Session control</p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
+          The dashboard signs out automatically after inactivity. Choose the timeout that fits the
+          terminal shift.
+        </p>
         <SelectField
           label="Session Timeout"
           value={privacy.sessionTimeout}
@@ -970,10 +944,7 @@ function ToggleSwitch({
       aria-pressed={checked}
       aria-label={label}
       onClick={onChange}
-      className={cn(
-        'relative h-6 w-11 rounded-full transition',
-        checked ? 'bg-[#6066ed]' : 'bg-gray-200',
-      )}
+      className={cn('relative h-6 w-11 rounded-full transition', checked ? 'bg-[#6066ed]' : 'bg-gray-200')}
     >
       <span
         className={cn(

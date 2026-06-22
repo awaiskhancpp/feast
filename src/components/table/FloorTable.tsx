@@ -1,7 +1,7 @@
 import TableChairs from './TableChairs'
 import { STATUS_META } from './tableData'
 import type { TableItem } from './types'
-import { getTableDimensions, cn } from './utils'
+import { cn, getTableDimensions, getTableSurfaceBox } from './utils'
 
 type FloorTableProps = {
   editMode: boolean
@@ -12,22 +12,10 @@ type FloorTableProps = {
   y: number
 }
 
-// White surface box inside the table bounding box — positioned to sit
-// between the chairs on each side for every shape/count combination.
-function getSurfaceClass(shape: string, chairs: number): string {
-  if (shape === 'horizontal') {
-    if (chairs <= 2) return 'left-4 top-6 h-[51px] w-[68px]'
-    if (chairs <= 4) return 'left-3 top-6 h-[51px] w-[106px]'
-    return 'left-[27px] top-6 h-[51px] w-[94px]' // 8
-  }
-  if (chairs <= 2) return 'left-[22px] top-4 h-[36px] w-[52px]'
-  if (chairs <= 4) return 'left-[22px] top-4 h-[60px] w-[52px]'
-  return 'left-[22px] top-[21px] h-[84px] w-[52px]' // 6
-}
-
 export default function FloorTable({ editMode, muted, selected, table, x, y }: FloorTableProps) {
   const meta = STATUS_META[table.status]
   const dimensions = getTableDimensions(table.shape, table.chairs)
+  const surface = getTableSurfaceBox(table.shape, table.chairs)
 
   return (
     <button
@@ -46,11 +34,10 @@ export default function FloorTable({ editMode, muted, selected, table, x, y }: F
       <span
         className={cn(
           'absolute rounded-[7px] bg-white shadow-[0_1px_5px_rgba(30,35,50,0.06)]',
-          getSurfaceClass(table.shape, table.chairs),
           selected && 'shadow-[0_0_0_2px_rgba(91,95,242,0.26),0_10px_20px_rgba(91,95,242,0.12)]',
         )}
+        style={surface}
       >
-        {/* Table number badge — always centered in the surface */}
         <span
           className={cn(
             'absolute left-1/2 top-1/2 grid h-[35px] w-[35px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-xs font-bold tracking-normal shadow-[0_1px_0_rgba(0,0,0,0.02)]',
@@ -60,8 +47,7 @@ export default function FloorTable({ editMode, muted, selected, table, x, y }: F
           T-{table.tableNumber}
         </span>
 
-        {/* Time badge — skip on tiny 2-chair vertical (36px surface, no room) */}
-        {table.time && !(table.shape === 'vertical' && table.chairs <= 2) ? (
+        {table.time && !(table.shape === 'vertical' && table.chairs <= 1) ? (
           <span className="absolute bottom-[6px] left-1/2 -translate-x-1/2 rounded bg-[#f4f3ff] px-[5px] py-[3px] text-[10px] font-medium leading-none text-[#5b5ff2]">
             {table.time}
           </span>

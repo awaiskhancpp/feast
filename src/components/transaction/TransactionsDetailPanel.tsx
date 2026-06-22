@@ -36,9 +36,9 @@ export function TransactionDetailsPanel({ transaction }: TransactionDetailsPanel
         {transaction.details.map((line) => (
           <div
             key={`${transaction.id}-${line.name}`}
-            className="grid grid-cols-[56px_minmax(0,1fr)_auto] items-start gap-3 rounded-xl px-1 py-1.5"
+            className="grid grid-cols-[56px_minmax(0,1fr)_auto] items-start gap-3 rounded-xl  py-1.5"
           >
-            <img src={line.image} alt={line.name} className="h-14 w-14 rounded-lg object-cover" />
+            <img src={line.image} alt={line.name} className="h-16 w-16 rounded-lg object-cover" />
 
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-gray-900">{line.name}</p>

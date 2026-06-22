@@ -2,19 +2,17 @@
 
 import { useState } from 'react'
 import { LocateFixed } from 'lucide-react'
-import type { TableShape } from './types'
 import { cn } from './utils'
 
 type CanvasControlsProps = {
   editMode: boolean
-  onAddTable: (shape: TableShape, chairs: number) => void
+  onAddTable: (chairs: number) => void
   onFit: () => void
   onZoomIn: () => void
   onZoomOut: () => void
 }
 
-const VERTICAL_CHAIR_OPTIONS = [2, 4, 6]
-const HORIZONTAL_CHAIR_OPTIONS = [2, 4, 8]
+const CHAIR_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8]
 
 export default function CanvasControls({
   editMode,
@@ -24,20 +22,10 @@ export default function CanvasControls({
   onZoomOut,
 }: CanvasControlsProps) {
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [shape, setShape] = useState<TableShape>('vertical')
-  const [chairs, setChairs] = useState(6)
+  const [chairs, setChairs] = useState(4)
 
   const btnClass =
     'grid h-6 w-6 cursor-pointer place-items-center rounded-sm border-0 bg-white/90 font-sans text-lg font-bold leading-none text-[#6e5df5] shadow-[0_1px_5px_rgba(25,30,45,0.08)] outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#5b5ff273]'
-
-  function selectShape(next: TableShape) {
-    setShape(next)
-    // Reset chairs to the default for that orientation so it's never in an
-    // impossible state (e.g. "6 chairs" while horizontal is selected).
-    setChairs(next === 'horizontal' ? 8 : 6)
-  }
-
-  const chairOptions = shape === 'horizontal' ? HORIZONTAL_CHAIR_OPTIONS : VERTICAL_CHAIR_OPTIONS
 
   return (
     <div
@@ -46,47 +34,31 @@ export default function CanvasControls({
     >
       {editMode ? (
         <div className="pointer-events-auto relative grid justify-items-end gap-2">
-          {/* Shape + chairs picker popover */}
           {pickerOpen ? (
-            <div className="mb-1 w-44 rounded-2xl bg-white p-3 shadow-[0_12px_40px_rgba(0,0,0,0.14)]">
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                Shape
-              </p>
-              <div className="mb-3 grid grid-cols-2 gap-1">
-                {(['vertical', 'horizontal'] as TableShape[]).map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => selectShape(s)}
-                    className={cn(
-                      'h-8 rounded-lg text-xs font-semibold capitalize transition',
-                      shape === s
-                        ? 'bg-[#6066ed] text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-                    )}
-                  >
-                    {s}
-                  </button>
-                ))}
+            <div className="mb-1 w-52 rounded-2xl bg-white p-3 shadow-[0_12px_40px_rgba(0,0,0,0.14)] dark:bg-slate-900">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                  Chairs
+                </p>
+                <span className="rounded-full bg-[#6066ed]/10 px-2 py-0.5 text-[10px] font-semibold text-[#6066ed]">
+                  Vertical default
+                </span>
               </div>
 
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                Chairs
-              </p>
-              <div className="mb-3 flex gap-1">
-                {chairOptions.map((n) => (
+              <div className="grid grid-cols-4 gap-1.5">
+                {CHAIR_OPTIONS.map((count) => (
                   <button
-                    key={n}
+                    key={count}
                     type="button"
-                    onClick={() => setChairs(n)}
+                    onClick={() => setChairs(count)}
                     className={cn(
-                      'h-8 flex-1 rounded-lg text-xs font-semibold transition',
-                      chairs === n
+                      'h-9 rounded-lg text-xs font-semibold transition',
+                      chairs === count
                         ? 'bg-[#6066ed] text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700',
                     )}
                   >
-                    {n}
+                    {count}
                   </button>
                 ))}
               </div>
@@ -94,12 +66,12 @@ export default function CanvasControls({
               <button
                 type="button"
                 onClick={() => {
-                  onAddTable(shape, chairs)
+                  onAddTable(chairs)
                   setPickerOpen(false)
                 }}
-                className="h-9 w-full rounded-xl bg-[#6066ed] text-xs font-semibold text-white hover:bg-[#555beb]"
+                className="mt-3 h-9 w-full rounded-xl bg-[#6066ed] text-xs font-semibold text-white hover:bg-[#555beb]"
               >
-                Place Table
+                Add Table
               </button>
             </div>
           ) : null}
@@ -108,11 +80,11 @@ export default function CanvasControls({
             type="button"
             onClick={() => setPickerOpen((o) => !o)}
             className={cn(
-              'flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-white shadow-[0_8px_18px_rgba(96,102,237,0.28)] transition',
+              'rounded-full px-3.5 py-2 text-xs font-semibold text-white shadow-[0_8px_18px_rgba(96,102,237,0.28)] transition',
               pickerOpen ? 'bg-[#555beb]' : 'bg-[#6066ed] hover:bg-[#555beb]',
             )}
           >
-            {pickerOpen ? '✕ Cancel' : '+ Add Table'}
+            {pickerOpen ? 'Close' : 'Add Table'}
           </button>
         </div>
       ) : null}
@@ -127,7 +99,9 @@ export default function CanvasControls({
       </div>
 
       <div className="pointer-events-auto inline-flex items-center gap-1.5">
-        <span className="text-[9px] font-semibold text-[#171b24]">Scale To Fit</span>
+        <span className="text-[9px] font-semibold text-[#171b24] dark:text-slate-300">
+          Scale To Fit
+        </span>
         <button
           className="grid h-7 w-7 cursor-pointer place-items-center rounded-full border-0 bg-[#030713] text-white shadow-[0_5px_12px_rgba(2,7,19,0.18)] outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#5b5ff273]"
           type="button"

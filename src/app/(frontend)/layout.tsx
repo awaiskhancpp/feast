@@ -4,12 +4,14 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/ui/Sidebar'
 import { Navbar } from '@/components/ui/Navbar'
 import { useCurrentEmployee } from '@/lib/useCurrentEmployee'
+import { useSessionTimeout } from '@/lib/useSessionTimeout'
 
 export default function FrontendLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const { employee, ready } = useCurrentEmployee()
+  useSessionTimeout(employee)
 
   React.useEffect(() => {
     if (ready && !employee) {

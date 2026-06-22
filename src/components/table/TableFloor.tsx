@@ -119,18 +119,17 @@ export default function TableFloor({
     setCamera(getOpeningCamera(stageSize, tables))
   }
 
-  // Called by CanvasControls after the user picks shape + chairs. Converts
-  // the center of the current screen view into world coordinates so the new
-  // table appears right where the user is looking, regardless of zoom level.
-  const addTableAtCenter = (shape: TableShape, chairs: number) => {
+  // Called by CanvasControls after the user picks chairs. Tables now start
+  // vertical by default; rotation lives in the table edit modal.
+  const addTableAtCenter = (chairs: number) => {
     const stage = stageRef.current
     if (!stage) return
     const bounds = stage.getBoundingClientRect()
-    const dim = getTableDimensions(shape, chairs)
+    const dim = getTableDimensions('vertical', chairs)
     const worldX = (bounds.width / 2 - camera.x) / camera.scale - dim.width / 2
     const worldY = (bounds.height / 2 - camera.y) / camera.scale - dim.height / 2
-    const clamped = clampTablePosition(worldX, worldY, shape, chairs)
-    onAddTable(clamped.x, clamped.y, shape, chairs)
+    const clamped = clampTablePosition(worldX, worldY, 'vertical', chairs)
+    onAddTable(clamped.x, clamped.y, 'vertical', chairs)
   }
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLElement>) => {

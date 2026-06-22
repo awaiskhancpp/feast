@@ -1,5 +1,5 @@
 'use client'
-
+import PaymentModal from './PaymentModal'
 import { useMemo, useState } from 'react'
 import {
   ArrowLeft,
@@ -33,6 +33,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
   const [selectedItems, setSelectedItems] = useState<Record<string, CartLine>>({})
   const [detailItem, setDetailItem] = useState<MenuItem | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [paymentOpen, setPaymentOpen] = useState(false)
 
   // Orderable = actually in stock. An 86'd dish stays editable on the /dishes
   // admin page, but staff shouldn't be able to add it to a live order.
@@ -300,7 +301,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
                 ))}
               </div>
 
-              <CartSummary onPlaceOrder={() => {}} summary={summary} />
+              <CartSummary summary={summary} onPlaceOrder={() => setPaymentOpen(true)} />
             </>
           ) : (
             <div className="grid h-full min-h-[200px] place-items-center text-center">
@@ -340,9 +341,25 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
           onEditItem={(item) => setDetailItem(item)}
           onRemoveItem={(itemId) => updateCartQuantity(itemId, -1)}
           onIncrementItem={(itemId) => updateCartQuantity(itemId, 1)}
+          onPlaceOrder={() => setPaymentOpen(true)}
           summary={summary}
         />
       ) : null}
+      <PaymentModal
+        open={paymentOpen}
+        order={order}
+        cartLines={cartLines}
+        summary={summary}
+        onClose={() => setPaymentOpen(false)}
+        onSuccess={() => {
+          setPaymentOpen(false)
+          setDrawerOpen(false)
+
+          // Optional:
+          // setSelectedItems({})
+          // onBack()
+        }}
+      />
     </div>
   )
 }
@@ -661,6 +678,7 @@ function CartDrawer({
   onEditItem,
   onRemoveItem,
   onIncrementItem,
+  onPlaceOrder,
 }: {
   cartLines: Array<CartLine & { item: MenuItem }>
   summary: { subtotal: number; tax: number; discount: number; total: number }
@@ -668,6 +686,7 @@ function CartDrawer({
   onEditItem: (item: MenuItem) => void
   onRemoveItem: (itemId: string) => void
   onIncrementItem: (itemId: string) => void
+  onPlaceOrder: () => void
 }) {
   return (
     <div className="fixed inset-0  bg-black/20 xl:hidden">
@@ -685,7 +704,7 @@ function CartDrawer({
             />
           ))}
         </div>
-        <CartSummary onPlaceOrder={() => {}} summary={summary} />
+        <CartSummary summary={summary} onPlaceOrder={onPlaceOrder} />
       </div>
     </div>
   )

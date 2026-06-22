@@ -1,19 +1,122 @@
 import type { TableItem, TableShape, TableStatus } from './types'
 
-// Returns the bounding-box size for a table given its orientation and chair
-// count. Every other measurement in the codebase derives from this — chairs,
-// surface position in FloorTable, canvas clamping — so there's one place to
-// change if the visual design changes.
+export type TableSeatRect = {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+export function normalizeChairCount(chairs: number) {
+  return Math.min(8, Math.max(1, Math.round(chairs || 1)))
+}
+
 export function getTableDimensions(shape: TableShape, chairs: number) {
+  const count = normalizeChairCount(chairs)
+
   if (shape === 'horizontal') {
-    if (chairs <= 2) return { width: 100, height: 98 }
-    if (chairs <= 4) return { width: 120, height: 98 }
-    return { width: 148, height: 98 } // 8 chairs
+    return { width: 96 + Math.max(0, count - 2) * 14, height: 98 }
   }
-  // vertical
-  if (chairs <= 2) return { width: 96, height: 76 }
-  if (chairs <= 4) return { width: 96, height: 100 }
-  return { width: 96, height: 126 } // 6 chairs
+
+  return { width: 96, height: 76 + Math.max(0, count - 2) * 14 }
+}
+
+export function getTableSurfaceBox(shape: TableShape, chairs: number) {
+  const count = normalizeChairCount(chairs)
+  const dimensions = getTableDimensions(shape, count)
+
+  if (shape === 'horizontal') {
+    const width = Math.min(dimensions.width - 24, 68 + Math.max(0, count - 2) * 12)
+    const height = Math.min(51, dimensions.height - 24)
+    return {
+      left: (dimensions.width - width) / 2,
+      top: (dimensions.height - height) / 2,
+      width,
+      height,
+    }
+  }
+
+  const width = Math.min(52, dimensions.width - 28)
+  const height = Math.min(dimensions.height - 20, 36 + Math.max(0, count - 2) * 12)
+
+  return {
+    left: (dimensions.width - width) / 2,
+    top: (dimensions.height - height) / 2,
+    width,
+    height,
+  }
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(value, max))
+}
+
+export function getTableSeatRects(shape: TableShape, chairs: number) {
+  const count = normalizeChairCount(chairs)
+  const dimensions = getTableDimensions(shape, count)
+  const seats: TableSeatRect[] = []
+
+  if (shape === 'horizontal') {
+    const sideSeat = { width: 16, height: 31 }
+    const edgeSeat = { width: 29, height: 16 }
+    const middleY = Math.round((dimensions.height - sideSeat.height) / 2)
+
+    seats.push({ left: 0, top: middleY, ...sideSeat })
+    if (count === 1) return seats
+
+    seats.push({ left: dimensions.width - sideSeat.width, top: middleY, ...sideSeat })
+
+    const extraSeats = count - 2
+    const topCount = Math.ceil(extraSeats / 2)
+    const bottomCount = extraSeats - topCount
+
+    const addRow = (total: number, top: number) => {
+      if (total <= 0) return
+      const spacing = dimensions.width / (total + 1)
+      for (let index = 0; index < total; index += 1) {
+        const left = clamp(
+          spacing * (index + 1) - edgeSeat.width / 2,
+          16,
+          dimensions.width - edgeSeat.width - 16,
+        )
+        seats.push({ left, top, ...edgeSeat })
+      }
+    }
+
+    addRow(topCount, 0)
+    addRow(bottomCount, dimensions.height - edgeSeat.height)
+    return seats
+  }
+
+  const topSeat = { width: 31, height: 16 }
+  const sideSeat = { width: 16, height: 28 }
+  const middleX = Math.round((dimensions.width - topSeat.width) / 2)
+
+  seats.push({ left: middleX, top: 0, ...topSeat })
+  if (count === 1) return seats
+
+  seats.push({ left: middleX, top: dimensions.height - topSeat.height, ...topSeat })
+
+  const extraSeats = count - 2
+  const leftCount = Math.ceil(extraSeats / 2)
+  const rightCount = extraSeats - leftCount
+
+  const addColumn = (total: number, left: number) => {
+    if (total <= 0) return
+    const spacing = dimensions.height / (total + 1)
+    for (let index = 0; index < total; index += 1) {
+      const top = clamp(
+        spacing * (index + 1) - sideSeat.height / 2,
+        16,
+        dimensions.height - sideSeat.height - 16,
+      )
+      seats.push({ left, top, ...sideSeat })
+    }
+  }
+
+  addColumn(leftCount, 0)
+  addColumn(rightCount, dimensions.width - sideSeat.width)
+  return seats
 }
 
 export const FLOOR_SIZE = { width: 2200, height: 1400 }

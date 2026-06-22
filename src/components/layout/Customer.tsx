@@ -103,15 +103,15 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
   }
 
   return (
-    <div className="px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 min-h-full">
-      <div className="bg-white rounded-xl border border-gray-100 p-4 sm:p-6">
+    <div className="min-h-full bg-gray-50 px-4 py-4 sm:px-6 sm:py-6 dark:bg-slate-950">
+      <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-gray-100">
               Customer List
               <Image src="/info.svg" alt="" width={15} height={15} />
             </h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
               Keep track of every customer, their orders, and preferences effortlessly.
             </p>
           </div>
@@ -133,7 +133,7 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
                 value={search}
                 onChange={(e) => updateSearch(e.target.value)}
                 placeholder="Search"
-                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-violet-400"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:border-slate-700 dark:bg-slate-950 dark:text-gray-100 dark:placeholder:text-slate-500"
               />
             </div>
 
@@ -141,7 +141,7 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
               <div className="relative" ref={sortRef}>
                 <button
                   onClick={() => setSortOpen((o) => !o)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:text-gray-100 dark:hover:bg-slate-800"
                 >
                   <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
                     <path
@@ -169,13 +169,13 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
                 </button>
 
                 {sortOpen && (
-                  <div className="absolute right-0 top-[calc(100%+4px)] z-20 w-44 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg">
+                  <div className="absolute right-0 top-[calc(100%+4px)] z-20 w-44 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg dark:border-slate-800 dark:bg-slate-900">
                     {(Object.keys(SORT_LABELS) as SortOption[]).map((option) => (
                       <button
                         key={option}
                         onClick={() => updateSort(option)}
-                        className={`flex h-9 w-full items-center px-3 text-left text-sm hover:bg-gray-50 ${
-                          sort === option ? 'font-semibold text-violet-600' : 'text-gray-600'
+                        className={`flex h-9 w-full items-center px-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-slate-800 ${
+                          sort === option ? 'font-semibold text-violet-600 dark:text-violet-400' : 'text-gray-600 dark:text-slate-300'
                         }`}
                       >
                         {SORT_LABELS[option]}
@@ -187,7 +187,7 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
 
               <button
                 onClick={() => setModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition whitespace-nowrap"
+                className="flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold whitespace-nowrap text-white transition hover:bg-violet-700"
               >
                 + Add Customer
               </button>
@@ -196,7 +196,7 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
         </div>
 
         {paginated.length === 0 ? (
-          <div className="py-16 text-center text-sm text-gray-500">
+          <div className="py-16 text-center text-sm text-gray-500 dark:text-slate-400">
             {search ? `No customers match "${search}".` : 'No customers yet — add your first one.'}
           </div>
         ) : (
@@ -205,7 +205,7 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
             <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100">
+                  <tr className="border-b border-gray-100 dark:border-slate-800">
                     {[
                       'ID Customer',
                       'Customer Name',
@@ -214,10 +214,7 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
                       'Date Added',
                       'Status',
                     ].map((h) => (
-                      <th
-                        key={h}
-                        className="text-left py-3 px-3 text-xs font-semibold text-gray-500"
-                      >
+                      <th key={h} className="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400">
                         {h}
                       </th>
                     ))}
@@ -225,13 +222,13 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
                 </thead>
                 <tbody>
                   {paginated.map((c) => (
-                    <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50 transition">
-                      <td className="py-4 px-3 text-xs">{c.id}</td>
-                      <td className="py-4 px-3">{c.name}</td>
-                      <td className="py-4 px-3">{c.phone}</td>
-                      <td className="py-4 px-3">{c.address}</td>
-                      <td className="py-4 px-3">{c.dateAdded}</td>
-                      <td className="py-4 px-3">
+                    <tr key={c.id} className="border-b border-gray-50 transition hover:bg-gray-50 dark:border-slate-800 dark:hover:bg-slate-800/60">
+                      <td className="px-3 py-4 text-xs text-gray-700 dark:text-slate-300">{c.id}</td>
+                      <td className="px-3 py-4 text-gray-900 dark:text-gray-100">{c.name}</td>
+                      <td className="px-3 py-4 text-gray-700 dark:text-slate-300">{c.phone}</td>
+                      <td className="px-3 py-4 text-gray-700 dark:text-slate-300">{c.address}</td>
+                      <td className="px-3 py-4 text-gray-700 dark:text-slate-300">{c.dateAdded}</td>
+                      <td className="px-3 py-4">
                         <Badge tone={c.status === 'Member' ? 'green' : 'red'}>{c.status}</Badge>
                       </td>
                     </tr>
@@ -245,12 +242,12 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
               {paginated.map((c) => (
                 <div
                   key={c.id}
-                  className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                  className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div>
-                      <p className="font-semibold text-gray-900">{c.name}</p>
-                      <p className="text-xs text-gray-400">{c.id}</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{c.name}</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500">{c.id}</p>
                     </div>
                     <Badge tone={c.status === 'Member' ? 'green' : 'red'}>{c.status}</Badge>
                   </div>
@@ -261,8 +258,8 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
                       ['Date Added', c.dateAdded],
                     ].map(([label, val]) => (
                       <div key={label} className="flex justify-between gap-3">
-                        <span className="text-gray-500">{label}</span>
-                        <span className="text-gray-900 text-right">{val}</span>
+                        <span className="text-gray-500 dark:text-slate-400">{label}</span>
+                        <span className="text-right text-gray-900 dark:text-gray-100">{val}</span>
                       </div>
                     ))}
                   </div>
@@ -276,17 +273,17 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={safePage === 1}
-                  className="flex items-center justify-center w-9 h-9 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-40 transition"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-700 transition hover:bg-gray-50 disabled:opacity-40 dark:border-slate-700 dark:text-gray-100 dark:hover:bg-slate-800"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-slate-300">
                   Page {safePage} of {totalPages}
                 </span>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={safePage === totalPages}
-                  className="flex items-center justify-center w-9 h-9 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-40 transition"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-700 transition hover:bg-gray-50 disabled:opacity-40 dark:border-slate-700 dark:text-gray-100 dark:hover:bg-slate-800"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -295,7 +292,7 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={safePage === 1}
-                className="hidden lg:flex items-center gap-1 px-4 py-2 text-sm border border-gray-200 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-40 transition"
+                className="hidden items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold transition hover:bg-gray-50 disabled:opacity-40 lg:flex dark:border-slate-700 dark:text-gray-100 dark:hover:bg-slate-800"
               >
                 <ChevronLeft className="w-4 h-4" /> Previous
               </button>
@@ -303,14 +300,14 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
               <div className="hidden lg:flex items-center gap-1">
                 {getPages(safePage, totalPages).map((p, i) =>
                   p === '...' ? (
-                    <span key={i} className="px-2 text-gray-400">
+                    <span key={i} className="px-2 text-gray-400 dark:text-slate-500">
                       ...
                     </span>
                   ) : (
                     <button
                       key={i}
                       onClick={() => setPage(p)}
-                      className={`w-8 h-8 rounded-lg text-sm font-medium transition ${safePage === p ? 'bg-violet-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                      className={`h-8 w-8 rounded-lg text-sm font-medium transition ${safePage === p ? 'bg-violet-600 text-white' : 'text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800'}`}
                     >
                       {p}
                     </button>
@@ -321,7 +318,7 @@ export default function CustomerListPage({ customers }: CustomerListPageProps) {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={safePage === totalPages}
-                className="hidden lg:flex items-center gap-1 px-4 py-2 text-sm border border-gray-200 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-40 transition"
+                className="hidden items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold transition hover:bg-gray-50 disabled:opacity-40 lg:flex dark:border-slate-700 dark:text-gray-100 dark:hover:bg-slate-800"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </button>

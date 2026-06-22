@@ -52,6 +52,8 @@ const sidebarItems = [
   },
 ]
 
+import { cn } from '@/components/table/utils'
+
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
 
@@ -75,7 +77,10 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           return (
             <Link key={item.id} href={item.href} onClick={() => onClose?.()}>
               <button
-                className="relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-200 group"
+                className={cn(
+                  'relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-200 group',
+                  active && 'bg-[#f0f1ff] dark:bg-indigo-950/50',
+                )}
                 title={item.label}
               >
                 {LucideIcon ? (

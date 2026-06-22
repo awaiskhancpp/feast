@@ -27,6 +27,7 @@ export type LoginResult =
 
 const EMPLOYEES_KEY = 'feast.employees'
 const SESSION_KEY = 'feast.currentEmployeeId'
+const SESSION_ACTIVITY_KEY = 'feast.currentEmployeeLastActiveAt'
 const GENERAL_KEY = 'feast.settings.general'
 const NOTIFICATIONS_KEY = 'feast.settings.notifications'
 const APPEARANCE_KEY = 'feast.settings.appearance'
@@ -112,6 +113,40 @@ function writeJson<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value))
 }
 
+type SessionTimeout = '15 minutes' | '30 minutes' | '1 hour' | '4 hours'
+
+const SESSION_TIMEOUTS: Record<SessionTimeout, number> = {
+  '15 minutes': 15 * 60 * 1000,
+  '30 minutes': 30 * 60 * 1000,
+  '1 hour': 60 * 60 * 1000,
+  '4 hours': 4 * 60 * 60 * 1000,
+}
+
+export function getSessionTimeoutMs(timeout: SessionTimeout): number {
+  return SESSION_TIMEOUTS[timeout]
+}
+export function getCurrentEmployeeActivityAt() {
+  if (!hasStorage()) return null
+
+  const raw = window.localStorage.getItem(SESSION_ACTIVITY_KEY)
+  if (!raw) return null
+
+  const timestamp = Number(raw)
+  return Number.isFinite(timestamp) ? timestamp : null
+}
+
+export function touchCurrentEmployeeSession() {
+  if (!hasStorage()) return
+  window.localStorage.setItem(SESSION_ACTIVITY_KEY, String(Date.now()))
+}
+
+export function isCurrentEmployeeSessionExpired(timeout: SessionTimeout) {
+  const lastActiveAt = getCurrentEmployeeActivityAt()
+  if (!lastActiveAt) return false
+
+  return Date.now() - lastActiveAt >= getSessionTimeoutMs(timeout)
+}
+
 export function subscribeToSessionChange(callback: () => void) {
   if (typeof window === 'undefined') return () => {}
 
@@ -144,7 +179,17 @@ export function getCurrentEmployee() {
   const employeeId = window.localStorage.getItem(SESSION_KEY)
   if (!employeeId) return null
 
-  return getEmployees().find((employee) => employee.id === employeeId && employee.active) ?? null
+  const employee = getEmployees().find(
+    (candidate) => candidate.id === employeeId && candidate.active,
+  )
+  if (!employee) return null
+
+  if (isCurrentEmployeeSessionExpired(getPrivacySettings().sessionTimeout)) {
+    logoutCurrentEmployee()
+    return null
+  }
+
+  return employee
 }
 
 export function loginWithPin(pin: string): LoginResult {
@@ -171,12 +216,14 @@ export function loginEmployee(employeeId: string, pin: string): LoginResult {
 export function setCurrentEmployee(employeeId: string) {
   if (!hasStorage()) return
   window.localStorage.setItem(SESSION_KEY, employeeId)
+  touchCurrentEmployeeSession()
   emitSessionChange()
 }
 
 export function logoutCurrentEmployee() {
   if (!hasStorage()) return
   window.localStorage.removeItem(SESSION_KEY)
+  window.localStorage.removeItem(SESSION_ACTIVITY_KEY)
   emitSessionChange()
 }
 

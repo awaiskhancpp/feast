@@ -42,8 +42,7 @@ export function SettingsMenu({ activeTab, onSelectTab }: SettingsMenuProps) {
                   active
                     ? 'bg-gray-100 text-gray-900 dark:bg-slate-800 dark:text-gray-100'
                     : 'text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-800',
-                  isLogout &&
-                    'mt-2 border-t border-gray-100 pt-4 text-red-500 dark:border-slate-800',
+                  isLogout && 'mt-2 border-t border-gray-100 pt-4 text-red-500 dark:border-slate-800',
                   isLogout && active && 'bg-red-50 text-red-500 dark:bg-red-950/40',
                 )}
               >
