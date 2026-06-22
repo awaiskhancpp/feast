@@ -7,7 +7,6 @@ import { QRCodeSVG } from 'qrcode.react'
 import type { CartLine, MenuItem, TableOrder } from './types'
 import { cn } from './utils'
 import { Button } from '../ui/button'
-import '../../app/(frontend)/styles.css'
 
 const PALETTE = {
   blue1: '#2D9CDB',
@@ -20,6 +19,7 @@ const PALETTE = {
   purple: '#9B51E0',
   orange: '#F2994A',
 }
+
 type PaymentMethod = 'qris' | 'cash'
 
 type PaymentModalProps = {
@@ -48,17 +48,17 @@ export default function PaymentModal({
     'method',
   )
 
+  // Auto-create checkout when modal opens on QRIS method
   useEffect(() => {
     if (!open || method !== 'qris' || checkoutUrl || loading || paid) return
 
     let cancelled = false
 
-    const createCheckout = async () => {
+    const run = async () => {
       setLoading(true)
       setError(null)
-
       try {
-        const response = await fetch('/api/payments/checkout', {
+        const res = await fetch('/api/payments/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -66,42 +66,36 @@ export default function PaymentModal({
             tableId: order.tableId,
             customerName: order.customerName,
             amount: summary.total,
-            items: cartLines.map((line) => ({
-              name: line.item.name,
-              quantity: line.quantity,
-              unitAmount: line.item.price,
+            items: cartLines.map((l) => ({
+              name: l.item.name,
+              quantity: l.quantity,
+              unitAmount: l.item.price,
             })),
           }),
         })
-        console.log(response)
-        const data = await response.json()
-
-        if (!response.ok || !data.url) {
-          throw new Error(data.error || 'Could not create payment')
-        }
-
-        setCheckoutUrl(data.url)
+        const data = await res.json()
+        if (!res.ok || !data.url) throw new Error(data.error || 'Could not create payment')
+        if (!cancelled) setCheckoutUrl(data.url)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error')
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
-    void createCheckout()
-
+    void run()
     return () => {
       cancelled = true
     }
   }, [cartLines, checkoutUrl, loading, method, open, order, paid, summary.total])
 
   if (!open) return null
-  async function createCheckout() {
+
+  async function handleCreateCheckout() {
     setLoading(true)
     setError(null)
-
     try {
-      const response = await fetch('/api/payments/checkout', {
+      const res = await fetch('/api/payments/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -109,22 +103,15 @@ export default function PaymentModal({
           tableId: order.tableId,
           customerName: order.customerName,
           amount: summary.total,
-          items: cartLines.map((line) => ({
-            name: line.item.name,
-            quantity: line.quantity,
-            unitAmount: line.item.price,
+          items: cartLines.map((l) => ({
+            name: l.item.name,
+            quantity: l.quantity,
+            unitAmount: l.item.price,
           })),
         }),
       })
-
-      const data = await response.json()
-
-      console.log('checkout response:', data)
-
-      if (!response.ok || !data.url) {
-        throw new Error(data.error || 'Could not create QRIS payment.')
-      }
-
+      const data = await res.json()
+      if (!res.ok || !data.url) throw new Error(data.error || 'Could not create QRIS payment.')
       setCheckoutUrl(data.url)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -132,32 +119,38 @@ export default function PaymentModal({
       setLoading(false)
     }
   }
+
   const handleBack = () => {
     setStep((prev) => {
       if (prev === 'qris') return 'method'
       if (prev === 'processing') return 'qris'
       if (prev === 'failed') return 'qris'
-      if (prev === 'success') return 'method'
       return 'method'
     })
   }
+
   return (
     <div className="fixed inset-0 z-[120] grid place-items-center bg-black/35 px-3 py-6 backdrop-blur-[1px] sm:px-4">
-      <div className="flex max-h-[80vh] w-full max-w-[473px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_60px_rgba(26,31,44,0.18)] dark:bg-slate-900">
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 dark:border-slate-800 sm:px-6">
+      {/*
+        flex + max-h + overflow-hidden on the outer shell gives rounded corners
+        and a height cap. The INNER content div gets flex-1 + overflow-y-auto
+        so it scrolls independently — this is what was missing before, causing
+        every button below the visible fold to be silently clipped.
+      */}
+      <div className="flex max-h-[90vh] w-full max-w-[473px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_60px_rgba(26,31,44,0.18)] dark:bg-slate-900">
+        {/* Header — shrink-0 so it's always visible regardless of content height */}
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-4 dark:border-slate-800 sm:px-6">
           <button
             type="button"
             onClick={handleBack}
             className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
-            aria-label="Close payment"
+            aria-label="Go back"
           >
             <Image src="/leftArrow.svg" alt="" width={16} height={16} />
           </button>
-          <div>
-            <h2 className="text-base font-bold text-slate-950 dark:text-slate-100 sm:text-lg">
-              Payment Method
-            </h2>
-          </div>
+          <h2 className="text-base font-bold text-slate-950 dark:text-slate-100 sm:text-lg">
+            Payment Method
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -168,8 +161,9 @@ export default function PaymentModal({
           </button>
         </div>
 
-        <div className="">
-          <section className="flex flex-col p-4 sm:p-6 gap-4">
+        {/* Scrollable body — all step content lives here */}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <section className="flex flex-col gap-4 p-4 sm:p-6">
             {step === 'method' && (
               <>
                 <PaymentMethodButton
@@ -177,285 +171,88 @@ export default function PaymentModal({
                   label="QRIS"
                   onClick={() => setMethod('qris')}
                 />
-
                 <PaymentMethodButton
                   active={method === 'cash'}
                   label="Cash"
                   onClick={() => setMethod('cash')}
                 />
-
+                {error && <p className="text-sm text-red-500">{error}</p>}
                 <Button
-                  text="Next"
+                  text={loading ? 'Loading…' : 'Next'}
                   onClick={async () => {
                     if (method === 'cash') {
                       setStep('success')
                     } else {
-                      await createCheckout()
+                      await handleCreateCheckout()
                       setStep('qris')
                     }
                   }}
                 />
               </>
             )}
-            {step === 'qris' && (
-              <>
-                <div className="flex flex-col items-center justify-center">
-                  <div className="text-center mb-3">
-                    <h3>Merchant Name</h3>
-                    <h4>NMID : 00000000000000</h4>
-                  </div>
-                  {checkoutUrl && <QRCodeSVG value={checkoutUrl} size={256} />}
 
-                  <div className="flex flex-col justify-center items-center mt-6">
-                    <h3 className="font-bold">Scan QR Code</h3>
-                    <p className="text-sm text-slate-500 text-center mt-2">
-                      Complete your payment quickly and securely by scanning the QR code provided
-                      above
+            {step === 'qris' && (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center">
+                  <h3 className="font-bold dark:text-slate-100">Merchant Name</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    NMID : 00000000000000
+                  </p>
+                </div>
+                {checkoutUrl ? (
+                  <QRCodeSVG value={checkoutUrl} size={220} />
+                ) : (
+                  <div className="flex h-[220px] w-[220px] items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                    <p className="text-sm text-slate-400">
+                      {loading ? 'Generating…' : 'QR unavailable'}
                     </p>
                   </div>
+                )}
+                <div className="text-center">
+                  <h3 className="font-bold dark:text-slate-100">Scan QR Code</h3>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Complete your payment quickly and securely by scanning the QR code provided
+                    above
+                  </p>
                 </div>
-
                 <Button
                   text="Next"
                   onClick={() => {
                     setStep('processing')
-
                     setTimeout(() => {
-                      const success = Math.random() > 0.2
-
-                      setStep(success ? 'success' : 'failed')
+                      setStep(Math.random() > 0.2 ? 'success' : 'failed')
                     }, 3000)
                   }}
                 />
-              </>
+              </div>
             )}
+
             {step === 'processing' && (
-              <div className="flex flex-col justify-end text-center max-w-sm mx-auto">
-                <div className="flex flex-col items-center py-10 px-6">
-                  {/* Custom Circular Progress Loader */}
-                  <div className="relative flex items-center justify-center h-24 w-24 mb-6">
-                    {/* Background Track */}
-                    <div className="absolute inset-0 rounded-full border-[10px] border-[#F1F3F6]" />
-                    {/* Animated Green Progress Ring */}
-                    <div className="absolute inset-0 animate-spin rounded-full border-[10px] border-transparent border-t-[#00CD52] border-r-[#00CD52]" />
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="text-base font-bold text-[#1C1C28] mb-2">Waiting For Payment</h3>
-
-                  <p className="text-xs text-[#8F92A1] leading-relaxed max-w-[260px]">
-                    Payment is in process, please wait several minutes to print a receipt of payment
-                  </p>
+              <div className="flex flex-col items-center py-10 text-center">
+                <div className="relative mb-6 flex h-24 w-24 items-center justify-center">
+                  <div className="absolute inset-0 rounded-full border-[10px] border-[#F1F3F6] dark:border-slate-700" />
+                  <div className="absolute inset-0 animate-spin rounded-full border-[10px] border-transparent border-r-[#00CD52] border-t-[#00CD52]" />
                 </div>
-                <button className="text-center w-full py-2 justify-end" disabled>
-                  Next
-                </button>
+                <h3 className="mb-2 text-base font-bold text-[#1C1C28] dark:text-slate-100">
+                  Waiting For Payment
+                </h3>
+                <p className="max-w-[260px] text-xs leading-relaxed text-[#8F92A1] dark:text-slate-400">
+                  Payment is in process, please wait several minutes to print a receipt of payment
+                </p>
               </div>
             )}
-            {step === 'success' && (
-              <div className="relative flex flex-col items-center justify-end text-center">
-                <div className="flex flex-col items-center justify-center  py-10  overflow-visible">
-                  {/* Animation & Confetti Canvas */}
-                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-visible z-0">
-                    {/* Background Expanding Halo Rings */}
-                    <div className="absolute h-40 w-40 rounded-full bg-[#27AE60] opacity-0 animate-ring-1" />
-                    <div className="absolute h-48 w-48 rounded-full bg-[#6FCF97] opacity-0 animate-ring-2" />
 
-                    {/* Top Left Squares & Dots */}
-                    <div
-                      className="absolute h-3 w-3 rounded-sm animate-confetti"
-                      style={
-                        {
-                          '--tx': '-110px',
-                          '--ty': '-70px',
-                          '--rot': '45deg',
-                          backgroundColor: PALETTE.blue1,
-                        } as React.CSSProperties
-                      }
-                    />
-                    <div
-                      className="absolute h-2 w-2 rounded-sm animate-confetti"
-                      style={
-                        {
-                          '--tx': '-150px',
-                          '--ty': '-50px',
-                          '--rot': '12deg',
-                          backgroundColor: PALETTE.blue1,
-                        } as React.CSSProperties
-                      }
-                    />
-                    <div
-                      className="absolute h-3 w-3 rounded bg-[#EB5757] animate-confetti"
-                      style={
-                        {
-                          '--tx': '-90px',
-                          '--ty': '-40px',
-                          '--rot': '-25deg',
-                        } as React.CSSProperties
-                      }
-                    />
+            {step === 'success' && <SuccessStep onSuccess={onSuccess} />}
 
-                    {/* Bottom Left Shapes */}
-                    <div
-                      className="absolute h-2 w-2 rounded-full animate-confetti"
-                      style={
-                        {
-                          '--tx': '-140px',
-                          '--ty': '50px',
-                          '--rot': '0deg',
-                          backgroundColor: PALETTE.blue2,
-                        } as React.CSSProperties
-                      }
-                    />
-                    <div
-                      className="absolute h-4 w-4 rounded-md rotate-12 animate-confetti"
-                      style={
-                        {
-                          '--tx': '-110px',
-                          '--ty': '80px',
-                          '--rot': '65deg',
-                          backgroundColor: PALETTE.cyan,
-                        } as React.CSSProperties
-                      }
-                    />
-
-                    {/* Top Center / Right Confetti */}
-                    <div
-                      className="absolute h-3 w-3 rounded-sm rotate-45 animate-confetti"
-                      style={
-                        {
-                          '--tx': '10px',
-                          '--ty': '-90px',
-                          '--rot': '110deg',
-                          backgroundColor: PALETTE.yellow,
-                        } as React.CSSProperties
-                      }
-                    />
-                    <div
-                      className="absolute h-3 w-3 rounded-full animate-confetti"
-                      style={
-                        {
-                          '--tx': '20px',
-                          '--ty': '-50px',
-                          '--rot': '0deg',
-                          backgroundColor: PALETTE.blue2,
-                        } as React.CSSProperties
-                      }
-                    />
-
-                    {/* Bottom/Center Triangle & Trailing pieces */}
-                    <div
-                      className="absolute w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] animate-confetti"
-                      style={
-                        {
-                          '--tx': '-50px',
-                          '--ty': '60px',
-                          '--rot': '40deg',
-                          borderBottomColor: PALETTE.orange,
-                        } as React.CSSProperties
-                      }
-                    />
-                    <div
-                      className="absolute w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] animate-confetti"
-                      style={
-                        {
-                          '--tx': '10px',
-                          '--ty': '95px',
-                          '--rot': '-15deg',
-                          borderBottomColor: PALETTE.yellow,
-                        } as React.CSSProperties
-                      }
-                    />
-
-                    {/* Right Side Shapes */}
-                    <div
-                      className="absolute h-3 w-3 rounded-sm animate-confetti"
-                      style={
-                        {
-                          '--tx': '95px',
-                          '--ty': '-55px',
-                          '--rot': '35deg',
-                          backgroundColor: PALETTE.greenDark,
-                        } as React.CSSProperties
-                      }
-                    />
-                    <div
-                      className="absolute h-4 w-4 rounded-full animate-confetti"
-                      style={
-                        {
-                          '--tx': '150px',
-                          '--ty': '-35px',
-                          '--rot': '0deg',
-                          backgroundColor: PALETTE.yellow,
-                        } as React.CSSProperties
-                      }
-                    />
-                    <div
-                      className="absolute h-3 w-3 rounded-sm animate-confetti"
-                      style={
-                        {
-                          '--tx': '55px',
-                          '--ty': '50px',
-                          '--rot': '-45deg',
-                          backgroundColor: PALETTE.greenLight,
-                        } as React.CSSProperties
-                      }
-                    />
-                    <div
-                      className="absolute h-2 w-3 rounded-sm animate-confetti"
-                      style={
-                        {
-                          '--tx': '110px',
-                          '--ty': '75px',
-                          '--rot': '15deg',
-                          backgroundColor: PALETTE.red,
-                        } as React.CSSProperties
-                      }
-                    />
-                    <div
-                      className="absolute h-2 w-2 rounded-full animate-confetti"
-                      style={
-                        {
-                          '--tx': '160px',
-                          '--ty': '90px',
-                          '--rot': '0deg',
-                          backgroundColor: PALETTE.purple,
-                        } as React.CSSProperties
-                      }
-                    />
-                  </div>
-
-                  {/* The Core Badge Graphic matching the image */}
-                  <div className="relative z-20 flex items-center justify-center h-32 w-32 rounded-full bg-[#00CD52] animate-success-pop shadow-xl shadow-[#00CD52]/20 mb-8 mt-4">
-                    {/* Using CheckCircle2 inside the green background circle. 
-        Adjust strokeWidth to closely match the image's line thickness. 
-      */}
-                    <CheckCircle2 className="h-14 w-14 text-white" strokeWidth={2.5} />
-                  </div>
-
-                  {/* Typography & Action */}
-                  <h3 className="text-lg font-bold text-[#1C1C28] mb-2 relative z-20">
-                    Payment Successful!
-                  </h3>
-                  <p className="text-sm text-[#8F92A1] leading-relaxed max-w-[260px] relative z-20 mb-8">
-                    Your receipt is printing automatically. Thank you!
-                  </p>
-                </div>
-                <div className="relative z-20 w-full px-6">
-                  <a href="/">
-                    <Button text="Back to Home" onClick={onSuccess} className="w-full" />
-                  </a>
-                </div>
-              </div>
-            )}
             {step === 'failed' && (
-              <div className="grid flex-1 place-items-center text-center">
-                <X className="h-16 w-16 text-red-500" />
-
-                <h3 className="mt-4 text-xl font-bold">Payment Failed</h3>
-
-                <p className="text-sm text-slate-500">Customer payment was not completed.</p>
-
+              <div className="flex flex-col items-center py-10 text-center">
+                <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-red-50 dark:bg-red-950/30">
+                  <X className="h-10 w-10 text-red-500" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold dark:text-slate-100">Payment Failed</h3>
+                <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
+                  Customer payment was not completed.
+                </p>
                 <Button text="Try Again" onClick={() => setStep('qris')} />
               </div>
             )}
@@ -463,6 +260,240 @@ export default function PaymentModal({
         </div>
       </div>
     </div>
+  )
+}
+
+// Extracted into its own component so the fixed confetti overlay unmounts
+// cleanly when the parent modal closes.
+function SuccessStep({ onSuccess }: { onSuccess: () => void }) {
+  return (
+    <>
+      {/*
+        Confetti + halo rings live in a fixed, full-viewport layer (z-[130])
+        so they are NEVER clipped by the modal's overflow:hidden or
+        border-radius. The pieces animate outward from the viewport center
+        (where the modal is centered) and then hold their final position
+        forever because the keyframes now end at opacity:1 with forwards fill.
+      */}
+      <div className="pointer-events-none fixed inset-0 z-[130] flex items-center justify-center -translate-y-16">
+        {/* Halo rings — scale in from 0 and stay at their final size/opacity */}
+        <div className="absolute h-32 w-32 rounded-full bg-[#27AE60] opacity-100 animate-ring-1" />
+        <div className="absolute h-42 w-42 rounded-full bg-[#6FCF97] animate-ring-2" />
+
+        {/* Confetti — fly outward and stay. All coordinates tuned to the image. */}
+        {/* Top-left cluster */}
+        <div
+          className="absolute animate-confetti h-3 w-3 rounded-sm"
+          style={
+            {
+              '--tx': '-110px',
+              '--ty': '-90px',
+              '--rot': '45deg',
+              backgroundColor: PALETTE.blue1,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-2 w-2 rounded-sm"
+          style={
+            {
+              '--tx': '-158px',
+              '--ty': '-60px',
+              '--rot': '12deg',
+              backgroundColor: PALETTE.blue1,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-3 w-3 rounded"
+          style={
+            {
+              '--tx': '-90px',
+              '--ty': '-50px',
+              '--rot': '-25deg',
+              backgroundColor: PALETTE.red,
+            } as React.CSSProperties
+          }
+        />
+        {/* Bottom-left */}
+        <div
+          className="absolute animate-confetti h-2 w-2 rounded-full"
+          style={
+            {
+              '--tx': '-148px',
+              '--ty': '65px',
+              '--rot': '0deg',
+              backgroundColor: PALETTE.blue2,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-4 w-4 rounded-md"
+          style={
+            {
+              '--tx': '-118px',
+              '--ty': '100px',
+              '--rot': '65deg',
+              backgroundColor: PALETTE.cyan,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-3 w-3 rounded-sm"
+          style={
+            {
+              '--tx': '-76px',
+              '--ty': '82px',
+              '--rot': '20deg',
+              backgroundColor: PALETTE.orange,
+            } as React.CSSProperties
+          }
+        />
+        {/* Top-center / right */}
+        <div
+          className="absolute animate-confetti h-3 w-3 rounded-sm rotate-45"
+          style={
+            {
+              '--tx': '10px',
+              '--ty': '-112px',
+              '--rot': '110deg',
+              backgroundColor: PALETTE.yellow,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-3 w-3 rounded-full"
+          style={
+            {
+              '--tx': '22px',
+              '--ty': '-62px',
+              '--rot': '0deg',
+              backgroundColor: PALETTE.blue2,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-2 w-2 rounded-sm"
+          style={
+            {
+              '--tx': '62px',
+              '--ty': '-102px',
+              '--rot': '-30deg',
+              backgroundColor: PALETTE.greenDark,
+            } as React.CSSProperties
+          }
+        />
+        {/* Bottom-center triangles */}
+        <div
+          className="absolute animate-confetti w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px]"
+          style={
+            {
+              '--tx': '-50px',
+              '--ty': '78px',
+              '--rot': '40deg',
+              borderBottomColor: PALETTE.orange,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px]"
+          style={
+            {
+              '--tx': '12px',
+              '--ty': '112px',
+              '--rot': '-15deg',
+              borderBottomColor: PALETTE.yellow,
+            } as React.CSSProperties
+          }
+        />
+        {/* Right side */}
+        <div
+          className="absolute animate-confetti h-3 w-3 rounded-sm"
+          style={
+            {
+              '--tx': '100px',
+              '--ty': '-72px',
+              '--rot': '35deg',
+              backgroundColor: PALETTE.greenDark,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-4 w-4 rounded-full"
+          style={
+            {
+              '--tx': '158px',
+              '--ty': '-46px',
+              '--rot': '0deg',
+              backgroundColor: PALETTE.yellow,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-3 w-3 rounded-sm"
+          style={
+            {
+              '--tx': '62px',
+              '--ty': '62px',
+              '--rot': '-45deg',
+              backgroundColor: PALETTE.greenLight,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-2 w-3 rounded-sm"
+          style={
+            {
+              '--tx': '118px',
+              '--ty': '92px',
+              '--rot': '15deg',
+              backgroundColor: PALETTE.red,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-2 w-2 rounded-full"
+          style={
+            {
+              '--tx': '168px',
+              '--ty': '112px',
+              '--rot': '0deg',
+              backgroundColor: PALETTE.purple,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className="absolute animate-confetti h-3 w-3 rounded-sm"
+          style={
+            {
+              '--tx': '132px',
+              '--ty': '32px',
+              '--rot': '60deg',
+              backgroundColor: PALETTE.cyan,
+            } as React.CSSProperties
+          }
+        />
+      </div>
+
+      {/* Modal content — normal flex flow, no z-index fighting with confetti */}
+      <div className="flex flex-col items-center py-8 text-center">
+        {/* Green circle — above the halo rings via z-10 */}
+        <div className="relative z-10 mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-[#00CD52] shadow-[0_16px_48px_rgba(0,205,82,0.45)] animate-success-pop">
+          <CheckCircle2 className="h-14 w-14 text-white" strokeWidth={2.5} />
+        </div>
+
+        <h3 className="mb-2 text-lg font-bold text-[#1C1C28] dark:text-slate-100">
+          Payment Successful!
+        </h3>
+        <p className="mb-8 max-w-[260px] text-sm leading-relaxed text-[#8F92A1] dark:text-slate-400">
+          Your receipt is printing automatically. Thank you!
+        </p>
+
+        <a href="/" className="w-full">
+          <Button text="Back to Home" onClick={onSuccess} className="w-full" />
+        </a>
+      </div>
+    </>
   )
 }
 
@@ -480,32 +511,14 @@ function PaymentMethodButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'h-11 rounded-xl w-full border flex items-center p-2 text-sm font-semibold transition',
+        'flex h-11 w-full items-center rounded-xl border p-2 text-sm font-semibold transition',
         active
           ? 'border-[#6066ed] bg-[#f6f5ff] text-[#6066ed] dark:bg-indigo-950/40'
           : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800',
       )}
     >
-      <Image src={label === 'QRIS' ? '/qris.svg' : '/cash.svg'} alt="" width={30} height={28} />{' '}
-      <span className="pl-3"> {label}</span>
+      <Image src={label === 'QRIS' ? '/qris.svg' : '/cash.svg'} alt="" width={30} height={28} />
+      <span className="pl-3">{label}</span>
     </button>
   )
-}
-
-function SummaryRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
-  return (
-    <div
-      className={cn(
-        'mb-2 flex items-center justify-between',
-        strong && 'text-base font-bold text-slate-950 dark:text-slate-100',
-      )}
-    >
-      <span className={cn('text-slate-400', strong && 'text-slate-500')}>{label}</span>
-      <span>{value}</span>
-    </div>
-  )
-}
-
-function money(value: number) {
-  return `$${value.toFixed(2).replace('.', ',')}`
 }

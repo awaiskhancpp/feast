@@ -27,7 +27,6 @@ export default function AddOrderModal({
 
   useEffect(() => {
     if (!open) return
-
     setOrderType('dine-in')
     setCustomerName('')
     setGuestCount(2)
@@ -37,7 +36,6 @@ export default function AddOrderModal({
   const visibleCustomers = useMemo(() => {
     const query = customerName.trim().toLowerCase()
     if (!query) return customers
-
     return customers.filter((customer) => customer.name.toLowerCase().includes(query))
   }, [customerName, customers])
 
@@ -59,7 +57,7 @@ export default function AddOrderModal({
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 px-3 py-4 backdrop-blur-[1px] sm:px-4 sm:py-6">
       <form
-        className="w-full max-w-[330px] rounded-2xl bg-white p-4 shadow-[0_18px_60px_rgba(26,31,44,0.18)] sm:p-5"
+        className="w-full max-w-[330px] rounded-2xl bg-white p-4 shadow-[0_18px_60px_rgba(26,31,44,0.18)] sm:p-5 dark:bg-slate-900"
         onSubmit={(event) => {
           event.preventDefault()
           createOrder()
@@ -67,15 +65,17 @@ export default function AddOrderModal({
       >
         <div className="mb-5 flex items-center justify-between">
           <button
-            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50"
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"
             type="button"
             onClick={onClose}
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h2 className="text-sm font-bold text-slate-950 sm:text-base">Add New Order</h2>
+          <h2 className="text-sm font-bold text-slate-950 sm:text-base dark:text-slate-100">
+            Add New Order
+          </h2>
           <button
-            className="grid h-8 w-8 place-items-center border border-primary text-primary hover:bg-[#f6f3ff]"
+            className="grid h-8 w-8 place-items-center border border-primary text-primary hover:bg-[#f6f3ff] dark:hover:bg-indigo-950/40"
             type="button"
             onClick={onClose}
             aria-label="Close add order"
@@ -84,7 +84,7 @@ export default function AddOrderModal({
           </button>
         </div>
 
-        <div className="mb-5 grid grid-cols-2 gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
+        <div className="mb-5 grid grid-cols-2 gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-800">
           <OrderTypeButton
             active={orderType === 'dine-in'}
             label="Dine in"
@@ -99,19 +99,23 @@ export default function AddOrderModal({
 
         <div className="space-y-3">
           <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold text-slate-950">Table</span>
+            <span className="mb-1.5 block text-xs font-semibold text-slate-950 dark:text-slate-200">
+              Table
+            </span>
             <input
-              className="h-10 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 outline-none"
+              className="h-10 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
               value={`T-${table.tableNumber}`}
               readOnly
             />
           </label>
 
           <label className="relative block">
-            <span className="mb-1.5 block text-xs font-semibold text-slate-950">Customer Name</span>
+            <span className="mb-1.5 block text-xs font-semibold text-slate-950 dark:text-slate-200">
+              Customer Name
+            </span>
             <div className="relative">
               <input
-                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 pr-9 text-sm text-slate-700 outline-none focus:border-[#6066ed] focus:ring-1 focus:ring-[#6066ed]"
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 pr-9 text-sm text-slate-700 outline-none focus:border-[#6066ed] focus:ring-1 focus:ring-[#6066ed] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500"
                 value={customerName}
                 placeholder="Walk-in Customer"
                 onChange={(event) => {
@@ -131,16 +135,16 @@ export default function AddOrderModal({
             </div>
 
             {customerMenuOpen ? (
-              <div className="absolute left-0 right-0 top-[68px] z-20 max-h-48 overflow-y-auto rounded-md bg-white py-1 shadow-[0_12px_30px_rgba(24,29,42,0.16)]">
+              <div className="absolute left-0 right-0 top-[68px] z-20 max-h-48 overflow-y-auto rounded-md bg-white py-1 shadow-[0_12px_30px_rgba(24,29,42,0.16)] dark:bg-slate-800 dark:shadow-[0_12px_30px_rgba(0,0,0,0.4)]">
                 {visibleCustomers.length === 0 ? (
                   <p className="px-4 py-2 text-xs text-slate-400">No matching customers</p>
                 ) : (
                   visibleCustomers.map((customer) => (
                     <button
                       className={cn(
-                        'flex h-8 w-full items-center px-4 text-left text-xs text-slate-600 hover:bg-slate-50',
+                        'flex h-8 w-full items-center px-4 text-left text-xs text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700',
                         customer.name === customerName &&
-                          'bg-slate-50 font-semibold text-slate-950',
+                          'bg-slate-50 font-semibold text-slate-950 dark:bg-slate-700 dark:text-slate-100',
                       )}
                       type="button"
                       key={customer.id}
@@ -154,7 +158,7 @@ export default function AddOrderModal({
                   ))
                 )}
                 <button
-                  className="flex h-8 w-full items-center px-4 text-left text-xs text-slate-600 hover:bg-slate-50"
+                  className="flex h-8 w-full items-center px-4 text-left text-xs text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
                   type="button"
                   onClick={() => setCustomerMenuOpen(false)}
                 >
@@ -165,10 +169,12 @@ export default function AddOrderModal({
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold text-slate-950">Guest</span>
-            <div className="flex h-10 w-full items-center justify-between rounded-md border border-slate-200 bg-white px-2">
+            <span className="mb-1.5 block text-xs font-semibold text-slate-950 dark:text-slate-200">
+              Guest
+            </span>
+            <div className="flex h-10 w-full items-center justify-between rounded-md border border-slate-200 bg-white px-2 dark:border-slate-700 dark:bg-slate-800">
               <button
-                className="grid h-6 w-6 place-items-center rounded bg-slate-100 text-slate-500 disabled:opacity-40"
+                className="grid h-6 w-6 place-items-center rounded bg-slate-100 text-slate-500 disabled:opacity-40 dark:bg-slate-700 dark:text-slate-400"
                 type="button"
                 disabled={guestCount <= 1}
                 onClick={() => setGuestCount((count) => Math.max(1, count - 1))}
@@ -176,7 +182,9 @@ export default function AddOrderModal({
                 <Minus className="h-3.5 w-3.5" />
               </button>
 
-              <span className="flex-1 text-center text-xs text-slate-600">{guestCount}</span>
+              <span className="flex-1 text-center text-xs text-slate-600 dark:text-slate-300">
+                {guestCount}
+              </span>
 
               <button
                 className="grid h-6 w-6 place-items-center rounded bg-[#6066ed] text-white"
@@ -212,8 +220,8 @@ function OrderTypeButton({
   return (
     <button
       className={cn(
-        'h-9 rounded-md text-xs font-semibold text-slate-500 transition',
-        active && 'bg-white text-[#6066ed] shadow-sm',
+        'h-9 rounded-md text-xs font-semibold text-slate-500 transition dark:text-slate-400',
+        active && 'bg-white text-[#6066ed] shadow-sm dark:bg-slate-900 dark:text-[#6066ed]',
       )}
       type="button"
       onClick={onClick}

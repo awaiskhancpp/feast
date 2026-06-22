@@ -11,7 +11,7 @@ type TableLegendProps = {
 export default function TableLegend({ activeFilter, counts, onFilterChange }: TableLegendProps) {
   return (
     <nav
-      className="relative z-10 flex min-h-14 items-center gap-[22px] overflow-x-auto whitespace-nowrap bg-white px-[18px] py-2.5 shadow-[0_1px_0_rgba(20,25,35,0.08)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-[720px]:min-h-[50px] max-[720px]:gap-4 max-[720px]:px-3.5"
+      className="relative z-10 flex min-h-14 items-center gap-[22px] overflow-x-auto whitespace-nowrap bg-white px-[18px] py-2.5 shadow-[0_1px_0_rgba(20,25,35,0.08)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-[720px]:min-h-[50px] max-[720px]:gap-4 max-[720px]:px-3.5 dark:bg-slate-900 dark:shadow-[0_1px_0_rgba(255,255,255,0.06)]"
       aria-label="Table status filters"
     >
       {STATUS_ORDER.map((status) => {
@@ -21,8 +21,8 @@ export default function TableLegend({ activeFilter, counts, onFilterChange }: Ta
         return (
           <button
             className={cn(
-              'inline-flex min-w-max cursor-pointer items-center gap-[7px] rounded-full border-0 bg-transparent py-1 text-xs font-medium leading-tight text-[#555b66] outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#5b5ff273] max-[720px]:text-[11px]',
-              active && 'text-[#1f2530]',
+              'inline-flex min-w-max cursor-pointer items-center gap-[7px] rounded-full border-0 bg-transparent py-1 text-xs font-medium leading-tight text-[#555b66] outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#5b5ff273] max-[720px]:text-[11px] dark:text-slate-400',
+              active && 'text-[#1f2530] dark:text-slate-100',
             )}
             type="button"
             key={status}
