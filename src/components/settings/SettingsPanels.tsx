@@ -15,7 +15,13 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react'
-import { useEffect, useState, type Dispatch, type InputHTMLAttributes, type SetStateAction } from 'react'
+import {
+  useEffect,
+  useState,
+  type Dispatch,
+  type InputHTMLAttributes,
+  type SetStateAction,
+} from 'react'
 import { cn } from '@/components/table/utils'
 import {
   createEmployee,
@@ -554,18 +560,18 @@ function GeneralSettingsPanel({
                     className="h-10 w-10 rounded-full object-cover"
                     unoptimized={employee.avatarUrl.startsWith('data:')}
                   />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    {employee.name}
-                  </p>
-                  <p className="text-xs capitalize text-gray-500 dark:text-slate-400">
-                    {employee.role}
-                  </p>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {employee.name}
+                    </p>
+                    <p className="text-xs capitalize text-gray-500 dark:text-slate-400">
+                      {employee.role}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <p className="mt-3 truncate text-xs text-gray-500 dark:text-slate-400">
-                {employee.email}
-              </p>
+                <p className="mt-3 truncate text-xs text-gray-500 dark:text-slate-400">
+                  {employee.email}
+                </p>
                 <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
                   PIN: {employee.pin === '000000' ? '000000' : '******'}
                 </p>
@@ -681,7 +687,7 @@ function NotificationSettingsPanel({
 
           return (
             <div key={row.key} className="flex items-center gap-4 px-5 py-4">
-            <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {row.title}
                 </p>
@@ -762,61 +768,6 @@ function AppearanceSettingsPanel({
             </button>
           )
         })}
-      </div>
-
-      <div className="mt-6 rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-800/60">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Accent Color</p>
-            <p className="text-xs text-gray-500 dark:text-slate-400">
-              Pick the highlight color used across the workspace.
-            </p>
-          </div>
-          <Palette className="h-5 w-5 text-[#6066ed]" />
-        </div>
-        <div className="mt-4 flex flex-wrap gap-3">
-          {accentOptions.map((option) => {
-            const active = appearance.accent === option.key
-
-            return (
-              <button
-                key={option.key}
-                type="button"
-                onClick={() => setAppearance((prev) => ({ ...prev, accent: option.key }))}
-                className={cn(
-                  'flex min-w-[96px] items-center gap-2 rounded-xl border px-3 py-2 text-sm transition',
-                  active
-                    ? 'border-gray-300 bg-white text-gray-900 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-gray-100'
-                    : 'border-transparent bg-white/70 text-gray-600 hover:bg-white dark:bg-slate-900 dark:text-slate-300',
-                )}
-              >
-                <span
-                  className="h-3.5 w-3.5 rounded-full"
-                  style={{ backgroundColor: option.color }}
-                />
-                {option.label}
-                {active ? <Check className="ml-auto h-4 w-4 text-[#6066ed]" /> : null}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-4">
-        <ToggleRow
-          title="Compact Mode"
-          description="Reduce spacing to show more information on screen."
-          checked={appearance.compactMode}
-          onToggle={() => setAppearance((prev) => ({ ...prev, compactMode: !prev.compactMode }))}
-        />
-        <ToggleRow
-          title="Reduced Motion"
-          description="Minimize animations across the interface."
-          checked={appearance.reducedMotion}
-          onToggle={() =>
-            setAppearance((prev) => ({ ...prev, reducedMotion: !prev.reducedMotion }))
-          }
-        />
       </div>
 
       <div className="mt-6 flex justify-end">
@@ -907,28 +858,6 @@ function LogoutSettingsPanel({ onLogout }: { onLogout: () => void }) {
   )
 }
 
-function ToggleRow({
-  title,
-  description,
-  checked,
-  onToggle,
-}: {
-  title: string
-  description: string
-  checked: boolean
-  onToggle: () => void
-}) {
-  return (
-    <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</p>
-        <p className="mt-1 text-xs leading-5 text-gray-500 dark:text-slate-400">{description}</p>
-      </div>
-      <ToggleSwitch checked={checked} onChange={onToggle} label={title} />
-    </div>
-  )
-}
-
 function ToggleSwitch({
   checked,
   onChange,
@@ -944,7 +873,10 @@ function ToggleSwitch({
       aria-pressed={checked}
       aria-label={label}
       onClick={onChange}
-      className={cn('relative h-6 w-11 rounded-full transition', checked ? 'bg-[#6066ed]' : 'bg-gray-200')}
+      className={cn(
+        'relative h-6 w-11 rounded-full transition',
+        checked ? 'bg-[#6066ed]' : 'bg-gray-200',
+      )}
     >
       <span
         className={cn(

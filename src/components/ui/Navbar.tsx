@@ -1,12 +1,13 @@
 'use client'
 
-import { LogOut, Search, Settings, UserRound } from 'lucide-react'
+import { LogOut, Settings, UserRound } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { logoutCurrentEmployee } from '@/lib/appSession'
 import { useCurrentEmployee } from '@/lib/useCurrentEmployee'
 import { NotificationBell } from './Notification'
+import { NavbarSearch } from './NavbarSearch'
 
 interface NavbarProps {
   onMenuClick?: () => void
@@ -67,30 +68,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       </div>
 
       <div className="flex items-center gap-2 lg:gap-4 flex-shrink-0">
-        <div className="relative hidden md:block">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M14 14L11.6667 11.6667M13.3333 7.66667C13.3333 10.7963 10.7963 13.3333 7.66667 13.3333C4.53705 13.3333 2 10.7963 2 7.66667C2 4.53705 4.53705 2 7.66667 2C10.7963 2 13.3333 4.53705 13.3333 7.66667Z"
-                stroke="#757575"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          <input
-            type="text"
-            placeholder="Search here..."
-            className="w-44 rounded-lg border border-gray-200 py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 lg:w-56 dark:border-slate-700 dark:bg-slate-950 dark:text-gray-100"
-          />
-        </div>
+        <NavbarSearch />
 
         <div className="flex items-center gap-2">
           <NotificationBell />
