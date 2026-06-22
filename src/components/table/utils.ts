@@ -1,20 +1,21 @@
 import type { TableItem, TableShape, TableStatus } from './types'
 
-export const TABLE_DIMENSIONS: Record<TableShape, { width: number; height: number }> = {
-  vertical: { width: 96, height: 126 },
-  horizontal: { width: 148, height: 98 },
+// Returns the bounding-box size for a table given its orientation and chair
+// count. Every other measurement in the codebase derives from this — chairs,
+// surface position in FloorTable, canvas clamping — so there's one place to
+// change if the visual design changes.
+export function getTableDimensions(shape: TableShape, chairs: number) {
+  if (shape === 'horizontal') {
+    if (chairs <= 2) return { width: 100, height: 98 }
+    if (chairs <= 4) return { width: 120, height: 98 }
+    return { width: 148, height: 98 } // 8 chairs
+  }
+  // vertical
+  if (chairs <= 2) return { width: 96, height: 76 }
+  if (chairs <= 4) return { width: 96, height: 100 }
+  return { width: 96, height: 126 } // 6 chairs
 }
 
-// Fixed virtual canvas, in world units. Table x/y are absolute coordinates
-// inside this space - they are NOT derived from the current set of tables.
-//
-// The previous version computed a bounding box from every table's position
-// and rendered each table relative to that box's origin. That's fine for a
-// static, read-only floor plan, but it breaks the moment tables become
-// draggable: dragging one table past the existing min/max edge shifts the
-// box, which silently repositions every *other* table on screen too (they're
-// all measured relative to the same shifting origin). A fixed coordinate
-// frame guarantees moving one table can never move any other table.
 export const FLOOR_SIZE = { width: 2200, height: 1400 }
 
 export function cn(...classes: Array<string | false | null | undefined>) {
@@ -31,27 +32,21 @@ export function countStatuses(tables: TableItem[]) {
   )
 }
 
-// Keeps a table's drop position fully on the fixed canvas, accounting for
-// its own footprint so it can't be dragged so far that part of it renders
-// outside the floor entirely.
-export function clampTablePosition(x: number, y: number, shape: TableShape) {
-  const dim = TABLE_DIMENSIONS[shape]
+export function clampTablePosition(x: number, y: number, shape: TableShape, chairs: number) {
+  const dim = getTableDimensions(shape, chairs)
   return {
     x: Math.max(0, Math.min(x, FLOOR_SIZE.width - dim.width)),
     y: Math.max(0, Math.min(y, FLOOR_SIZE.height - dim.height)),
   }
 }
 
-// Bounding box of the *current* tables - used only to frame the camera
-// (initial view + "Scale to Fit"), never to position the tables themselves.
 function getContentBounds(tables: TableItem[]) {
   if (tables.length === 0) {
     return { minX: 0, minY: 0, maxX: FLOOR_SIZE.width, maxY: FLOOR_SIZE.height }
   }
-
   return tables.reduce(
     (bounds, table) => {
-      const dim = TABLE_DIMENSIONS[table.shape]
+      const dim = getTableDimensions(table.shape, table.chairs)
       return {
         minX: Math.min(bounds.minX, table.x),
         minY: Math.min(bounds.minY, table.y),
@@ -82,16 +77,11 @@ export function clampCamera(
   }
 }
 
-// "Scale to Fit" - frames exactly the current tables' bounding box. This is
-// the one place it's still correct to shrink-to-fit everything, since it's
-// an explicit, opt-in action rather than the default view.
 export function getOpeningCamera(
   stageSize: { width: number; height: number },
   tables: TableItem[],
 ) {
-  if (stageSize.width === 0 || stageSize.height === 0) {
-    return { x: 0, y: 0, scale: 1 }
-  }
+  if (stageSize.width === 0 || stageSize.height === 0) return { x: 0, y: 0, scale: 1 }
 
   const bounds = getContentBounds(tables)
   const contentWidth = Math.max(1, bounds.maxX - bounds.minX)
@@ -119,18 +109,11 @@ export function getOpeningCamera(
   }
 }
 
-// Default view on first mount: a fixed, realistic scale (not shrunk to fit
-// everything), centered on wherever the current tables actually are. This is
-// the direct fix for "the canvas is too big, all tables are seen at once" -
-// panning is required to see tables further from center, the way walking
-// into a real restaurant doesn't show you every table from the host stand.
 export function getDefaultCamera(
   stageSize: { width: number; height: number },
   tables: TableItem[],
 ) {
-  if (stageSize.width === 0 || stageSize.height === 0) {
-    return { x: 0, y: 0, scale: 1 }
-  }
+  if (stageSize.width === 0 || stageSize.height === 0) return { x: 0, y: 0, scale: 1 }
 
   const scale = 0.95
   const bounds = getContentBounds(tables)

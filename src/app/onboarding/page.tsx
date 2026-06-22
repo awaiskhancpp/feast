@@ -1,5 +1,5 @@
-import OnBoarding from '@/components/layout/Onboarding'
+import { redirect } from 'next/navigation'
 
 export default function OnboardingPage() {
-  return <OnBoarding />
+  redirect('/login')
 }

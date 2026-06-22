@@ -63,7 +63,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   }
 
   return (
-    <div className="w-14 xl:w-18 h-full bg-white border-r border-gray-200 flex flex-col items-center py-5 gap-4">
+    <div className="flex h-full w-14 flex-col items-center gap-4 border-r border-gray-200 bg-white py-5 xl:w-18 dark:border-slate-800 dark:bg-slate-900">
       <div onClick={onClose} className="w-10 h-10 xl:w-11 xl:h-11 relative flex-shrink-0 mb-4">
         <Image src="/icons/loginIcon.svg" alt="Logo" fill className="object-contain" />
       </div>
@@ -75,12 +75,12 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           return (
             <Link key={item.id} href={item.href} onClick={() => onClose?.()}>
               <button
-                className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200 relative group flex-shrink-0"
+                className="relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-200 group"
                 title={item.label}
               >
                 {LucideIcon ? (
                   <LucideIcon
-                    className={`h-6 w-6 font-bold transition-colors ${active ? 'text-primary' : 'text-gray-400 group-hover:text-gray-600'}`}
+                    className={`h-6 w-6 font-bold transition-colors ${active ? 'text-primary' : 'text-gray-400 group-hover:text-gray-600 dark:text-slate-400 dark:group-hover:text-slate-200'}`}
                     strokeWidth={1.8}
                   />
                 ) : (
@@ -93,7 +93,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                     />
                   </div>
                 )}
-                <div className="absolute left-16 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                <div className="absolute left-16 z-10 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 dark:bg-slate-100 dark:text-slate-900">
                   {item.label}
                 </div>
               </button>

@@ -15,7 +15,12 @@ export type NotificationSettingsState = Record<NotificationKey, boolean>
 
 export type GeneralSettingsState = {
   businessName: string
-  managerName: string
+  employeeName: string
+  employeeEmail: string
+  employeePhone: string
+  employeeRole: string
+  employeeAvatarUrl: string
+  employeePin: string
   email: string
   phone: string
   language: string

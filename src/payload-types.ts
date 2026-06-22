@@ -204,6 +204,7 @@ export interface Table {
   id: number;
   tableNumber: string;
   shape: 'vertical' | 'horizontal';
+  chairs: number;
   status: 'available' | 'billed' | 'reserved' | 'dine';
   x: number;
   y: number;
@@ -371,6 +372,7 @@ export interface DishesSelect<T extends boolean = true> {
 export interface TablesSelect<T extends boolean = true> {
   tableNumber?: T;
   shape?: T;
+  chairs?: T;
   status?: T;
   x?: T;
   y?: T;

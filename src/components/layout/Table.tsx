@@ -15,6 +15,7 @@ import type {
   TableItem,
   TableOrder,
   TableStatus,
+  TableShape,
 } from '@/components/table/types'
 import { cn, countStatuses } from '@/components/table/utils'
 import { createTable, updateTablePosition, updateTableStatus } from '@/app/(frontend)/table/actions'
@@ -52,9 +53,10 @@ export default function Table({ initialTables, customers, dishes }: TableProps) 
 
   const statusCounts = useMemo(() => countStatuses(tables), [tables])
 
-  function handleAddTable(worldX: number, worldY: number) {
+  // Change the signature from (worldX, worldY) to (worldX, worldY, shape, chairs)
+  function handleAddTable(worldX: number, worldY: number, shape: TableShape, chairs: number) {
     startTransition(async () => {
-      const result = await createTable(worldX, worldY, 'vertical')
+      const result = await createTable(worldX, worldY, shape, chairs)
       if (result.table) {
         setTables((current) => [...current, result.table!])
       }

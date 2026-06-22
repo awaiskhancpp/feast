@@ -28,6 +28,7 @@ export default async function TablePage() {
     x: doc.x,
     y: doc.y,
     shape: doc.shape as TableShape,
+    chairs: doc.chairs ?? (doc.shape === 'horizontal' ? 8 : 6), // ← add this line
     status: doc.status as TableStatus,
     time: doc.time ?? undefined,
   }))

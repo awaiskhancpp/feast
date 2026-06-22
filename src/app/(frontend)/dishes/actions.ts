@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import { revalidatePath } from 'next/cache'
 import config from '@/payload.config'
 import { DISH_CATEGORIES, type DishCategoryValue } from '@/lib/dishCategories'
+import { isPositiveMoney, isRequired } from '@/lib/validation'
 
 export interface DishFormState {
   error?: string
@@ -44,8 +45,13 @@ function readDishFields(formData: FormData) {
 export async function createDish(_prev: DishFormState, formData: FormData): Promise<DishFormState> {
   const { name, category, price, description, inStock } = readDishFields(formData)
 
-  if (!name || !isDishCategory(category) || !description || Number.isNaN(price)) {
-    return { error: 'Please fill in every field with a valid price.' }
+  if (
+    !isRequired(name) ||
+    !isDishCategory(category) ||
+    !isRequired(description) ||
+    !isPositiveMoney(price)
+  ) {
+    return { error: 'Please fill in every field with a valid positive price.' }
   }
 
   const payloadConfig = await config
@@ -72,8 +78,13 @@ export async function updateDish(
 ): Promise<DishFormState> {
   const { name, category, price, description, inStock } = readDishFields(formData)
 
-  if (!name || !isDishCategory(category) || !description || Number.isNaN(price)) {
-    return { error: 'Please fill in every field with a valid price.' }
+  if (
+    !isRequired(name) ||
+    !isDishCategory(category) ||
+    !isRequired(description) ||
+    !isPositiveMoney(price)
+  ) {
+    return { error: 'Please fill in every field with a valid positive price.' }
   }
 
   const payloadConfig = await config

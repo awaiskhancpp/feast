@@ -1,29 +1,35 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, type InputHTMLAttributes } from 'react'
 import Image from 'next/image'
-// import { createCustomer, type CreateCustomerState } from '@/app/(frontend)/customer/actions'
+import { createCustomer, type CreateCustomerState } from '@/app/(frontend)/customer/actions'
 import { Button } from '@/components/ui/button'
 
-// const initialState: CreateCustomerState = {}
+const initialState: CreateCustomerState = {}
 
 interface AddCustomerFormProps {
   onSuccess: () => void
 }
 
 export function AddCustomerForm({ onSuccess }: AddCustomerFormProps) {
-  //   const [state, formAction, isPending] = useActionState(createCustomer, initialState)
+  const [state, formAction, isPending] = useActionState(createCustomer, initialState)
 
-  //   useEffect(() => {
-  //     if (state.success) onSuccess()
-  //   }, [state.success, onSuccess])
+  useEffect(() => {
+    if (state.success) onSuccess()
+  }, [state.success, onSuccess])
 
   return (
-    <form className="space-y-4">
-      <Field label="First Name" name="firstName" placeholder="Jerome" />
-      <Field label="Last Name" name="lastName" placeholder="Bell" />
-      <Field label="Phone Number" name="phoneNumber" placeholder="(319) 555-0115" type="tel" />
-      <Field label="Address" name="address" placeholder="8558 Green Rd." />
+    <form action={formAction} className="space-y-4">
+      <Field label="First Name" name="firstName" placeholder="Jerome" minLength={2} />
+      <Field label="Last Name" name="lastName" placeholder="Bell" minLength={2} />
+      <Field
+        label="Phone Number"
+        name="phoneNumber"
+        placeholder="(319) 555-0115"
+        type="tel"
+        inputMode="tel"
+      />
+      <Field label="Address" name="address" placeholder="8558 Green Rd." minLength={5} />
 
       <div>
         <label htmlFor="status" className="mb-1.5 block text-sm font-medium text-gray-700">
@@ -56,7 +62,8 @@ export function AddCustomerForm({ onSuccess }: AddCustomerFormProps) {
         certainly left over from duplicating the floor-plan's order modal. Using
         "Add Customer" here instead since that's what this form actually does.
       */}
-      <Button type="submit" text={'Add Customer'} disabled={false} />
+      {state.error ? <p className="text-sm text-red-600">{state.error}</p> : null}
+      <Button type="submit" text={isPending ? 'Adding...' : 'Add Customer'} disabled={isPending} />
     </form>
   )
 }
@@ -66,11 +73,15 @@ function Field({
   name,
   placeholder,
   type = 'text',
+  minLength,
+  inputMode,
 }: {
   label: string
   name: string
   placeholder: string
   type?: string
+  minLength?: number
+  inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode']
 }) {
   return (
     <div>
@@ -83,6 +94,8 @@ function Field({
         type={type}
         placeholder={placeholder}
         required
+        minLength={minLength}
+        inputMode={inputMode}
         className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40"
       />
     </div>

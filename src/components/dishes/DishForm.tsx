@@ -75,7 +75,7 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
             name="price"
             type="number"
             step="0.01"
-            min="0"
+            min="0.01"
             defaultValue={defaults?.price}
             placeholder="6.50"
             required
@@ -95,6 +95,7 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
           rows={3}
           placeholder="Toasted bread topped with a mix of fresh tomatoes, basil, and olive oil."
           required
+          minLength={10}
           className="w-full resize-none rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40"
         />
       </div>

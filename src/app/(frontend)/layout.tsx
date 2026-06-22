@@ -1,10 +1,29 @@
 'use client'
 import React, { useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/ui/Sidebar'
 import { Navbar } from '@/components/ui/Navbar'
+import { useCurrentEmployee } from '@/lib/useCurrentEmployee'
 
 export default function FrontendLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+  const { employee, ready } = useCurrentEmployee()
+
+  React.useEffect(() => {
+    if (ready && !employee) {
+      router.replace(`/login?next=${encodeURIComponent(pathname || '/')}`)
+    }
+  }, [employee, pathname, ready, router])
+
+  if (!ready || !employee) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-[#f5f7fb] text-sm font-medium text-gray-500">
+        Loading workspace...
+      </div>
+    )
+  }
 
   return (
     <div className="flex w-full min-h-screen">

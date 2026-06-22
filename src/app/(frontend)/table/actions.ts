@@ -24,6 +24,7 @@ export async function createTable(
   x: number,
   y: number,
   shape: TableShape,
+  chairs: number, // ← add this param
 ): Promise<{ table?: TableItem; error?: string }> {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
@@ -32,7 +33,7 @@ export async function createTable(
     const tableNumber = await getNextTableNumber(payload)
     const doc = await payload.create({
       collection: 'tables',
-      data: { tableNumber, x, y, shape, status: 'available' },
+      data: { tableNumber, x, y, shape, chairs, status: 'available' }, // ← add chairs
     })
 
     revalidatePath('/table')
@@ -43,6 +44,7 @@ export async function createTable(
         x: doc.x,
         y: doc.y,
         shape: doc.shape as TableShape,
+        chairs: doc.chairs, // ← add this line
         status: doc.status as TableStatus,
       },
     }

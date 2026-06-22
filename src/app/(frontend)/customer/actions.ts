@@ -3,6 +3,7 @@
 import { getPayload } from 'payload'
 import { revalidatePath } from 'next/cache'
 import config from '@/payload.config'
+import { isRequired, isValidName, isValidUSPhone } from '@/lib/validation'
 
 export interface CreateCustomerState {
   error?: string
@@ -19,8 +20,14 @@ export async function createCustomer(
   const address = String(formData.get('address') || '').trim()
   const status = String(formData.get('status') || 'guest')
 
-  if (!firstName || !lastName || !phoneNumber || !address) {
-    return { error: 'Please fill in every field before creating the customer.' }
+  if (!isValidName(firstName) || !isValidName(lastName)) {
+    return { error: 'Please enter a valid first and last name.' }
+  }
+  if (!isValidUSPhone(phoneNumber)) {
+    return { error: 'Please enter a valid US phone number.' }
+  }
+  if (!isRequired(address) || address.length < 5) {
+    return { error: 'Please enter a valid address.' }
   }
   if (status !== 'member' && status !== 'guest') {
     return { error: 'Invalid status.' }

@@ -16,7 +16,7 @@ const menuItems: Array<{
 }> = [
   { id: 'general', label: 'General Settings', icon: '/icons/settingIcon.svg' },
   { id: 'notifications', label: 'Notification Settings', icon: '/icons/notificationIcon.svg' },
-  { id: 'appearance', label: 'Apperance Settings', icon: '/icons/appearenceIcon.svg' },
+  { id: 'appearance', label: 'Appearance Settings', icon: '/icons/appearenceIcon.svg' },
   { id: 'privacy', label: 'Privacy & Security Settings', icon: '/icons/privacyIcon.svg' },
   { id: 'logout', label: 'Logout', icon: '/icons/logout.svg' },
 ]
@@ -24,11 +24,10 @@ const menuItems: Array<{
 export function SettingsMenu({ activeTab, onSelectTab }: SettingsMenuProps) {
   return (
     <aside className="xl:sticky xl:top-4 self-start">
-      <div className="rounded-2xl border border-gray-100 bg-white p-3 shadow-sm">
+      <div className="rounded-2xl border border-gray-100 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="space-y-2" role="tablist" aria-label="Settings sections">
           {menuItems.map((item) => {
             const active = activeTab === item.id
-            const Icon = item.icon
             const isLogout = item.id === 'logout'
 
             return (
@@ -40,9 +39,12 @@ export function SettingsMenu({ activeTab, onSelectTab }: SettingsMenuProps) {
                 onClick={() => onSelectTab(item.id)}
                 className={cn(
                   'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition',
-                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50',
-                  isLogout && 'mt-2 border-t border-gray-100 pt-4 text-red-500',
-                  isLogout && active && 'bg-red-50 text-red-500',
+                  active
+                    ? 'bg-gray-100 text-gray-900 dark:bg-slate-800 dark:text-gray-100'
+                    : 'text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-800',
+                  isLogout &&
+                    'mt-2 border-t border-gray-100 pt-4 text-red-500 dark:border-slate-800',
+                  isLogout && active && 'bg-red-50 text-red-500 dark:bg-red-950/40',
                 )}
               >
                 <span
@@ -53,7 +55,7 @@ export function SettingsMenu({ activeTab, onSelectTab }: SettingsMenuProps) {
                     isLogout && 'text-red-500',
                   )}
                 >
-                  <div className="w-4 h-4">
+                  <div className="h-4 w-4">
                     <Image src={item.icon} alt="" width={20} height={20} />
                   </div>
                 </span>
