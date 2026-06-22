@@ -1,48 +1,120 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { Pencil, X } from 'lucide-react'
 import AddOrderModal from '@/components/table/AddOrderModal'
 import OrderMenu from '@/components/table/OrderMenu'
 import TableFloor from '@/components/table/TableFloor'
 import TableLegend from '@/components/table/TableLegend'
-import { INITIAL_TABLES } from '@/components/table/tableData'
 import { STATUS_META } from '@/components/table/tableData'
-import type { OrderDraft, TableItem, TableOrder, TableStatus } from '@/components/table/types'
+import type {
+  Customer,
+  MenuItem,
+  OrderDraft,
+  TableItem,
+  TableOrder,
+  TableStatus,
+} from '@/components/table/types'
 import { cn, countStatuses } from '@/components/table/utils'
+import { createTable, updateTablePosition, updateTableStatus } from '@/app/(frontend)/table/actions'
 
-export default function Table() {
-  const [tables, setTables] = useState<TableItem[]>(() =>
-    INITIAL_TABLES.map((table) => ({ ...table })),
-  )
+interface TableProps {
+  initialTables: TableItem[]
+  customers: Customer[]
+  dishes: MenuItem[]
+}
+
+export default function Table({ initialTables, customers, dishes }: TableProps) {
+  const router = useRouter()
+  const [, startTransition] = useTransition()
+
+  const [tables, setTables] = useState<TableItem[]>(initialTables)
   const [activeFilter, setActiveFilter] = useState<TableStatus | null>(null)
-  const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
   const [activeOrder, setActiveOrder] = useState<TableOrder | null>(null)
+  const [editMode, setEditMode] = useState(false)
+
+  // Server is the single source of truth. Whenever a fresh `initialTables`
+  // arrives (after a mutation's revalidatePath + router.refresh() round
+  // trip), resync local state to it - local state during a drag is only a
+  // rendering cache, never a second copy of truth that can drift.
+  useEffect(() => {
+    setTables(initialTables)
+  }, [initialTables])
 
   const selectedTable = useMemo(
     () => tables.find((table) => table.id === selectedTableId) ?? null,
     [selectedTableId, tables],
   )
-  const canOpenOrder = selectedTable?.status === 'available'
-  const canEditTable = selectedTable !== null && selectedTable.status !== 'available'
+  const canOpenOrder = !editMode && selectedTable?.status === 'available'
+  const canEditTable = !editMode && selectedTable !== null && selectedTable.status !== 'available'
 
   const statusCounts = useMemo(() => countStatuses(tables), [tables])
 
-  const handleCreateOrder = (draft: OrderDraft) => {
+  function handleAddTable(worldX: number, worldY: number) {
+    startTransition(async () => {
+      const result = await createTable(worldX, worldY, 'vertical')
+      if (result.table) {
+        setTables((current) => [...current, result.table!])
+      }
+      router.refresh()
+    })
+  }
+
+  // Continuous, local-only update fired on every pointermove while dragging -
+  // this is what makes the drag feel live. Nothing is persisted here.
+  function handleMoveTable(tableId: string, x: number, y: number) {
+    setTables((current) => current.map((t) => (t.id === tableId ? { ...t, x, y } : t)))
+  }
+
+  // Fires once on pointerup - this is the only point a position is actually
+  // written to the database, so dragging doesn't spam the server on every
+  // pixel of movement.
+  function handleMoveTableEnd(tableId: string, x: number, y: number) {
+    startTransition(async () => {
+      await updateTablePosition(tableId, x, y)
+      router.refresh()
+    })
+  }
+
+  function handleChangeStatus(status: TableStatus) {
+    if (!selectedTable) return
+    const time = status === 'dine' ? selectedTable.time || '03:22' : undefined
+
+    setTables((current) =>
+      current.map((t) => (t.id === selectedTable.id ? { ...t, status, time } : t)),
+    )
+    setSelectedTableId(null)
+
+    startTransition(async () => {
+      await updateTableStatus(selectedTable.id, status, time)
+      router.refresh()
+    })
+  }
+
+  function handleCreateOrder(draft: OrderDraft) {
     const createdOrder: TableOrder = {
       ...draft,
-      orderNumber: '#002',
+      orderNumber: `#${String(Date.now()).slice(-3)}`,
       createdAt: new Date().toISOString(),
     }
 
-    setTables((currentTables) =>
-      currentTables.map((table) =>
+    const time = '03:22'
+    setTables((current) =>
+      current.map((table) =>
         table.id === draft.tableId
-          ? { ...table, status: 'billed', time: table.time || '03:22' }
+          ? { ...table, status: 'billed', time: table.time || time }
           : table,
       ),
     )
     setSelectedTableId(null)
     setActiveOrder(createdOrder)
+
+    startTransition(async () => {
+      await updateTableStatus(draft.tableId, 'billed', time)
+      router.refresh()
+    })
   }
 
   return (
@@ -53,15 +125,44 @@ export default function Table() {
         onFilterChange={(status) => setActiveFilter(activeFilter === status ? null : status)}
       />
 
+      <div className="flex items-center justify-between border-b border-slate-100 bg-white px-3.5 py-2 sm:px-[18px]">
+        <p className="text-xs text-slate-500">
+          {editMode
+            ? 'Drag a table to reposition it, or add a new one.'
+            : 'Tap a table to view or start an order.'}
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setEditMode((current) => !current)
+            setSelectedTableId(null)
+          }}
+          className={cn(
+            'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition',
+            editMode
+              ? 'bg-[#6066ed] text-white'
+              : 'border border-slate-200 text-slate-600 hover:bg-slate-50',
+          )}
+        >
+          {editMode ? <X className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
+          {editMode ? 'Done Editing' : 'Edit Layout'}
+        </button>
+      </div>
+
       <TableFloor
         activeFilter={activeFilter}
+        editMode={editMode}
         selectedTableId={selectedTableId}
         tables={tables}
+        onAddTable={handleAddTable}
         onClearSelection={() => setSelectedTableId(null)}
+        onMoveTable={handleMoveTable}
+        onMoveTableEnd={handleMoveTableEnd}
         onSelectTable={setSelectedTableId}
       />
 
       <AddOrderModal
+        customers={customers}
         open={canOpenOrder}
         table={canOpenOrder ? selectedTable : null}
         onClose={() => setSelectedTableId(null)}
@@ -72,20 +173,12 @@ export default function Table() {
         open={canEditTable}
         table={canEditTable ? selectedTable : null}
         onClose={() => setSelectedTableId(null)}
-        onChangeStatus={(status) => {
-          if (!selectedTable) return
-          setTables((currentTables) =>
-            currentTables.map((table) =>
-              table.id === selectedTable.id
-                ? { ...table, status, time: status === 'dine' ? table.time || '03:22' : undefined }
-                : table,
-            ),
-          )
-          setSelectedTableId(null)
-        }}
+        onChangeStatus={handleChangeStatus}
       />
 
-      {activeOrder ? <OrderMenu order={activeOrder} onBack={() => setActiveOrder(null)} /> : null}
+      {activeOrder ? (
+        <OrderMenu dishes={dishes} order={activeOrder} onBack={() => setActiveOrder(null)} />
+      ) : null}
     </div>
   )
 }
@@ -108,7 +201,7 @@ function TableStatusModal({
       <div className="w-full max-w-[320px] rounded-2xl bg-white p-5 shadow-[0_18px_60px_rgba(26,31,44,0.18)]">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-slate-950">Table T-{table.id}</h2>
+            <h2 className="text-base font-bold text-slate-950">Table T-{table.tableNumber}</h2>
             <p className="text-xs text-slate-500">Change table mode</p>
           </div>
           <button
@@ -116,7 +209,7 @@ function TableStatusModal({
             type="button"
             onClick={onClose}
           >
-            ×
+            <X className="h-4 w-4" />
           </button>
         </div>
 

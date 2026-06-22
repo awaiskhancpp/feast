@@ -46,14 +46,7 @@ export function TransactionDetailsPanel({ transaction }: TransactionDetailsPanel
               <p className="mt-1 text-xs font-medium text-blue-600">x{line.quantity}</p>
             </div>
 
-            <div className="flex h-full flex-col items-end justify-between pt-0.5">
-              <button
-                className="grid h-5 w-5 place-items-center rounded  text-[#8d70ff]"
-                type="button"
-                aria-label={`Edit ${line.name}`}
-              >
-                <Image src="/icons/editIcon.svg" alt="" width={14} height={14} />
-              </button>
+            <div className="flex h-full flex-col items-end justify-start pt-0.5">
               <p className="text-sm font-semibold text-gray-900">{line.price}</p>
             </div>
           </div>

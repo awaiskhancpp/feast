@@ -4,6 +4,7 @@ import type { TableItem } from './types'
 import { TABLE_DIMENSIONS, cn } from './utils'
 
 type FloorTableProps = {
+  editMode: boolean
   muted: boolean
   selected: boolean
   table: TableItem
@@ -11,7 +12,7 @@ type FloorTableProps = {
   y: number
 }
 
-export default function FloorTable({ muted, selected, table, x, y }: FloorTableProps) {
+export default function FloorTable({ editMode, muted, selected, table, x, y }: FloorTableProps) {
   const meta = STATUS_META[table.status]
   const dimensions = TABLE_DIMENSIONS[table.shape]
   const horizontal = table.shape === 'horizontal'
@@ -19,13 +20,14 @@ export default function FloorTable({ muted, selected, table, x, y }: FloorTableP
   return (
     <button
       className={cn(
-        'floor-table absolute cursor-pointer border-0 bg-transparent p-0 opacity-100 transition-opacity duration-150 ease-out',
+        'floor-table absolute border-0 bg-transparent p-0 opacity-100 transition-opacity duration-150 ease-out',
+        editMode ? 'cursor-move' : 'cursor-pointer',
         muted && 'opacity-[0.18]',
       )}
       type="button"
       data-id={table.id}
       style={{ left: x, top: y, width: dimensions.width, height: dimensions.height }}
-      aria-label={`Table ${table.id}, ${meta.label}`}
+      aria-label={`Table ${table.tableNumber}, ${meta.label}`}
     >
       <TableChairs shape={table.shape} />
 
@@ -36,6 +38,7 @@ export default function FloorTable({ muted, selected, table, x, y }: FloorTableP
             ? 'left-[27px] top-6 h-[51px] w-[94px]'
             : 'left-[22px] top-[21px] h-[84px] w-[52px]',
           selected && 'shadow-[0_0_0_2px_rgba(91,95,242,0.26),0_10px_20px_rgba(91,95,242,0.12)]',
+          editMode && 'shadow-[0_0_0_1.5px_dashed_rgba(91,95,242,0.45)]',
         )}
       >
         <span
@@ -45,7 +48,7 @@ export default function FloorTable({ muted, selected, table, x, y }: FloorTableP
             meta.badgeClass,
           )}
         >
-          T-{table.id}
+          T-{table.tableNumber}
         </span>
 
         {table.time ? (

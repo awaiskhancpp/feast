@@ -1,39 +1,45 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, CalendarDays, ChevronDown, Minus, Plus, X } from 'lucide-react'
-import { CUSTOMERS } from './tableData'
-import type { OrderDraft, OrderType, TableItem } from './types'
+import { ArrowLeft, ChevronDown, Minus, Plus, X } from 'lucide-react'
+import type { Customer, OrderDraft, OrderType, TableItem } from './types'
 import { cn } from './utils'
 
 type AddOrderModalProps = {
+  customers: Customer[]
   open: boolean
   table: TableItem | null
   onClose: () => void
   onCreateOrder: (draft: OrderDraft) => void
 }
 
-export default function AddOrderModal({ open, table, onClose, onCreateOrder }: AddOrderModalProps) {
+export default function AddOrderModal({
+  customers,
+  open,
+  table,
+  onClose,
+  onCreateOrder,
+}: AddOrderModalProps) {
   const [orderType, setOrderType] = useState<OrderType>('dine-in')
-  const [customerName, setCustomerName] = useState('Nicolas Zelensky')
-  const [guestCount, setGuestCount] = useState(5)
+  const [customerName, setCustomerName] = useState('')
+  const [guestCount, setGuestCount] = useState(2)
   const [customerMenuOpen, setCustomerMenuOpen] = useState(false)
 
   useEffect(() => {
     if (!open) return
 
     setOrderType('dine-in')
-    setCustomerName('Nicolas Zelensky')
-    setGuestCount(5)
+    setCustomerName('')
+    setGuestCount(2)
     setCustomerMenuOpen(false)
   }, [open, table?.id])
 
   const visibleCustomers = useMemo(() => {
     const query = customerName.trim().toLowerCase()
-    if (!query) return CUSTOMERS
+    if (!query) return customers
 
-    return CUSTOMERS.filter((customer) => customer.name.toLowerCase().includes(query))
-  }, [customerName])
+    return customers.filter((customer) => customer.name.toLowerCase().includes(query))
+  }, [customerName, customers])
 
   if (!open || !table) return null
 
@@ -92,7 +98,7 @@ export default function AddOrderModal({ open, table, onClose, onCreateOrder }: A
             <span className="mb-1.5 block text-xs font-semibold text-slate-950">Table</span>
             <input
               className="h-10 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 outline-none"
-              value={`T-${table.id}`}
+              value={`T-${table.tableNumber}`}
               readOnly
             />
           </label>
@@ -103,6 +109,7 @@ export default function AddOrderModal({ open, table, onClose, onCreateOrder }: A
               <input
                 className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 pr-9 text-sm text-slate-700 outline-none focus:border-[#6066ed] focus:ring-1 focus:ring-[#6066ed]"
                 value={customerName}
+                placeholder="Walk-in Customer"
                 onChange={(event) => {
                   setCustomerName(event.target.value)
                   setCustomerMenuOpen(true)
@@ -120,23 +127,28 @@ export default function AddOrderModal({ open, table, onClose, onCreateOrder }: A
             </div>
 
             {customerMenuOpen ? (
-              <div className="absolute left-0 right-0 top-[68px] z-20 overflow-hidden rounded-md bg-white py-1 shadow-[0_12px_30px_rgba(24,29,42,0.16)]">
-                {visibleCustomers.map((customer) => (
-                  <button
-                    className={cn(
-                      'flex h-8 w-full items-center px-4 text-left text-xs text-slate-600 hover:bg-slate-50',
-                      customer.name === customerName && 'bg-slate-50 font-semibold text-slate-950',
-                    )}
-                    type="button"
-                    key={customer.id}
-                    onClick={() => {
-                      setCustomerName(customer.name)
-                      setCustomerMenuOpen(false)
-                    }}
-                  >
-                    {customer.name}
-                  </button>
-                ))}
+              <div className="absolute left-0 right-0 top-[68px] z-20 max-h-48 overflow-y-auto rounded-md bg-white py-1 shadow-[0_12px_30px_rgba(24,29,42,0.16)]">
+                {visibleCustomers.length === 0 ? (
+                  <p className="px-4 py-2 text-xs text-slate-400">No matching customers</p>
+                ) : (
+                  visibleCustomers.map((customer) => (
+                    <button
+                      className={cn(
+                        'flex h-8 w-full items-center px-4 text-left text-xs text-slate-600 hover:bg-slate-50',
+                        customer.name === customerName &&
+                          'bg-slate-50 font-semibold text-slate-950',
+                      )}
+                      type="button"
+                      key={customer.id}
+                      onClick={() => {
+                        setCustomerName(customer.name)
+                        setCustomerMenuOpen(false)
+                      }}
+                    >
+                      {customer.name}
+                    </button>
+                  ))
+                )}
                 <button
                   className="flex h-8 w-full items-center px-4 text-left text-xs text-slate-600 hover:bg-slate-50"
                   type="button"

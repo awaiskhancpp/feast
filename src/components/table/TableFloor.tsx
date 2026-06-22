@@ -5,7 +5,15 @@ import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent }
 import CanvasControls from './CanvasControls'
 import FloorTable from './FloorTable'
 import type { TableItem, TableStatus } from './types'
-import { clampCamera, cn, getFloorMetrics, getOpeningCamera, getTablePosition } from './utils'
+import {
+  FLOOR_SIZE,
+  TABLE_DIMENSIONS,
+  clampCamera,
+  clampTablePosition,
+  cn,
+  getDefaultCamera,
+  getOpeningCamera,
+} from './utils'
 
 type Camera = {
   x: number
@@ -25,33 +33,43 @@ type DragState = {
   cameraX: number
   cameraY: number
   moved: boolean
-  tableId: number | null
+  tableId: string | null
+  // World-space starting position of the table being dragged (only set when
+  // dragging a table in edit mode) - the basis the live drag delta is added to.
+  tableStartX: number
+  tableStartY: number
+  // Kept in sync on every pointermove so pointerup can persist the final
+  // position without having to re-derive it from the event.
+  lastTableX: number
+  lastTableY: number
 }
 
 type TableFloorProps = {
   activeFilter: TableStatus | null
-  selectedTableId: number | null
+  editMode: boolean
+  selectedTableId: string | null
   tables: TableItem[]
+  onAddTable: (worldX: number, worldY: number) => void
   onClearSelection: () => void
-  onSelectTable: (tableId: number) => void
+  onMoveTable: (tableId: string, x: number, y: number) => void
+  onMoveTableEnd: (tableId: string, x: number, y: number) => void
+  onSelectTable: (tableId: string) => void
 }
 
 export default function TableFloor({
   activeFilter,
+  editMode,
   selectedTableId,
   tables,
+  onAddTable,
   onClearSelection,
+  onMoveTable,
+  onMoveTableEnd,
   onSelectTable,
 }: TableFloorProps) {
   const stageRef = useRef<HTMLElement | null>(null)
   const dragRef = useRef<DragState | null>(null)
   const userMovedRef = useRef(false)
-
-  const floorMetrics = useMemo(() => getFloorMetrics(tables), [tables])
-  const floorSize = useMemo(
-    () => ({ width: floorMetrics.width, height: floorMetrics.height }),
-    [floorMetrics.height, floorMetrics.width],
-  )
 
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: 1 })
   const [stageSize, setStageSize] = useState<Size>({ width: 0, height: 0 })
@@ -67,8 +85,8 @@ export default function TableFloor({
 
       setStageSize(nextStageSize)
       setCamera((current) => {
-        if (!userMovedRef.current) return getOpeningCamera(nextStageSize, floorSize)
-        return clampCamera(current, nextStageSize, floorSize)
+        if (!userMovedRef.current) return getDefaultCamera(nextStageSize, tables)
+        return clampCamera(current, nextStageSize)
       })
     }
 
@@ -77,12 +95,16 @@ export default function TableFloor({
     resizeObserver.observe(stage)
 
     return () => resizeObserver.disconnect()
-  }, [floorSize])
+    // Deliberately NOT depending on `tables` - this only needs to re-run when
+    // the stage's actual DOM size changes. Re-running on every table position
+    // update (e.g. during a drag) would re-center the camera mid-drag.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const setClampedCamera = (nextCamera: Camera | ((current: Camera) => Camera)) => {
     setCamera((current) => {
       const resolved = typeof nextCamera === 'function' ? nextCamera(current) : nextCamera
-      return clampCamera(resolved, stageSize, floorSize)
+      return clampCamera(resolved, stageSize)
     })
   }
 
@@ -115,11 +137,31 @@ export default function TableFloor({
   }
 
   const scaleToFit = () => {
-    const nextCamera = getOpeningCamera(stageSize, floorSize)
+    const nextCamera = getOpeningCamera(stageSize, tables)
 
     userMovedRef.current = true
     onClearSelection()
     setCamera(nextCamera)
+  }
+
+  const addTableAtCenter = () => {
+    const stage = stageRef.current
+    if (!stage) return
+    const bounds = stage.getBoundingClientRect()
+
+    // Convert the screen-space center of the visible canvas into world
+    // coordinates, so the new table lands wherever the user is currently
+    // looking instead of always appearing at a fixed corner they'd have to
+    // pan to find. Offset by half the default (vertical) table footprint so
+    // the table is centered on that point, not its top-left corner.
+    const defaultDim = TABLE_DIMENSIONS.vertical
+    const screenCenterX = bounds.width / 2
+    const screenCenterY = bounds.height / 2
+    const worldX = (screenCenterX - camera.x) / camera.scale - defaultDim.width / 2
+    const worldY = (screenCenterY - camera.y) / camera.scale - defaultDim.height / 2
+
+    const clamped = clampTablePosition(worldX, worldY, 'vertical')
+    onAddTable(clamped.x, clamped.y)
   }
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLElement>) => {
@@ -128,6 +170,8 @@ export default function TableFloor({
 
     event.currentTarget.setPointerCapture(event.pointerId)
     const tableElement = target.closest<HTMLButtonElement>('.floor-table')
+    const tableId = tableElement ? (tableElement.dataset.id ?? null) : null
+    const draggedTable = tableId ? tables.find((t) => t.id === tableId) : undefined
 
     dragRef.current = {
       pointerId: event.pointerId,
@@ -136,7 +180,11 @@ export default function TableFloor({
       cameraX: camera.x,
       cameraY: camera.y,
       moved: false,
-      tableId: tableElement ? Number(tableElement.dataset.id) : null,
+      tableId,
+      tableStartX: draggedTable?.x ?? 0,
+      tableStartY: draggedTable?.y ?? 0,
+      lastTableX: draggedTable?.x ?? 0,
+      lastTableY: draggedTable?.y ?? 0,
     }
   }
 
@@ -149,9 +197,31 @@ export default function TableFloor({
 
     if (Math.hypot(dx, dy) > 4) {
       drag.moved = true
-      userMovedRef.current = true
       setIsDragging(true)
-      setClampedCamera((current) => ({ ...current, x: drag.cameraX + dx, y: drag.cameraY + dy }))
+
+      if (editMode && drag.tableId) {
+        // Screen-pixel deltas have to be divided by the camera's zoom level
+        // to land in the same "world" units the table's x/y live in - the
+        // table sits inside a CSS scale(camera.scale) transform, so 10
+        // screen-pixels of mouse movement is only 10/scale world-units of
+        // actual table movement. Skipping this division is the single most
+        // common bug when dragging content inside a zoomable canvas.
+        const draggedTable = tables.find((t) => t.id === drag.tableId)
+        const worldDx = dx / camera.scale
+        const worldDy = dy / camera.scale
+        const clamped = clampTablePosition(
+          drag.tableStartX + worldDx,
+          drag.tableStartY + worldDy,
+          draggedTable?.shape ?? 'vertical',
+        )
+
+        drag.lastTableX = clamped.x
+        drag.lastTableY = clamped.y
+        onMoveTable(drag.tableId, clamped.x, clamped.y)
+      } else {
+        userMovedRef.current = true
+        setClampedCamera((current) => ({ ...current, x: drag.cameraX + dx, y: drag.cameraY + dy }))
+      }
     }
   }
 
@@ -162,7 +232,9 @@ export default function TableFloor({
     event.currentTarget.releasePointerCapture(event.pointerId)
     setIsDragging(false)
 
-    if (!drag.moved && drag.tableId) {
+    if (drag.moved && editMode && drag.tableId) {
+      onMoveTableEnd(drag.tableId, drag.lastTableX, drag.lastTableY)
+    } else if (!drag.moved && drag.tableId) {
       onSelectTable(drag.tableId)
     } else if (!drag.moved) {
       onClearSelection()
@@ -179,8 +251,9 @@ export default function TableFloor({
   return (
     <section
       className={cn(
-        'relative min-h-0 flex-1 touch-none select-none overflow-hidden bg-[#f4f5f8] cursor-grab',
-        isDragging && 'cursor-grabbing',
+        'relative min-h-0 flex-1 touch-none select-none overflow-hidden bg-[#f4f5f8]',
+        editMode ? 'cursor-default' : 'cursor-grab',
+        isDragging && !editMode && 'cursor-grabbing',
       )}
       ref={stageRef}
       aria-label="Draggable restaurant table canvas"
@@ -196,30 +269,43 @@ export default function TableFloor({
       <div
         className="absolute left-0 top-0 origin-top-left will-change-transform"
         style={{
-          width: floorSize.width,
-          height: floorSize.height,
+          width: FLOOR_SIZE.width,
+          height: FLOOR_SIZE.height,
           transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`,
         }}
         aria-live="polite"
       >
         {tables.map((table) => {
-          const position = getTablePosition(table, floorMetrics)
           const muted = activeFilter !== null && activeFilter !== table.status
 
           return (
             <FloorTable
               key={table.id}
+              editMode={editMode}
               muted={muted}
               selected={selectedTableId === table.id}
               table={table}
-              x={position.x}
-              y={position.y}
+              x={table.x}
+              y={table.y}
             />
           )
         })}
       </div>
 
+      {tables.length === 0 ? (
+        <div className="pointer-events-none absolute inset-0 grid place-items-center px-6 text-center">
+          <p className="text-sm text-slate-400">
+            No tables yet.{' '}
+            {editMode
+              ? 'Use "Add Table" below to place your first one.'
+              : 'Turn on Edit Layout to add one.'}
+          </p>
+        </div>
+      ) : null}
+
       <CanvasControls
+        editMode={editMode}
+        onAddTable={addTableAtCenter}
         onFit={scaleToFit}
         onZoomIn={() => zoomFromCenter(1.18)}
         onZoomOut={() => zoomFromCenter(0.84)}

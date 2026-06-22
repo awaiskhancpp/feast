@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { UtensilsCrossed } from 'lucide-react'
 
 const sidebarItems = [
   {
@@ -13,14 +14,23 @@ const sidebarItems = [
     href: '/',
   },
   {
-    id: 'products',
+    id: 'floor-plan',
     icon: '/icons/gridIcon.svg',
     active: '/icons/gridHighlighted.svg',
-    label: 'Products',
+    label: 'Floor Plan',
     href: '/table',
   },
   {
-    id: 'reservation',
+    id: 'dishes',
+    // No SVG asset exists for dishes yet in /public/icons, so we use a
+    // lucide icon here. Add a real SVG to /public/icons/ later and swap
+    // this to the same Image-src pattern the other entries use.
+    lucideIcon: UtensilsCrossed,
+    label: 'Dishes',
+    href: '/dishes',
+  },
+  {
+    id: 'history',
     icon: '/icons/clockIcon.svg',
     active: '/icons/clockHighlighted.svg',
     label: 'Transaction History',
@@ -60,20 +70,29 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       <nav className="flex flex-col gap-3 flex-1">
         {sidebarItems.map((item) => {
           const active = isActive(item.href)
+          const LucideIcon = item.lucideIcon
+
           return (
             <Link key={item.id} href={item.href} onClick={() => onClose?.()}>
               <button
                 className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200 relative group flex-shrink-0"
                 title={item.label}
               >
-                <div className="w-6 h-6 relative">
-                  <Image
-                    src={active ? item.active : item.icon}
-                    alt={item.label}
-                    fill
-                    className="object-contain"
+                {LucideIcon ? (
+                  <LucideIcon
+                    className={`h-6 w-6 transition-colors ${active ? 'text-primary' : 'text-gray-400 group-hover:text-gray-600'}`}
+                    strokeWidth={1.8}
                   />
-                </div>
+                ) : (
+                  <div className="w-6 h-6 relative">
+                    <Image
+                      src={active ? item.active! : item.icon!}
+                      alt={item.label}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                )}
                 <div className="absolute left-16 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                   {item.label}
                 </div>
@@ -82,14 +101,8 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           )
         })}
       </nav>
-      <div className="">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+      <div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path
             fillRule="evenodd"
             clipRule="evenodd"
@@ -111,12 +124,10 @@ export function Sidebar({
 }) {
   return (
     <>
-      {/* Desktop — sticky, never in an overflow container */}
-      <div className="hidden md:block sticky top-0 h-screen flex-shrink-0">
+      <div className="hidden md:block sticky top-0 h-screen flex-shrink-0 z-100">
         <SidebarContent />
       </div>
 
-      {/* Mobile — fixed drawer */}
       {mobileOpen && <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={onClose} />}
       <div
         className={`fixed left-0 top-0 h-full z-50 md:hidden transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}

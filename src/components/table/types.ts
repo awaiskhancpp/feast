@@ -3,7 +3,13 @@ export type TableStatus = 'available' | 'billed' | 'reserved' | 'dine'
 export type TableShape = 'vertical' | 'horizontal'
 
 export type TableItem = {
-  id: number
+  // Payload document id - the stable identity used for persistence (update/delete).
+  // Normalized to a string at the server boundary (table/page.tsx) so nothing
+  // downstream has to care whether the database's native id is numeric or text.
+  id: string
+  // Human-facing label ("T-24"), independent of the database id - renumbering
+  // a table is just editing this field, never touching the primary key.
+  tableNumber: string
   x: number
   y: number
   shape: TableShape
@@ -23,7 +29,7 @@ export type OrderType = 'dine-in' | 'takeaway'
 
 export type OrderDraft = {
   orderType: OrderType
-  tableId: number
+  tableId: string
   customerName: string
   guests: number
 }
@@ -42,29 +48,20 @@ export type MenuCategory = {
   id: string
   label: string
   count: number
-  icon:
-    | 'all'
-    | 'appetizers'
-    | 'drink'
-    | 'desserts'
-    | 'coffee'
-    | 'main'
-    | 'salads'
-    | 'seafood'
-    | 'soup'
 }
 
 export type MenuItem = {
-  id: number
+  id: string
   name: string
   category: string
-  price: string
+  price: number
   description: string
-  image: string
+  image?: string
+  inStock: boolean
 }
 
 export type CartLine = {
-  itemId: number
+  itemId: string
   quantity: number
   note: string
   spicyLevel: number
