@@ -10,6 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
+import { useIsDarkMode } from '@/lib/useisDarkMode'
 
 const chartData = [
   { month: 'Jan', food: 250, drink: 150 },
@@ -43,6 +44,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export function MonthlySalesChart() {
   const [isMobile, setIsMobile] = useState(false)
+  const isDark = useIsDarkMode()
 
   useEffect(() => {
     const handleResize = () => {
@@ -55,19 +57,19 @@ export function MonthlySalesChart() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
   return (
-    <div className="bg-white rounded-lg p-6 border border-gray-100">
+    <div className="bg-white rounded-lg p-6 border border-gray-100 dark:bg-slate-900 dark:border-slate-800">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Monthly Sales</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Monthly Sales</h3>
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-blue-600" />
-            <span className="text-sm text-gray-600">Food</span>
+            <span className="text-sm text-gray-600 dark:text-slate-300">Food</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-blue-300" />
-            <span className="text-sm text-gray-600">Drink</span>
+            <span className="text-sm text-gray-600 dark:text-slate-300">Drink</span>
           </div>
-          <button className="text-gray-400 hover:text-gray-600">
+          <button className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300">
             <span className="text-xl">⋯</span>
           </button>
         </div>
@@ -84,17 +86,21 @@ export function MonthlySalesChart() {
           }}
           barCategoryGap={isMobile ? '30%' : '15%'}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke={isDark ? '#1e293b' : '#f0f0f0'}
+            vertical={false}
+          />
           <XAxis
             dataKey="month"
             interval={isMobile ? 1 : 0}
-            stroke="#9ca3af"
+            stroke={isDark ? '#64748b' : '#9ca3af'}
             style={{ fontSize: '12px' }}
-            axisLine={{ stroke: '#e5e7eb' }}
+            axisLine={{ stroke: isDark ? '#334155' : '#e5e7eb' }}
           />
           <YAxis
             hide={isMobile}
-            stroke="#9ca3af"
+            stroke={isDark ? '#64748b' : '#9ca3af'}
             style={{ fontSize: '12px' }}
             axisLine={false}
             tickLine={false}
@@ -105,7 +111,7 @@ export function MonthlySalesChart() {
             stackId="a"
             fill="#1e40af"
             radius={[0, 0, 8, 8]}
-            stroke="#ffffff"
+            stroke={isDark ? '#0f172a' : '#ffffff'}
             strokeWidth={2}
           />
 
@@ -114,7 +120,7 @@ export function MonthlySalesChart() {
             stackId="a"
             fill="#bfdbfe"
             radius={[8, 8, 0, 0]}
-            stroke="#ffffff"
+            stroke={isDark ? '#0f172a' : '#ffffff'}
             strokeWidth={2}
           />
         </BarChart>

@@ -40,8 +40,10 @@ export function Pagination({ currentPage, totalPages, buildHref }: PaginationPro
         href={buildHref(Math.max(1, currentPage - 1))}
         aria-disabled={atStart}
         tabIndex={atStart ? -1 : undefined}
-        className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-gray-600 ${
-          atStart ? 'pointer-events-none opacity-40' : 'hover:bg-gray-100 hover:text-gray-900'
+        className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-gray-600 dark:text-slate-300 ${
+          atStart
+            ? 'pointer-events-none opacity-40'
+            : 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-slate-800 dark:hover:text-gray-100'
         }`}
       >
         <ChevronLeft className="h-4 w-4" />
@@ -54,7 +56,7 @@ export function Pagination({ currentPage, totalPages, buildHref }: PaginationPro
       <div className="hidden items-center gap-1 sm:flex">
         {pageNumbers.map((p, i) =>
           p === 'ellipsis' ? (
-            <span key={`ellipsis-${i}`} className="px-2 text-sm text-gray-400">
+            <span key={`ellipsis-${i}`} className="px-2 text-sm text-gray-400 dark:text-slate-500">
               ...
             </span>
           ) : (
@@ -63,7 +65,9 @@ export function Pagination({ currentPage, totalPages, buildHref }: PaginationPro
               href={buildHref(p)}
               aria-current={p === currentPage ? 'page' : undefined}
               className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-sm font-medium transition-colors ${
-                p === currentPage ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'
+                p === currentPage
+                  ? 'bg-primary text-white'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               {p}
@@ -71,7 +75,7 @@ export function Pagination({ currentPage, totalPages, buildHref }: PaginationPro
           ),
         )}
       </div>
-      <span className="text-sm font-medium text-gray-600 sm:hidden">
+      <span className="text-sm font-medium text-gray-600 sm:hidden dark:text-slate-300">
         Page {currentPage} of {totalPages}
       </span>
 
@@ -79,8 +83,10 @@ export function Pagination({ currentPage, totalPages, buildHref }: PaginationPro
         href={buildHref(Math.min(totalPages, currentPage + 1))}
         aria-disabled={atEnd}
         tabIndex={atEnd ? -1 : undefined}
-        className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-gray-600 ${
-          atEnd ? 'pointer-events-none opacity-40' : 'hover:bg-gray-100 hover:text-gray-900'
+        className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-gray-600 dark:text-slate-300 ${
+          atEnd
+            ? 'pointer-events-none opacity-40'
+            : 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-slate-800 dark:hover:text-gray-100'
         }`}
       >
         <span className="hidden sm:inline">Next</span>

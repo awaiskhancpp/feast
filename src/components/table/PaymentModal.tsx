@@ -253,176 +253,199 @@ export default function PaymentModal({
               </div>
             )}
             {step === 'success' && (
-              <div className="relative grid flex-1 place-items-center text-center overflow-hidden">
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-visible z-0 h-48 w-48">
-                  {/* Background Expanding Halo Rings */}
-                  <div className="absolute h-36 w-36 rounded-full bg-[#27AE60] opacity-0 animate-ring-1" />
-                  <div className="absolute h-36 w-36 rounded-full bg-[#6FCF97] opacity-0 animate-ring-2" />
+              <div className="relative flex flex-col items-center justify-end text-center">
+                <div className="flex flex-col items-center justify-center  py-10  overflow-visible">
+                  {/* Animation & Confetti Canvas */}
+                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-visible z-0">
+                    {/* Background Expanding Halo Rings */}
+                    <div className="absolute h-40 w-40 rounded-full bg-[#27AE60] opacity-0 animate-ring-1" />
+                    <div className="absolute h-48 w-48 rounded-full bg-[#6FCF97] opacity-0 animate-ring-2" />
 
-                  {/* Individual Confetti Particles matching layout of image_aa43e3.png */}
-                  {/* Top Left Squares & Dots */}
-                  <div
-                    className="absolute h-3 w-3 rounded-sm animate-confetti"
-                    style={
-                      {
-                        '--tx': '-110px',
-                        '--ty': '-70px',
-                        '--rot': '45deg',
-                        backgroundColor: PALETTE.blue1,
-                      } as React.CSSProperties
-                    }
-                  />
-                  <div
-                    className="absolute h-2 w-2 rounded-sm animate-confetti"
-                    style={
-                      {
-                        '--tx': '-150px',
-                        '--ty': '-50px',
-                        '--rot': '12deg',
-                        backgroundColor: PALETTE.blue1,
-                      } as React.CSSProperties
-                    }
-                  />
-                  <div
-                    className="absolute h-3 w-3 rounded bg-[#EB5757] animate-confetti"
-                    style={
-                      { '--tx': '-90px', '--ty': '-40px', '--rot': '-25deg' } as React.CSSProperties
-                    }
-                  />
+                    {/* Top Left Squares & Dots */}
+                    <div
+                      className="absolute h-3 w-3 rounded-sm animate-confetti"
+                      style={
+                        {
+                          '--tx': '-110px',
+                          '--ty': '-70px',
+                          '--rot': '45deg',
+                          backgroundColor: PALETTE.blue1,
+                        } as React.CSSProperties
+                      }
+                    />
+                    <div
+                      className="absolute h-2 w-2 rounded-sm animate-confetti"
+                      style={
+                        {
+                          '--tx': '-150px',
+                          '--ty': '-50px',
+                          '--rot': '12deg',
+                          backgroundColor: PALETTE.blue1,
+                        } as React.CSSProperties
+                      }
+                    />
+                    <div
+                      className="absolute h-3 w-3 rounded bg-[#EB5757] animate-confetti"
+                      style={
+                        {
+                          '--tx': '-90px',
+                          '--ty': '-40px',
+                          '--rot': '-25deg',
+                        } as React.CSSProperties
+                      }
+                    />
 
-                  {/* Bottom Left Shapes */}
-                  <div
-                    className="absolute h-2 w-2 rounded-full animate-confetti"
-                    style={
-                      {
-                        '--tx': '-140px',
-                        '--ty': '50px',
-                        '--rot': '0deg',
-                        backgroundColor: PALETTE.blue2,
-                      } as React.CSSProperties
-                    }
-                  />
-                  <div
-                    className="absolute h-4 w-4 rounded-md rotate-12 animate-confetti"
-                    style={
-                      {
-                        '--tx': '-110px',
-                        '--ty': '80px',
-                        '--rot': '65deg',
-                        backgroundColor: PALETTE.cyan,
-                      } as React.CSSProperties
-                    }
-                  />
+                    {/* Bottom Left Shapes */}
+                    <div
+                      className="absolute h-2 w-2 rounded-full animate-confetti"
+                      style={
+                        {
+                          '--tx': '-140px',
+                          '--ty': '50px',
+                          '--rot': '0deg',
+                          backgroundColor: PALETTE.blue2,
+                        } as React.CSSProperties
+                      }
+                    />
+                    <div
+                      className="absolute h-4 w-4 rounded-md rotate-12 animate-confetti"
+                      style={
+                        {
+                          '--tx': '-110px',
+                          '--ty': '80px',
+                          '--rot': '65deg',
+                          backgroundColor: PALETTE.cyan,
+                        } as React.CSSProperties
+                      }
+                    />
 
-                  {/* Top Center / Right Confetti */}
-                  <div
-                    className="absolute h-3 w-3 rounded-sm rotate-45 animate-confetti"
-                    style={
-                      {
-                        '--tx': '10px',
-                        '--ty': '-90px',
-                        '--rot': '110deg',
-                        backgroundColor: PALETTE.yellow,
-                      } as React.CSSProperties
-                    }
-                  />
-                  <div
-                    className="absolute h-3 w-3 rounded-full animate-confetti"
-                    style={
-                      {
-                        '--tx': '20px',
-                        '--ty': '-50px',
-                        '--rot': '0deg',
-                        backgroundColor: PALETTE.blue2,
-                      } as React.CSSProperties
-                    }
-                  />
+                    {/* Top Center / Right Confetti */}
+                    <div
+                      className="absolute h-3 w-3 rounded-sm rotate-45 animate-confetti"
+                      style={
+                        {
+                          '--tx': '10px',
+                          '--ty': '-90px',
+                          '--rot': '110deg',
+                          backgroundColor: PALETTE.yellow,
+                        } as React.CSSProperties
+                      }
+                    />
+                    <div
+                      className="absolute h-3 w-3 rounded-full animate-confetti"
+                      style={
+                        {
+                          '--tx': '20px',
+                          '--ty': '-50px',
+                          '--rot': '0deg',
+                          backgroundColor: PALETTE.blue2,
+                        } as React.CSSProperties
+                      }
+                    />
 
-                  {/* Bottom/Center Triangle & Trailing pieces */}
-                  <div
-                    className="absolute w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] animate-confetti"
-                    style={
-                      {
-                        '--tx': '-50px',
-                        '--ty': '60px',
-                        '--rot': '40deg',
-                        borderBottomColor: PALETTE.orange,
-                      } as React.CSSProperties
-                    }
-                  />
-                  <div
-                    className="absolute w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] animate-confetti"
-                    style={
-                      {
-                        '--tx': '10px',
-                        '--ty': '95px',
-                        '--rot': '-15deg',
-                        borderBottomColor: PALETTE.yellow,
-                      } as React.CSSProperties
-                    }
-                  />
+                    {/* Bottom/Center Triangle & Trailing pieces */}
+                    <div
+                      className="absolute w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] animate-confetti"
+                      style={
+                        {
+                          '--tx': '-50px',
+                          '--ty': '60px',
+                          '--rot': '40deg',
+                          borderBottomColor: PALETTE.orange,
+                        } as React.CSSProperties
+                      }
+                    />
+                    <div
+                      className="absolute w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] animate-confetti"
+                      style={
+                        {
+                          '--tx': '10px',
+                          '--ty': '95px',
+                          '--rot': '-15deg',
+                          borderBottomColor: PALETTE.yellow,
+                        } as React.CSSProperties
+                      }
+                    />
 
-                  {/* Right Side Shapes */}
-                  <div
-                    className="absolute h-3 w-3 rounded-sm animate-confetti"
-                    style={
-                      {
-                        '--tx': '95px',
-                        '--ty': '-55px',
-                        '--rot': '35deg',
-                        backgroundColor: PALETTE.greenDark,
-                      } as React.CSSProperties
-                    }
-                  />
-                  <div
-                    className="absolute h-4 w-4 rounded-full animate-confetti"
-                    style={
-                      {
-                        '--tx': '150px',
-                        '--ty': '-35px',
-                        '--rot': '0deg',
-                        backgroundColor: PALETTE.yellow,
-                      } as React.CSSProperties
-                    }
-                  />
-                  <div
-                    className="absolute h-3 w-3 rounded-sm animate-confetti"
-                    style={
-                      {
-                        '--tx': '55px',
-                        '--ty': '50px',
-                        '--rot': '-45deg',
-                        backgroundColor: PALETTE.greenLight,
-                      } as React.CSSProperties
-                    }
-                  />
-                  <div
-                    className="absolute h-2 w-3 rounded-sm animate-confetti"
-                    style={
-                      {
-                        '--tx': '110px',
-                        '--ty': '75px',
-                        '--rot': '15deg',
-                        backgroundColor: PALETTE.red,
-                      } as React.CSSProperties
-                    }
-                  />
-                  <div
-                    className="absolute h-2 w-2 rounded-full animate-confetti"
-                    style={
-                      {
-                        '--tx': '160px',
-                        '--ty': '90px',
-                        '--rot': '0deg',
-                        backgroundColor: PALETTE.purple,
-                      } as React.CSSProperties
-                    }
-                  />
+                    {/* Right Side Shapes */}
+                    <div
+                      className="absolute h-3 w-3 rounded-sm animate-confetti"
+                      style={
+                        {
+                          '--tx': '95px',
+                          '--ty': '-55px',
+                          '--rot': '35deg',
+                          backgroundColor: PALETTE.greenDark,
+                        } as React.CSSProperties
+                      }
+                    />
+                    <div
+                      className="absolute h-4 w-4 rounded-full animate-confetti"
+                      style={
+                        {
+                          '--tx': '150px',
+                          '--ty': '-35px',
+                          '--rot': '0deg',
+                          backgroundColor: PALETTE.yellow,
+                        } as React.CSSProperties
+                      }
+                    />
+                    <div
+                      className="absolute h-3 w-3 rounded-sm animate-confetti"
+                      style={
+                        {
+                          '--tx': '55px',
+                          '--ty': '50px',
+                          '--rot': '-45deg',
+                          backgroundColor: PALETTE.greenLight,
+                        } as React.CSSProperties
+                      }
+                    />
+                    <div
+                      className="absolute h-2 w-3 rounded-sm animate-confetti"
+                      style={
+                        {
+                          '--tx': '110px',
+                          '--ty': '75px',
+                          '--rot': '15deg',
+                          backgroundColor: PALETTE.red,
+                        } as React.CSSProperties
+                      }
+                    />
+                    <div
+                      className="absolute h-2 w-2 rounded-full animate-confetti"
+                      style={
+                        {
+                          '--tx': '160px',
+                          '--ty': '90px',
+                          '--rot': '0deg',
+                          backgroundColor: PALETTE.purple,
+                        } as React.CSSProperties
+                      }
+                    />
+                  </div>
+
+                  {/* The Core Badge Graphic matching the image */}
+                  <div className="relative z-20 flex items-center justify-center h-32 w-32 rounded-full bg-[#00CD52] animate-success-pop shadow-xl shadow-[#00CD52]/20 mb-8 mt-4">
+                    {/* Using CheckCircle2 inside the green background circle. 
+        Adjust strokeWidth to closely match the image's line thickness. 
+      */}
+                    <CheckCircle2 className="h-14 w-14 text-white" strokeWidth={2.5} />
+                  </div>
+
+                  {/* Typography & Action */}
+                  <h3 className="text-lg font-bold text-[#1C1C28] mb-2 relative z-20">
+                    Payment Successful!
+                  </h3>
+                  <p className="text-sm text-[#8F92A1] leading-relaxed max-w-[260px] relative z-20 mb-8">
+                    Your receipt is printing automatically. Thank you!
+                  </p>
                 </div>
-
-                <CheckCircle2 className="relative z-20 h-20 w-20 text-white animate-success-pop" />
-
-                <Button text="Done" onClick={onSuccess} />
+                <div className="relative z-20 w-full px-6">
+                  <a href="/">
+                    <Button text="Back to Home" onClick={onSuccess} className="w-full" />
+                  </a>
+                </div>
               </div>
             )}
             {step === 'failed' && (

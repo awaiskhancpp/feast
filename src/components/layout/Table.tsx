@@ -120,15 +120,15 @@ export default function Table({ initialTables, customers, dishes }: TableProps) 
   }
 
   return (
-    <div className="relative flex h-[calc(100dvh-5rem)] min-h-[520px] flex-col overflow-hidden bg-[#f4f5f8] lg:h-[calc(100dvh-6rem)]">
+    <div className="relative flex h-[calc(100dvh-5rem)] min-h-[520px] flex-col overflow-hidden bg-[#f4f5f8] lg:h-[calc(100dvh-6rem)] dark:bg-slate-950">
       <TableLegend
         activeFilter={activeFilter}
         counts={statusCounts}
         onFilterChange={(status) => setActiveFilter(activeFilter === status ? null : status)}
       />
 
-      <div className="flex items-center justify-between border-b border-slate-100 bg-white px-3.5 py-2 sm:px-[18px]">
-        <p className="text-xs text-slate-500">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-white px-3.5 py-2 sm:px-[18px] dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           {editMode
             ? 'Drag a table to reposition it, or add a new one.'
             : 'Tap a table to view or start an order.'}
@@ -143,7 +143,7 @@ export default function Table({ initialTables, customers, dishes }: TableProps) 
             'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition',
             editMode
               ? 'bg-[#6066ed] text-white'
-              : 'border border-slate-200 text-slate-600 hover:bg-slate-50',
+              : 'border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800',
           )}
         >
           {editMode ? <X className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
@@ -200,14 +200,16 @@ function TableStatusModal({
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 px-4 py-6 backdrop-blur-[1px]">
-      <div className="w-full max-w-[320px] rounded-2xl bg-white p-5 shadow-[0_18px_60px_rgba(26,31,44,0.18)]">
+      <div className="w-full max-w-[320px] rounded-2xl bg-white p-5 shadow-[0_18px_60px_rgba(26,31,44,0.18)] dark:bg-slate-900">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-slate-950">Table T-{table.tableNumber}</h2>
-            <p className="text-xs text-slate-500">Change table mode</p>
+            <h2 className="text-base font-bold text-slate-950 dark:text-gray-100">
+              Table T-{table.tableNumber}
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Change table mode</p>
           </div>
           <button
-            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50"
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"
             type="button"
             onClick={onClose}
           >
@@ -227,12 +229,12 @@ function TableStatusModal({
                 className={cn(
                   'flex items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition',
                   active
-                    ? 'border-[#6066ed] bg-[#f6f5ff]'
-                    : 'border-slate-200 bg-white hover:bg-slate-50',
+                    ? 'border-[#6066ed] bg-[#f6f5ff] dark:bg-indigo-950/40'
+                    : 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800',
                 )}
                 onClick={() => onChangeStatus(status)}
               >
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-2 dark:text-slate-200">
                   <span className={cn('h-2.5 w-2.5 rounded-full', meta.dotClass)} />
                   {meta.label}
                 </span>

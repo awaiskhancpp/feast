@@ -34,7 +34,10 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
   return (
     <form action={formAction} className="space-y-4">
       <div>
-        <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="name"
+          className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
+        >
           Dish Name
         </label>
         <input
@@ -43,20 +46,23 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
           defaultValue={defaults?.name}
           placeholder="Bruschetta"
           required
-          className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40"
+          className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40 dark:border-slate-700 dark:bg-slate-950 dark:text-gray-100 dark:placeholder-slate-500"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="category" className="mb-1.5 block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="category"
+            className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
+          >
             Category
           </label>
           <select
             id="category"
             name="category"
             defaultValue={defaults?.category ?? DISH_CATEGORIES[0].value}
-            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/40 dark:border-slate-700 dark:bg-slate-950 dark:text-gray-100"
           >
             {DISH_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
@@ -67,7 +73,10 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
         </div>
 
         <div>
-          <label htmlFor="price" className="mb-1.5 block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="price"
+            className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
+          >
             Price ($)
           </label>
           <input
@@ -79,13 +88,16 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
             defaultValue={defaults?.price}
             placeholder="6.50"
             required
-            className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40 dark:border-slate-700 dark:bg-slate-950 dark:text-gray-100 dark:placeholder-slate-500"
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="description" className="mb-1.5 block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="description"
+          className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
+        >
           Description
         </label>
         <textarea
@@ -96,15 +108,20 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
           placeholder="Toasted bread topped with a mix of fresh tomatoes, basil, and olive oil."
           required
           minLength={10}
-          className="w-full resize-none rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40"
+          className="w-full resize-none rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40 dark:border-slate-700 dark:bg-slate-950 dark:text-gray-100 dark:placeholder-slate-500"
         />
       </div>
 
       <div>
-        <label htmlFor="image" className="mb-1.5 block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="image"
+          className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
+        >
           Photo{' '}
           {defaults && (
-            <span className="font-normal text-gray-400">(leave empty to keep current)</span>
+            <span className="font-normal text-gray-400 dark:text-slate-500">
+              (leave empty to keep current)
+            </span>
           )}
         </label>
         <input
@@ -116,7 +133,7 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
             const file = e.target.files?.[0]
             if (file) setPreview(URL.createObjectURL(file))
           }}
-          className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary hover:file:bg-primary/20"
+          className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary hover:file:bg-primary/20 dark:text-slate-300"
         />
         {preview && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -124,7 +141,7 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
         )}
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-gray-700">
+      <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-slate-300">
         <input
           type="checkbox"
           name="inStock"
@@ -134,7 +151,7 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
         In stock (visible on the order screen)
       </label>
 
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state.error && <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>}
 
       <Button
         type="submit"

@@ -73,12 +73,12 @@ export default function DishesListPage({
   }
 
   return (
-    <div className="px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 min-h-full">
-      <div className="bg-white rounded-xl border border-gray-100 p-4 sm:p-6">
+    <div className="px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 min-h-full dark:bg-slate-950">
+      <div className="bg-white rounded-xl border border-gray-100 p-4 sm:p-6 dark:bg-slate-900 dark:border-slate-800">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">Dishes</h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Dishes</h2>
+            <p className="text-xs text-gray-500 mt-0.5 dark:text-slate-400">
               Manage every item on the menu — name, price, photo, and availability.
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function DishesListPage({
         </div>
 
         {dishes.length === 0 ? (
-          <div className="py-16 text-center text-sm text-gray-500">
+          <div className="py-16 text-center text-sm text-gray-500 dark:text-slate-400">
             {query
               ? `No dishes match "${query}".`
               : 'No dishes yet — add the first one to the menu.'}
@@ -109,15 +109,15 @@ export default function DishesListPage({
               {dishes.map((dish) => (
                 <div
                   key={dish.id}
-                  className={`group relative overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition ${
+                  className={`group relative overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition dark:border-slate-800 dark:bg-slate-900 ${
                     isPending ? 'opacity-60' : ''
                   }`}
                 >
-                  <div className="relative h-28 w-full bg-gray-100">
+                  <div className="relative h-28 w-full bg-gray-100 dark:bg-slate-800">
                     {dish.imageUrl ? (
                       <Image src={dish.imageUrl} alt={dish.name} fill className="object-cover" />
                     ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-gray-400">
+                      <div className="flex h-full items-center justify-center text-xs text-gray-400 dark:text-slate-500">
                         No photo
                       </div>
                     )}
@@ -130,27 +130,33 @@ export default function DishesListPage({
 
                   <div className="p-3">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-sm font-bold text-gray-900">{dish.name}</h3>
+                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        {dish.name}
+                      </h3>
                       <span className="text-sm font-bold text-primary">
                         ${dish.price.toFixed(2)}
                       </span>
                     </div>
-                    <p className="mt-0.5 text-xs text-gray-400">{categoryLabel(dish.category)}</p>
-                    <p className="mt-1 line-clamp-2 text-xs text-gray-500">{dish.description}</p>
+                    <p className="mt-0.5 text-xs text-gray-400 dark:text-slate-500">
+                      {categoryLabel(dish.category)}
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-slate-400">
+                      {dish.description}
+                    </p>
                   </div>
 
                   <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <button
                       onClick={() => openEdit(dish)}
                       aria-label={`Edit ${dish.name}`}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/95 text-gray-600 shadow hover:bg-white"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/95 text-gray-600 shadow hover:bg-white dark:bg-slate-800/95 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(dish.id, dish.name)}
                       aria-label={`Delete ${dish.name}`}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/95 text-red-500 shadow hover:bg-white"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/95 text-red-500 shadow hover:bg-white dark:bg-slate-800/95 dark:hover:bg-slate-800"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

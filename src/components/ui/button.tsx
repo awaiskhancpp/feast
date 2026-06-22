@@ -14,8 +14,10 @@ interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'cla
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-white hover:bg-primary/90',
-  outline: 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50',
-  ghost: 'bg-transparent text-gray-600 hover:bg-gray-100',
+  outline:
+    'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 dark:bg-slate-900 dark:text-gray-100 dark:border-slate-700 dark:hover:bg-slate-800',
+  ghost:
+    'bg-transparent text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {

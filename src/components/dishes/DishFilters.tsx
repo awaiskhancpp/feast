@@ -42,7 +42,7 @@ export function DishFilters({ initialQuery, initialCategory }: DishFiltersProps)
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search dishes..."
-        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 dark:border-slate-700 dark:bg-slate-950 dark:text-gray-100 dark:placeholder:text-slate-500"
       />
 
       <div className="flex flex-wrap gap-2">
@@ -51,7 +51,7 @@ export function DishFilters({ initialQuery, initialCategory }: DishFiltersProps)
           className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
             initialCategory === 'all'
               ? 'bg-primary text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
           }`}
         >
           All
@@ -63,7 +63,7 @@ export function DishFilters({ initialQuery, initialCategory }: DishFiltersProps)
             className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
               initialCategory === c.value
                 ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
             }`}
           >
             {c.label}

@@ -41,7 +41,7 @@ export function TransactionTable({
   const hasSelection = Boolean(onSelectTransaction)
 
   return (
-    <div className="rounded-lg border border-gray-100 bg-white p-4 sm:p-6">
+    <div className="rounded-lg border border-gray-100 bg-white p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-900">
       <TransactionTableToolbar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -52,13 +52,25 @@ export function TransactionTable({
       <div className="hidden overflow-x-auto md:block">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">ID Order</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">Date</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">Table</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">Order Items</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">Total Amount</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+            <tr className="bg-gray-100 dark:bg-slate-800">
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-slate-300">
+                ID Order
+              </th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-slate-300">
+                Date
+              </th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-slate-300">
+                Table
+              </th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-slate-300">
+                Order Items
+              </th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-slate-300">
+                Total Amount
+              </th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-slate-300">
+                Status
+              </th>
             </tr>
           </thead>
 
@@ -70,9 +82,9 @@ export function TransactionTable({
                 <tr
                   key={transaction.id}
                   className={cn(
-                    'border-b border-gray-100',
-                    hasSelection && 'cursor-pointer hover:bg-gray-50',
-                    selected && 'bg-indigo-50/60',
+                    'border-b border-gray-100 dark:border-slate-800',
+                    hasSelection && 'cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800/60',
+                    selected && 'bg-indigo-50/60 dark:bg-indigo-950/40',
                   )}
                   onClick={onSelectTransaction ? () => onSelectTransaction(transaction) : undefined}
                 >
@@ -100,14 +112,16 @@ export function TransactionTable({
               key={transaction.id}
               type="button"
               className={cn(
-                'w-full rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm',
+                'w-full rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm dark:border-slate-800 dark:bg-slate-900',
                 hasSelection && 'transition hover:-translate-y-0.5 hover:shadow-md',
                 selected && 'ring-2 ring-indigo-300',
               )}
               onClick={onSelectTransaction ? () => onSelectTransaction(transaction) : undefined}
             >
               <div className="mb-4 flex items-center justify-between">
-                <h4 className="font-semibold text-gray-900">{transaction.order}</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                  {transaction.order}
+                </h4>
                 <StatusPill status={transaction.status} />
               </div>
 
@@ -139,15 +153,17 @@ function TransactionTableToolbar({
   return (
     <div className="flex flex-col gap-4 md:flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900">Transaction History</h3>
-        <p className="text-xs text-gray-500">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Transaction History
+        </h3>
+        <p className="text-xs text-gray-500 dark:text-slate-400">
           Keep track of every transaction effortlessly with our detailed transaction history.
         </p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 w-full md:justify-between lg:w-auto">
         <div className="relative flex-1 md:max-w-md lg:flex-none">
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400">
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500">
             <Image src="/icons/searchIcon.svg" alt="" width={20} height={20} />
           </div>
 
@@ -156,12 +172,12 @@ function TransactionTableToolbar({
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition dark:border-slate-700 dark:bg-slate-950 dark:text-gray-100 dark:placeholder:text-slate-500 dark:focus:bg-slate-950"
           />
         </div>
 
         <div className="flex gap-3">
-          <button className="relative flex items-center whitespace-nowrap gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <button className="relative flex items-center whitespace-nowrap gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:text-gray-100 dark:hover:bg-slate-800">
             Sort by
             <ChevronDown className="w-4 h-4" />
             <select
@@ -178,9 +194,12 @@ function TransactionTableToolbar({
 
 function StatusPill({ status }: { status: Transaction['status'] }) {
   const colors = {
-    Success: 'bg-green-50 text-green-700 border border-green-200',
-    Cancel: 'bg-red-50 text-red-700 border border-red-200',
-    Pending: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    Success:
+      'bg-green-50 text-green-700 border border-green-200 dark:bg-green-950/40 dark:text-green-400 dark:border-green-900',
+    Cancel:
+      'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900',
+    Pending:
+      'bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-900',
   }
 
   return (
@@ -193,8 +212,14 @@ function StatusPill({ status }: { status: Transaction['status'] }) {
 function Value({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div>
-      <p className="text-gray-500">{label}</p>
-      <p className={strong ? 'font-semibold text-gray-900' : 'font-medium text-gray-900'}>
+      <p className="text-gray-500 dark:text-slate-400">{label}</p>
+      <p
+        className={
+          strong
+            ? 'font-semibold text-gray-900 dark:text-gray-100'
+            : 'font-medium text-gray-900 dark:text-gray-100'
+        }
+      >
         {value}
       </p>
     </div>
