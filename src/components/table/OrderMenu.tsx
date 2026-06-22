@@ -80,10 +80,10 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
   const summary = useMemo(() => {
     const subtotal = cartLines.reduce((total, line) => total + line.item.price * line.quantity, 0)
     const tax = subtotal * 0.1
-    const discount = subtotal * 0.5
+    const discount = order.isMember ? subtotal * 0.2 : 0
     const total = subtotal + tax - discount
     return { subtotal, tax, discount, total }
-  }, [cartLines])
+  }, [cartLines, order.isMember])
   const hasCartItems = cartLines.length > 0
 
   const addMenuItem = (
@@ -139,7 +139,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
     // the navbar (h-[calc(100dvh-5rem)] / lg:h-[calc(100dvh-6rem)]), so this
     // fills that same box - never reaching up over the real Navbar or left
     // over the Sidebar the way a viewport-relative `fixed` would.
-    <div className="absolute inset-0 z-[60] flex flex-col overflow-hidden bg-[#f7f8fb] text-slate-950">
+    <div className="absolute inset-0 z-[40] flex flex-col overflow-hidden bg-[#f7f8fb] text-slate-950">
       <header className="flex h-20 shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           <button
@@ -220,13 +220,13 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
 
         <section className="min-h-0 overflow-y-auto pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {filteredItems.length === 0 ? (
-            <div className="grid h-full min-h-[200px] place-items-center text-center">
+            <div className="grid min-h-[200px] place-items-center text-center">
               <p className="text-sm text-slate-400">
                 {search ? `No dishes match "${search}".` : 'No dishes in this category yet.'}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 md:grid-cols-[repeat(auto-fill,minmax(165px,1fr))] md:gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] mx-4 my-4 gap-3 md:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] md:gap-4">
               {filteredItems.map((item) => {
                 const quantity = selectedItems[item.id]?.quantity ?? 0
 
@@ -240,7 +240,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
                     key={item.id}
                     onClick={() => setDetailItem(item)}
                   >
-                    <DishImage className="h-28 w-full rounded-lg" item={item} />
+                    <DishImage className="h-42 w-full rounded-lg" item={item} />
                     <div className="mt-3 flex items-start justify-between gap-2">
                       <h2 className="text-sm font-bold text-slate-950">{item.name}</h2>
                       <span className="text-sm font-bold text-[#6066ed]">{money(item.price)}</span>
@@ -295,7 +295,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
                     key={line.itemId}
                     line={line}
                     onDecrement={() => updateCartQuantity(line.itemId, -1)}
-                    onEdit={() => setDetailItem(line.item)}
+                    onIncrement={() => updateCartQuantity(line.itemId, 1)}
                   />
                 ))}
               </div>
@@ -339,6 +339,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
           onClose={() => setDrawerOpen(false)}
           onEditItem={(item) => setDetailItem(item)}
           onRemoveItem={(itemId) => updateCartQuantity(itemId, -1)}
+          onIncrementItem={(itemId) => updateCartQuantity(itemId, 1)}
           summary={summary}
         />
       ) : null}
@@ -366,15 +367,15 @@ function DishImage({ item, className }: { item: MenuItem; className?: string }) 
 function CartLineRow({
   line,
   onDecrement,
-  onEdit,
+  onIncrement,
 }: {
   line: CartLine & { item: MenuItem }
   onDecrement: () => void
-  onEdit: () => void
+  onIncrement: () => void
 }) {
   return (
     <div className="flex items-start gap-3 rounded-xl p-1">
-      <DishImage className="h-14 w-14 flex-shrink-0 rounded-lg" item={line.item} />
+      <DishImage className="h-18 w-18 flex-shrink-0 rounded-lg" item={line.item} />
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
@@ -397,10 +398,10 @@ function CartLineRow({
             <button
               className="text-[#8d70ff]"
               type="button"
-              onClick={onEdit}
-              aria-label={`Edit ${line.item.name}`}
+              onClick={onIncrement}
+              aria-label={`Add one ${line.item.name}`}
             >
-              <Edit3 className="h-4 w-4" />
+              +
             </button>
           </div>
         </div>
@@ -420,7 +421,7 @@ function CartSummary({
     <div className="mt-4 border-t border-dashed border-slate-200 pt-4 text-sm">
       <SummaryRow label="Sub total" value={money(summary.subtotal)} />
       <SummaryRow label="Tax 10%" value={money(summary.tax)} />
-      <SummaryRow label="Diskon 50%" value={`-${money(summary.discount)}`} />
+      <SummaryRow label="Discount 20%" value={`-${money(summary.discount)}`} />
       <div className="my-4 border-t border-dashed border-slate-200" />
       <SummaryRow label="Total Payment" value={money(summary.total)} strong />
       <div className="mt-4 flex gap-2">
@@ -549,8 +550,8 @@ function ProductDetailModal({
   const [quantity, setQuantity] = useState(2)
 
   return (
-    <div className="fixed inset-0 z-[80] grid place-items-center bg-black/30 px-4 py-6 backdrop-blur-[1px]">
-      <div className="w-full max-w-[620px] max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-[0_18px_60px_rgba(26,31,44,0.18)]">
+    <div className="fixed z-[100] inset-0   grid place-items-center bg-black/30 px-4 py-6 backdrop-blur-[1px]">
+      <div className="w-full max-w-[720px]  max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-[0_18px_60px_rgba(26,31,44,0.18)]">
         <div className="flex items-center justify-between px-5 py-4">
           <button
             className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50"
@@ -560,16 +561,12 @@ function ProductDetailModal({
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h3 className="text-base font-bold">Detail Product</h3>
-          <button
-            className="grid h-8 w-8 place-items-center border border-[#8d70ff] text-[#8d70ff]"
-            type="button"
-            onClick={onClose}
-          >
+          <button className="grid h-8 w-8 place-items-center" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
           </button>
         </div>
         <div className="grid gap-5 px-5 pb-5 md:grid-cols-[minmax(0,1fr)_1.1fr]">
-          <DishImage className="h-[220px] w-full rounded-2xl md:h-[340px]" item={item} />
+          <DishImage className="min-h-[500px] w-full rounded-2xl md:h-[340px]" item={item} />
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
               <div className="min-w-0">
@@ -663,21 +660,20 @@ function CartDrawer({
   onClose,
   onEditItem,
   onRemoveItem,
+  onIncrementItem,
 }: {
   cartLines: Array<CartLine & { item: MenuItem }>
   summary: { subtotal: number; tax: number; discount: number; total: number }
   onClose: () => void
   onEditItem: (item: MenuItem) => void
   onRemoveItem: (itemId: string) => void
+  onIncrementItem: (itemId: string) => void
 }) {
   return (
-    <div className="fixed inset-0 z-[75] bg-black/20 xl:hidden">
+    <div className="fixed inset-0  bg-black/20 xl:hidden">
       <div className="ml-auto h-full w-full max-w-[380px] overflow-y-auto bg-white p-4 shadow-[0_18px_60px_rgba(26,31,44,0.18)]">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-start ">
           <h2 className="text-base font-bold">Detail Items</h2>
-          <button className="text-slate-500" type="button" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
         </div>
         <div className="space-y-3">
           {cartLines.map((line) => (
@@ -685,7 +681,7 @@ function CartDrawer({
               key={line.itemId}
               line={line}
               onDecrement={() => onRemoveItem(line.itemId)}
-              onEdit={() => onEditItem(line.item)}
+              onIncrement={() => onIncrementItem(line.itemId)}
             />
           ))}
         </div>

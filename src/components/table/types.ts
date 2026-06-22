@@ -27,6 +27,7 @@ export type OrderDraft = {
   tableId: string
   customerName: string
   guests: number
+  isMember: boolean
 }
 
 export type TableOrder = OrderDraft & {
@@ -37,6 +38,7 @@ export type TableOrder = OrderDraft & {
 export type Customer = {
   id: string
   name: string
+  status: 'member' | 'guest'
 }
 
 export type MenuCategory = {

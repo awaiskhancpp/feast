@@ -87,7 +87,7 @@ export function NotificationBell() {
   }
 
   return (
-    <div className="relative" ref={rootRef}>
+    <div className="relative z-100" ref={rootRef}>
       <button
         onClick={() => setIsOpen((o) => !o)}
         aria-label="Notifications"
@@ -123,7 +123,7 @@ export function NotificationBell() {
     left-2 right-2
     sm:left-auto sm:right-0
     sm:w-[400px]
-    rounded-2xl border border-gray-100 bg-white shadow-xl transition-all duration-150 z-50 ${
+    rounded-2xl border z-[100] border-gray-100 bg-white shadow-xl transition-all duration-150 z-50 ${
       isOpen
         ? 'opacity-100 scale-100 pointer-events-auto'
         : 'opacity-0 scale-95 pointer-events-none'

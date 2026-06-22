@@ -44,11 +44,15 @@ export default function AddOrderModal({
   if (!open || !table) return null
 
   const createOrder = () => {
+    const matched = customers.find(
+      (c) => c.name.toLowerCase() === customerName.trim().toLowerCase(),
+    )
     onCreateOrder({
       orderType,
       tableId: table.id,
       customerName: customerName.trim() || 'Walk-in Customer',
       guests: guestCount,
+      isMember: matched?.status === 'member',
     })
   }
 

@@ -105,7 +105,7 @@ export default function DishesListPage({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
               {dishes.map((dish) => (
                 <div
                   key={dish.id}

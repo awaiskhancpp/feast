@@ -36,6 +36,7 @@ export default async function TablePage() {
   const customers: Customer[] = customersResult.docs.map((doc) => ({
     id: String(doc.id),
     name: `${doc.firstName} ${doc.lastName}`,
+    status: doc.status as 'member' | 'guest',
   }))
 
   const dishes: MenuItem[] = dishesResult.docs.map((doc) => ({
