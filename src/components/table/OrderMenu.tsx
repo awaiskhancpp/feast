@@ -1,10 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Image from 'next/image'
 import {
   ArrowLeft,
-  Bell,
   ChefHat,
   Coffee,
   CupSoda,
@@ -136,7 +134,12 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col overflow-hidden bg-[#f7f8fb] text-slate-950">
+    // `absolute`, not `fixed`. Table's root wrapper (Table.tsx) is already
+    // `position: relative` and pre-sized to exactly the viewport height minus
+    // the navbar (h-[calc(100dvh-5rem)] / lg:h-[calc(100dvh-6rem)]), so this
+    // fills that same box - never reaching up over the real Navbar or left
+    // over the Sidebar the way a viewport-relative `fixed` would.
+    <div className="absolute inset-0 z-[60] flex flex-col overflow-hidden bg-[#f7f8fb] text-slate-950">
       <header className="flex h-20 shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           <button
@@ -159,6 +162,10 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
           </div>
         </div>
 
+        {/* Bell + avatar intentionally dropped here - the real Navbar
+            (visible above this screen now that the overlay is scoped to
+            Table's box instead of the full viewport) already shows both, so
+            repeating them right underneath would just be a duplicate row. */}
         <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
           <div className="relative hidden lg:block">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8d70ff]" />
@@ -168,21 +175,6 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
-          </div>
-          <button
-            className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-lg border border-slate-200 text-[#8d70ff]"
-            type="button"
-          >
-            <Bell className="h-4 w-4" />
-          </button>
-          <div className="flex flex-shrink-0 items-center gap-2">
-            <div className="relative h-9 w-9 overflow-hidden rounded-full">
-              <Image src="/person.jpg" alt="Cristina" fill className="object-cover" />
-            </div>
-            <div className="hidden text-sm leading-tight sm:block">
-              <p className="font-bold">Cristina</p>
-              <p className="text-xs text-slate-500">Cashier</p>
-            </div>
           </div>
         </div>
       </header>
