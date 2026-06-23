@@ -8,7 +8,7 @@ import type { TableItem, TableShape, TableStatus } from '@/components/table/type
 async function getNextTableNumber(payload: Awaited<ReturnType<typeof getPayload>>) {
   const existing = await payload.find({
     collection: 'tables',
-    limit: 0, // count only, we just need totalDocs-style scanning below
+    limit: 0,
     sort: '-tableNumber',
   })
 
@@ -24,7 +24,7 @@ export async function createTable(
   x: number,
   y: number,
   shape: TableShape,
-  chairs: number, // ← add this param
+  chairs: number,
 ): Promise<{ table?: TableItem; error?: string }> {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
@@ -33,7 +33,7 @@ export async function createTable(
     const tableNumber = await getNextTableNumber(payload)
     const doc = await payload.create({
       collection: 'tables',
-      data: { tableNumber, x, y, shape, chairs, status: 'available' }, // ← add chairs
+      data: { tableNumber, x, y, shape, chairs, status: 'available' },
     })
 
     revalidatePath('/table')
@@ -44,7 +44,7 @@ export async function createTable(
         x: doc.x,
         y: doc.y,
         shape: doc.shape as TableShape,
-        chairs: doc.chairs, // ← add this line
+        chairs: doc.chairs,
         status: doc.status as TableStatus,
       },
     }
@@ -87,6 +87,25 @@ export async function updateTableStatus(
     })
   } catch {
     return { error: 'Could not update the table status.' }
+  }
+
+  revalidatePath('/table')
+  return {}
+}
+
+export async function updateTableShape(
+  tableId: string,
+  shape: TableShape,
+  x: number,
+  y: number,
+): Promise<{ error?: string }> {
+  const payloadConfig = await config
+  const payload = await getPayload({ config: payloadConfig })
+
+  try {
+    await payload.update({ collection: 'tables', id: tableId, data: { shape, x, y } })
+  } catch {
+    return { error: 'Could not rotate the table.' }
   }
 
   revalidatePath('/table')

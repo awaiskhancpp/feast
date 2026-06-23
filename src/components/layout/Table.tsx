@@ -17,8 +17,13 @@ import type {
   TableStatus,
   TableShape,
 } from '@/components/table/types'
-import { cn, countStatuses } from '@/components/table/utils'
-import { createTable, updateTablePosition, updateTableStatus } from '@/app/(frontend)/table/actions'
+import { cn, countStatuses, clampTablePosition } from '@/components/table/utils'
+import {
+  createTable,
+  updateTablePosition,
+  updateTableStatus,
+  updateTableShape,
+} from '@/app/(frontend)/table/actions'
 
 interface TableProps {
   initialTables: TableItem[]
@@ -36,10 +41,6 @@ export default function Table({ initialTables, customers, dishes }: TableProps) 
   const [activeOrder, setActiveOrder] = useState<TableOrder | null>(null)
   const [editMode, setEditMode] = useState(false)
 
-  // Server is the single source of truth. Whenever a fresh `initialTables`
-  // arrives (after a mutation's revalidatePath + router.refresh() round
-  // trip), resync local state to it - local state during a drag is only a
-  // rendering cache, never a second copy of truth that can drift.
   useEffect(() => {
     setTables(initialTables)
   }, [initialTables])
@@ -53,7 +54,6 @@ export default function Table({ initialTables, customers, dishes }: TableProps) 
 
   const statusCounts = useMemo(() => countStatuses(tables), [tables])
 
-  // Change the signature from (worldX, worldY) to (worldX, worldY, shape, chairs)
   function handleAddTable(worldX: number, worldY: number, shape: TableShape, chairs: number) {
     startTransition(async () => {
       const result = await createTable(worldX, worldY, shape, chairs)
@@ -64,18 +64,35 @@ export default function Table({ initialTables, customers, dishes }: TableProps) 
     })
   }
 
-  // Continuous, local-only update fired on every pointermove while dragging -
-  // this is what makes the drag feel live. Nothing is persisted here.
   function handleMoveTable(tableId: string, x: number, y: number) {
     setTables((current) => current.map((t) => (t.id === tableId ? { ...t, x, y } : t)))
   }
 
-  // Fires once on pointerup - this is the only point a position is actually
-  // written to the database, so dragging doesn't spam the server on every
-  // pixel of movement.
   function handleMoveTableEnd(tableId: string, x: number, y: number) {
     startTransition(async () => {
       await updateTablePosition(tableId, x, y)
+      router.refresh()
+    })
+  }
+
+  function handleRotateTable(tableId: string) {
+    const table = tables.find((t) => t.id === tableId)
+    if (!table) return
+
+    const newShape: TableShape = table.shape === 'vertical' ? 'horizontal' : 'vertical'
+    // Re-clamp because the footprint swaps — a table at the canvas edge could
+    // go out of bounds when width and height swap values.
+    const clamped = clampTablePosition(table.x, table.y, newShape, table.chairs)
+
+    // Optimistic update — instant visual feedback, no waiting for server
+    setTables((current) =>
+      current.map((t) =>
+        t.id === tableId ? { ...t, shape: newShape, x: clamped.x, y: clamped.y } : t,
+      ),
+    )
+
+    startTransition(async () => {
+      await updateTableShape(tableId, newShape, clamped.x, clamped.y)
       router.refresh()
     })
   }
@@ -160,6 +177,7 @@ export default function Table({ initialTables, customers, dishes }: TableProps) 
         onClearSelection={() => setSelectedTableId(null)}
         onMoveTable={handleMoveTable}
         onMoveTableEnd={handleMoveTableEnd}
+        onRotateTable={handleRotateTable}
         onSelectTable={setSelectedTableId}
       />
 

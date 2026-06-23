@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import CanvasControls from './CanvasControls'
 import FloorTable from './FloorTable'
 import type { TableItem, TableShape, TableStatus } from './types'
@@ -41,7 +41,53 @@ type TableFloorProps = {
   onClearSelection: () => void
   onMoveTable: (tableId: string, x: number, y: number) => void
   onMoveTableEnd: (tableId: string, x: number, y: number) => void
+  onRotateTable: (tableId: string) => void
   onSelectTable: (tableId: string) => void
+}
+
+// Returns the first non-overlapping world position for a new table.
+// Starts at the viewport center, then spirals outward in a grid until it
+// finds a spot that doesn't overlap any existing table (with a 24px gap).
+function findEmptyPosition(
+  shape: TableShape,
+  chairs: number,
+  tables: TableItem[],
+  centerX: number,
+  centerY: number,
+): { x: number; y: number } {
+  const GAP = 24
+  const dim = getTableDimensions(shape, chairs)
+
+  const overlaps = (cx: number, cy: number) =>
+    tables.some((t) => {
+      const td = getTableDimensions(t.shape, t.chairs)
+      return !(
+        cx + dim.width + GAP <= t.x ||
+        t.x + td.width + GAP <= cx ||
+        cy + dim.height + GAP <= t.y ||
+        t.y + td.height + GAP <= cy
+      )
+    })
+
+  const STEP = Math.max(dim.width, dim.height) + GAP
+  const ox = centerX - dim.width / 2
+  const oy = centerY - dim.height / 2
+
+  if (!overlaps(ox, oy)) return clampTablePosition(ox, oy, shape, chairs)
+
+  for (let ring = 1; ring <= 12; ring++) {
+    for (let dx = -ring; dx <= ring; dx++) {
+      for (let dy = -ring; dy <= ring; dy++) {
+        if (Math.abs(dx) !== ring && Math.abs(dy) !== ring) continue
+        const tx = ox + dx * STEP
+        const ty = oy + dy * STEP
+        const clamped = clampTablePosition(tx, ty, shape, chairs)
+        if (!overlaps(clamped.x, clamped.y)) return clamped
+      }
+    }
+  }
+
+  return clampTablePosition(ox, oy, shape, chairs)
 }
 
 export default function TableFloor({
@@ -53,6 +99,7 @@ export default function TableFloor({
   onClearSelection,
   onMoveTable,
   onMoveTableEnd,
+  onRotateTable,
   onSelectTable,
 }: TableFloorProps) {
   const stageRef = useRef<HTMLElement | null>(null)
@@ -119,24 +166,32 @@ export default function TableFloor({
     setCamera(getOpeningCamera(stageSize, tables))
   }
 
-  // Called by CanvasControls after the user picks chairs. Tables now start
-  // vertical by default; rotation lives in the table edit modal.
   const addTableAtCenter = (chairs: number) => {
     const stage = stageRef.current
     if (!stage) return
     const bounds = stage.getBoundingClientRect()
-    const dim = getTableDimensions('vertical', chairs)
-    const worldX = (bounds.width / 2 - camera.x) / camera.scale - dim.width / 2
-    const worldY = (bounds.height / 2 - camera.y) / camera.scale - dim.height / 2
-    const clamped = clampTablePosition(worldX, worldY, 'vertical', chairs)
-    onAddTable(clamped.x, clamped.y, 'vertical', chairs)
+
+    // Convert screen center → world coordinates
+    const worldCenterX = (bounds.width / 2 - camera.x) / camera.scale
+    const worldCenterY = (bounds.height / 2 - camera.y) / camera.scale
+
+    // Find a spot that doesn't overlap existing tables
+    const pos = findEmptyPosition('vertical', chairs, tables, worldCenterX, worldCenterY)
+    onAddTable(pos.x, pos.y, 'vertical', chairs)
   }
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLElement>) => {
     const target = event.target as HTMLElement
+    // Both guards matter here: without the first, every click on the zoom
+    // in/out, scale-to-fit, and "+ Add Table" controls gets captured by the
+    // canvas's own pan/select pointer logic instead of reaching the button -
+    // this is what was actually breaking "Add Table". Without the second,
+    // the rotate button has the same problem.
     if (target.closest('.floor-controls')) return
+    if (target.closest('[aria-label="Rotate table"]')) return
+
     event.currentTarget.setPointerCapture(event.pointerId)
-    const tableElement = target.closest<HTMLButtonElement>('.floor-table')
+    const tableElement = target.closest<HTMLElement>('.floor-table')
     const tableId = tableElement ? (tableElement.dataset.id ?? null) : null
     const draggedTable = tableId ? tables.find((t) => t.id === tableId) : undefined
     dragRef.current = {
@@ -198,7 +253,7 @@ export default function TableFloor({
   return (
     <section
       className={cn(
-        'relative min-h-0 flex-1 touch-none select-none overflow-hidden bg-[#f4f5f8]',
+        'relative min-h-0 flex-1 touch-none select-none overflow-hidden bg-[#f4f5f8] dark:bg-slate-900',
         editMode ? 'cursor-default' : 'cursor-grab',
         isDragging && !editMode && 'cursor-grabbing',
       )}
@@ -230,13 +285,14 @@ export default function TableFloor({
             table={table}
             x={table.x}
             y={table.y}
+            onRotate={onRotateTable}
           />
         ))}
       </div>
 
       {tables.length === 0 ? (
         <div className="pointer-events-none absolute inset-0 grid place-items-center px-6 text-center">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-400 dark:text-slate-500">
             {editMode
               ? 'Click "+ Add Table" to place your first table.'
               : 'Turn on Edit Layout to add tables.'}
