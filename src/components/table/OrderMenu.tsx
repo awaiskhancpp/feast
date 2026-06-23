@@ -140,18 +140,6 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
             </p>
           </div>
         </div>
-
-        <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
-          <div className="relative hidden lg:block">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8d70ff]" />
-            <input
-              className="h-10 w-56 rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm outline-none placeholder:text-slate-400 focus:border-[#6066ed] focus:ring-1 focus:ring-[#6066ed] xl:w-64 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
-              placeholder="Search here..."
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </div>
-        </div>
       </header>
 
       {/* Mobile search */}
@@ -171,7 +159,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
       <div
         className={cn(
           'grid min-h-0 flex-1 gap-4 p-4 md:p-5 xl:p-6 max-lg:grid-cols-1 max-lg:content-start max-lg:overflow-y-auto',
-          'grid-cols-[170px_minmax(0,1fr)] xl:grid-cols-[170px_minmax(0,1fr)_280px]',
+          'grid-cols-[230px_minmax(0,1fr)] xl:grid-cols-[170px_minmax(0,1fr)_400px]',
         )}
       >
         {/* Category sidebar */}
@@ -241,14 +229,6 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
                   </h2>
                   <p className="text-xs text-slate-400">{cartLines.length} items in cart</p>
                 </div>
-                <button
-                  className="rounded-md p-1 text-[#8d70ff] hover:bg-slate-50 dark:hover:bg-slate-800"
-                  type="button"
-                  onClick={() => setDrawerOpen(true)}
-                  aria-label="Open detail cart"
-                >
-                  <Edit3 className="h-4 w-4" />
-                </button>
               </div>
 
               <div className="space-y-3">
@@ -368,7 +348,7 @@ function CartLineRow({
           <span className="text-xs text-[#6066ed]">x{line.quantity}</span>
           <div className="flex items-center gap-1">
             <button
-              className="grid h-6 w-6 place-items-center rounded-md bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+              className="grid h-6 w-6 place-items-center rounded-md text-slate-600 "
               type="button"
               onClick={onDecrement}
               aria-label={`Remove one ${line.item.name}`}
@@ -402,9 +382,9 @@ function CartSummary({
   return (
     <div className="mt-4 border-t border-dashed border-slate-200 pt-4 text-sm dark:border-slate-700">
       <SummaryRow label="Sub total" value={money(summary.subtotal)} />
-      <SummaryRow label="Tax 10%" value={money(summary.tax)} />
+      <SummaryRow label="Tax" value={money(summary.tax)} />
       {isMember && summary.discount > 0 && (
-        <SummaryRow label="Member discount 20%" value={`-${money(summary.discount)}`} />
+        <SummaryRow label="Member discount" value={`-${money(summary.discount)}`} />
       )}
       <div className="my-4 border-t border-dashed border-slate-200 dark:border-slate-700" />
       <SummaryRow label="Total Payment" value={money(summary.total)} strong />
@@ -505,7 +485,7 @@ function spicyLabel(level: number) {
 }
 
 function money(value: number) {
-  return `$${value.toFixed(2).replace('.', ',')}`
+  return `$${value.toFixed(2)}`
 }
 
 function SummaryRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) {

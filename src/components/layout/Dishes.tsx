@@ -113,7 +113,7 @@ export default function DishesListPage({
                     isPending ? 'opacity-60' : ''
                   }`}
                 >
-                  <div className="relative h-28 w-full bg-gray-100 dark:bg-slate-800">
+                  <div className="relative h-42 w-full bg-gray-100 dark:bg-slate-800">
                     {dish.imageUrl ? (
                       <Image src={dish.imageUrl} alt={dish.name} fill className="object-cover" />
                     ) : (

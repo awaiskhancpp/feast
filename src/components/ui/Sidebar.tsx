@@ -86,7 +86,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                 {LucideIcon ? (
                   <LucideIcon
                     className={`h-6 w-6 font-bold transition-colors ${active ? 'text-primary' : 'text-gray-400 group-hover:text-gray-600 dark:text-slate-400 dark:group-hover:text-slate-200'}`}
-                    strokeWidth={1.8}
+                    strokeWidth={3.0}
                   />
                 ) : (
                   <div className="w-6 h-6 relative">
