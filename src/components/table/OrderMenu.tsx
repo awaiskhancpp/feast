@@ -10,7 +10,6 @@ import {
   Grid2X2,
   IceCreamBowl,
   Salad,
-  Search,
   ShoppingCart,
   Soup,
   UtensilsCrossed,
@@ -74,7 +73,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
   const summary = useMemo(() => {
     const subtotal = cartLines.reduce((total, line) => total + line.item.price * line.quantity, 0)
     const tax = subtotal * 0.1
-    const discount = order.isMember ? subtotal * 0.2 : 0
+    const discount = order.isMember ? subtotal * 0.5 : 0
     const total = subtotal + tax - discount
     return { subtotal, tax, discount, total }
   }, [cartLines, order.isMember])
@@ -120,10 +119,11 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
   }
 
   return (
-    <div className="absolute inset-0 z-[40] flex flex-col overflow-hidden bg-[#f7f8fb] text-slate-950 dark:bg-slate-950 dark:text-slate-100">
+    // fixed below navbar (h-20 mobile / lg:h-24), covers sidebar laterally
+    <div className="fixed inset-x-0 bottom-0 top-20 z-[200] flex flex-col overflow-hidden bg-[#f7f8fb] text-slate-950 lg:top-24 dark:bg-slate-950 dark:text-slate-100">
       {/* Header */}
-      <header className="flex h-20 shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-4 sm:px-6 dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+      <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-slate-100 bg-white px-5 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex min-w-0 items-center gap-3">
           <button
             className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"
             type="button"
@@ -132,38 +132,29 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="min-w-0">
-            <h1 className="truncate text-sm font-bold dark:text-slate-100 sm:text-base">
-              Order {order.orderNumber} - Table T-{order.tableId}
+            <h1 className="truncate text-sm font-bold dark:text-slate-100">
+              Order {order.orderNumber} · Table T-{order.tableId}
             </h1>
-            <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-              {order.customerName} · {order.guests} guests
+            <p className="truncate text-xs text-slate-400 dark:text-slate-500">
+              {order.customerName} · {order.guests} guest{order.guests !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
       </header>
 
-      {/* Mobile search */}
-      <div className="border-b border-slate-100 bg-white px-4 py-2.5 lg:hidden dark:border-slate-800 dark:bg-slate-900">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8d70ff]" />
-          <input
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm outline-none placeholder:text-slate-400 focus:border-[#6066ed] focus:ring-1 focus:ring-[#6066ed] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
-            placeholder="Search here..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* Main grid */}
+      {/* Main 3-column grid */}
       <div
         className={cn(
-          'grid min-h-0 flex-1 gap-4 p-4 md:p-5 xl:p-6 max-lg:grid-cols-1 max-lg:content-start max-lg:overflow-y-auto',
-          'grid-cols-[230px_minmax(0,1fr)] xl:grid-cols-[170px_minmax(0,1fr)_400px]',
+          'grid min-h-0 flex-1 gap-5 p-5',
+          // Mobile: single column, Desktop: categories | menu | cart
+          'grid-cols-1',
+          'lg:grid-cols-[220px_minmax(0,1fr)]',
+          'xl:grid-cols-[220px_minmax(0,1fr)_360px]',
+          'max-lg:overflow-y-auto max-lg:content-start',
         )}
       >
-        {/* Category sidebar */}
-        <aside className="space-y-3 max-lg:flex max-lg:overflow-x-auto max-lg:space-x-3 max-lg:space-y-0">
+        {/* ── Category sidebar ── */}
+        <aside className="space-y-2 max-lg:flex max-lg:overflow-x-auto max-lg:space-x-2 max-lg:space-y-0 max-lg:pb-1">
           {categories.map((category) => (
             <CategoryButton
               active={activeCategory === category.id}
@@ -174,8 +165,8 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
           ))}
         </aside>
 
-        {/* Dish cards */}
-        <section className="min-h-0 overflow-y-auto pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* ── Dish cards grid ── */}
+        <section className="min-h-0 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {filteredItems.length === 0 ? (
             <div className="grid min-h-[200px] place-items-center text-center">
               <p className="text-sm text-slate-400">
@@ -183,34 +174,44 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
               </p>
             </div>
           ) : (
-            <div className="mx-4 my-4 grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 md:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] md:gap-4">
+            <div className="grid grid-cols-2 gap-3 px-1 py-2 sm:grid-cols-3 md:gap-4">
               {filteredItems.map((item) => {
                 const quantity = selectedItems[item.id]?.quantity ?? 0
                 return (
                   <button
+                    key={item.id}
                     className={cn(
-                      'relative overflow-hidden rounded-xl bg-white p-2 text-left shadow-sm outline-none transition hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#6066ed] dark:bg-slate-800 dark:shadow-slate-900/40',
+                      'relative overflow-hidden rounded-2xl bg-white p-0 text-left shadow-sm outline-none transition-all duration-200',
+                      'hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#6066ed]',
                       quantity > 0 && 'ring-2 ring-[#6066ed]',
                     )}
                     type="button"
-                    key={item.id}
                     onClick={() => setDetailItem(item)}
                   >
-                    <DishImage className="h-42 w-full rounded-lg" item={item} />
-                    <div className="mt-3 flex items-start justify-between gap-2">
-                      <h2 className="text-sm font-bold text-slate-950 dark:text-slate-100">
-                        {item.name}
-                      </h2>
-                      <span className="text-sm font-bold text-[#6066ed]">{money(item.price)}</span>
+                    {/* Image */}
+                    <DishImage className="h-48 w-full" item={item} />
+
+                    {/* Info */}
+                    <div className="py-4 px-1">
+                      <div className="flex items-start justify-between gap-1.5">
+                        <h2 className="text-sm font-bold leading-snug text-slate-900 dark:text-slate-100">
+                          {item.name}
+                        </h2>
+                        <span className="flex-shrink-0 text-sm font-bold text-[#6066ed]">
+                          {money(item.price)}
+                        </span>
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-400">
+                        {item.description}
+                      </p>
                     </div>
-                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-                      {item.description}
-                    </p>
-                    {quantity > 0 ? (
-                      <span className="absolute right-3 top-3 grid h-6 w-6 place-items-center rounded-full bg-[#6066ed] text-xs font-bold text-white">
+
+                    {/* Quantity badge */}
+                    {quantity > 0 && (
+                      <span className="absolute right-2.5 top-2.5 grid h-6 w-6 place-items-center rounded-full bg-[#6066ed] text-xs font-bold text-white shadow-sm">
                         {quantity}
                       </span>
-                    ) : null}
+                    )}
                   </button>
                 )
               })}
@@ -218,40 +219,38 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
           )}
         </section>
 
-        {/* Desktop cart */}
-        <aside className="hidden min-h-0 flex-col overflow-y-auto rounded-2xl bg-white p-4 shadow-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:flex dark:bg-slate-900">
-          {hasCartItems ? (
-            <>
-              <div className="mb-4 flex items-start justify-between">
-                <div>
-                  <h2 className="text-base font-bold text-slate-950 dark:text-slate-100">
-                    Detail Items
-                  </h2>
-                  <p className="text-xs text-slate-400">{cartLines.length} items in cart</p>
-                </div>
-              </div>
+        {/* ── Desktop cart ── */}
+        <aside className="hidden min-h-0 flex-col rounded-2xl bg-white shadow-sm xl:flex dark:bg-slate-900">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <h2 className="mb-4 text-base font-bold text-slate-950 dark:text-slate-100">
+              Detail Items
+            </h2>
 
-              <div className="space-y-3">
+            {hasCartItems ? (
+              <div className="space-y-1">
                 {cartLines.map((line) => (
                   <CartLineRow
                     key={line.itemId}
                     line={line}
+                    onEdit={() => setDetailItem(line.item)}
                     onDecrement={() => updateCartQuantity(line.itemId, -1)}
                     onIncrement={() => updateCartQuantity(line.itemId, 1)}
                   />
                 ))}
               </div>
+            ) : (
+              <div className="grid flex-1 place-items-center">
+                <p className="text-sm text-slate-400">Tap a dish to add it to this order.</p>
+              </div>
+            )}
+          </div>
 
-              <CartSummary
-                summary={summary}
-                isMember={order.isMember}
-                onPlaceOrder={() => setPaymentOpen(true)}
-              />
-            </>
-          ) : (
-            <div className="grid h-full min-h-[200px] place-items-center text-center">
-              <p className="text-sm text-slate-400">Tap a dish to add it to this order.</p>
-            </div>
+          {hasCartItems && (
+            <CartSummary
+              summary={summary}
+              isMember={order.isMember}
+              onPlaceOrder={() => setPaymentOpen(true)}
+            />
           )}
         </aside>
       </div>
@@ -261,7 +260,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
-          className="fixed bottom-4 right-4 z-30 flex items-center gap-2 rounded-full bg-[#6066ed] py-3 pl-4 pr-5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(96,102,237,0.4)] xl:hidden"
+          className="fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-[#6066ed] py-3 pl-4 pr-5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(96,102,237,0.4)] xl:hidden"
         >
           <ShoppingCart className="h-4 w-4" />
           {cartLines.length} item{cartLines.length === 1 ? '' : 's'}
@@ -269,15 +268,15 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
         </button>
       ) : null}
 
-      {detailItem ? (
+      {detailItem && (
         <ProductDetailModal
           item={detailItem}
           onClose={() => setDetailItem(null)}
           onAddToCart={(payload) => addMenuItem(detailItem, payload)}
         />
-      ) : null}
+      )}
 
-      {drawerOpen ? (
+      {drawerOpen && (
         <CartDrawer
           cartLines={cartLines}
           onClose={() => setDrawerOpen(false)}
@@ -288,7 +287,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
           summary={summary}
           isMember={order.isMember}
         />
-      ) : null}
+      )}
 
       <PaymentModal
         open={paymentOpen}
@@ -304,6 +303,8 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
     </div>
   )
 }
+
+// ─── Sub-components ────────────────────────────────────────────────────────────
 
 function DishImage({ item, className }: { item: MenuItem; className?: string }) {
   if (!item.image) {
@@ -324,46 +325,62 @@ function DishImage({ item, className }: { item: MenuItem; className?: string }) 
 
 function CartLineRow({
   line,
+  onEdit,
   onDecrement,
   onIncrement,
 }: {
   line: CartLine & { item: MenuItem }
+  onEdit: () => void
   onDecrement: () => void
   onIncrement: () => void
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl p-1">
-      <DishImage className="h-18 w-18 flex-shrink-0 rounded-lg" item={line.item} />
+    <div className="flex items-start gap-3 rounded-xl px-1 py-2.5">
+      <DishImage className="h-16 w-16 flex-shrink-0 rounded-xl" item={line.item} />
+
       <div className="min-w-0 flex-1">
+        {/* Name row */}
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-bold dark:text-slate-100">{line.item.name}</p>
-            <p className="truncate text-xs text-slate-500 dark:text-slate-400">{line.note}</p>
-          </div>
-          <p className="flex-shrink-0 text-sm font-bold dark:text-slate-100">
-            {money(line.item.price)}
+          <p className="truncate text-sm font-bold leading-tight text-slate-900 dark:text-slate-100">
+            {line.item.name}
           </p>
+          <button
+            type="button"
+            onClick={onEdit}
+            className="flex-shrink-0 rounded-md p-0.5 text-slate-300 transition hover:text-[#6066ed] dark:text-slate-600"
+            aria-label={`Edit ${line.item.name}`}
+          >
+            <Edit3 className="h-4 w-4" />
+          </button>
         </div>
-        <div className="mt-1 flex items-center justify-between">
-          <span className="text-xs text-[#6066ed]">x{line.quantity}</span>
-          <div className="flex items-center gap-1">
+
+        {/* Note */}
+        <p className="mt-0.5 truncate text-xs text-slate-400">{line.note}</p>
+
+        {/* Qty + price */}
+        <div className="mt-1.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <button
-              className="grid h-6 w-6 place-items-center rounded-md text-slate-600 "
               type="button"
               onClick={onDecrement}
+              className="grid h-5 w-5 place-items-center rounded-md bg-slate-100 text-xs font-bold text-slate-500 transition hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300"
               aria-label={`Remove one ${line.item.name}`}
             >
-              -
+              −
             </button>
+            <span className="text-xs font-semibold text-[#6066ed]">x{line.quantity}</span>
             <button
-              className="text-[#8d70ff]"
               type="button"
               onClick={onIncrement}
+              className="grid h-5 w-5 place-items-center rounded-md bg-[#6066ed]/10 text-xs font-bold text-[#6066ed] transition hover:bg-[#6066ed]/20"
               aria-label={`Add one ${line.item.name}`}
             >
               +
             </button>
           </div>
+          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            {money(line.item.price * line.quantity)}
+          </span>
         </div>
       </div>
     </div>
@@ -380,28 +397,32 @@ function CartSummary({
   onPlaceOrder: () => void
 }) {
   return (
-    <div className="mt-4 border-t border-dashed border-slate-200 pt-4 text-sm dark:border-slate-700">
+    <div className="border-t border-dashed border-slate-200 px-5 pb-5 pt-4 text-sm dark:border-slate-700">
       <SummaryRow label="Sub total" value={money(summary.subtotal)} />
-      <SummaryRow label="Tax" value={money(summary.tax)} />
+      <SummaryRow label="Tax 10%" value={money(summary.tax)} />
       {isMember && summary.discount > 0 && (
-        <SummaryRow label="Member discount" value={`-${money(summary.discount)}`} />
+        <SummaryRow label="Diskon 50%" value={`-${money(summary.discount)}`} negative />
       )}
-      <div className="my-4 border-t border-dashed border-slate-200 dark:border-slate-700" />
+
+      <div className="my-3 border-t border-dashed border-slate-200 dark:border-slate-700" />
       <SummaryRow label="Total Payment" value={money(summary.total)} strong />
+
+      {/* Discount code */}
       <div className="mt-4 flex gap-2">
         <input
-          className="h-9 min-w-0 flex-1 rounded-lg border border-slate-200 px-3 text-xs outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+          className="h-9 min-w-0 flex-1 rounded-lg border border-slate-200 px-3 text-xs outline-none placeholder:text-slate-400 focus:border-[#6066ed] focus:ring-1 focus:ring-[#6066ed]/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
           placeholder="Discount Code"
         />
         <button
-          className="h-9 flex-shrink-0 rounded-lg border border-slate-200 px-4 text-xs font-semibold dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="h-9 flex-shrink-0 rounded-lg border border-slate-200 px-4 text-xs font-semibold text-slate-600 transition hover:border-[#6066ed] hover:text-[#6066ed] dark:border-slate-700 dark:text-slate-300"
           type="button"
         >
           Apply
         </button>
       </div>
+
       <button
-        className="mt-4 h-11 w-full rounded-lg bg-[#6066ed] text-sm font-semibold text-white"
+        className="mt-3 h-11 w-full rounded-xl bg-[#6066ed] text-sm font-semibold text-white transition hover:bg-[#4e54d4] active:scale-[0.98]"
         type="button"
         onClick={onPlaceOrder}
       >
@@ -425,20 +446,20 @@ function CategoryButton({
   return (
     <button
       className={cn(
-        'group flex min-h-[58px] w-full min-w-[170px] items-center gap-3 rounded-xl px-4 text-left transition',
+        'group flex min-h-[58px] w-full min-w-[170px] items-center gap-3 rounded-xl px-4 text-left transition-all duration-150',
         active
-          ? 'bg-primary text-white'
-          : 'bg-white hover:bg-primary hover:text-white dark:bg-slate-800 dark:hover:bg-primary',
+          ? 'bg-[#6066ed] text-white shadow-[0_4px_14px_rgba(96,102,237,0.3)]'
+          : 'bg-white hover:bg-[#6066ed] hover:text-white hover:shadow-[0_4px_14px_rgba(96,102,237,0.25)] dark:bg-slate-800 dark:hover:bg-[#6066ed]',
       )}
       type="button"
       onClick={onClick}
     >
       <span
         className={cn(
-          'grid h-9 w-9 shrink-0 place-items-center rounded-lg transition',
+          'grid h-9 w-9 shrink-0 place-items-center rounded-lg transition-all duration-150',
           active
-            ? 'bg-white/15 text-white'
-            : 'bg-slate-50 text-slate-500 group-hover:bg-white/15 group-hover:text-white dark:bg-slate-700 dark:text-slate-400',
+            ? 'bg-white/20 text-white'
+            : 'bg-slate-50 text-slate-500 group-hover:bg-white/20 group-hover:text-white dark:bg-slate-700 dark:text-slate-400',
         )}
       >
         <Icon className="h-5 w-5" />
@@ -448,10 +469,10 @@ function CategoryButton({
         <span className="block truncate text-sm font-bold">{category.label}</span>
         <span
           className={cn(
-            'block text-xs transition',
+            'block text-xs transition-all duration-150',
             active
-              ? 'text-white/85'
-              : 'text-slate-500 group-hover:text-white/85 dark:text-slate-400',
+              ? 'text-white/80'
+              : 'text-slate-400 group-hover:text-white/80 dark:text-slate-500',
           )}
         >
           {category.count} Menu In Stock
@@ -462,7 +483,7 @@ function CategoryButton({
 }
 
 function getCategoryIcon(icon: MenuCategoryIcon) {
-  const icons = {
+  const icons: Record<MenuCategoryIcon, React.ElementType> = {
     all: Grid2X2,
     appetizers: ChefHat,
     drink: CupSoda,
@@ -473,33 +494,43 @@ function getCategoryIcon(icon: MenuCategoryIcon) {
     seafood: Waves,
     soup: Soup,
   }
-  return icons[icon]
+  return icons[icon] ?? Grid2X2
 }
 
 function spicyLabel(level: number) {
   if (level <= 0) return 'Not Spicy'
-  if (level === 1) return 'Level 1'
+  if (level === 1) return 'Spicy Lv.1'
   if (level === 2) return 'Spicy Lv.5'
-  if (level === 3) return 'Level 3'
-  return `Level ${level}`
+  if (level === 3) return 'Spicy Lv.3'
+  return `Spicy Lv.${level}`
 }
 
 function money(value: number) {
   return `$${value.toFixed(2)}`
 }
 
-function SummaryRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function SummaryRow({
+  label,
+  value,
+  strong,
+  negative,
+}: {
+  label: string
+  value: string
+  strong?: boolean
+  negative?: boolean
+}) {
   return (
     <div
       className={cn(
         'mb-2 flex items-center justify-between',
-        strong && 'text-base font-bold text-slate-950 dark:text-slate-100',
+        strong && 'font-bold text-slate-950 dark:text-slate-100',
       )}
     >
       <span className={cn('text-slate-400', strong && 'text-slate-500 dark:text-slate-300')}>
         {label}
       </span>
-      <span>{value}</span>
+      <span className={cn(negative && 'text-rose-500')}>{value}</span>
     </div>
   )
 }
@@ -515,11 +546,11 @@ function ProductDetailModal({
 }) {
   const [spicyLevel, setSpicyLevel] = useState(2)
   const [note, setNote] = useState('')
-  const [quantity, setQuantity] = useState(2)
+  const [quantity, setQuantity] = useState(1)
 
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-black/30 px-4 py-6 backdrop-blur-[1px]">
-      <div className="max-h-[90vh] w-full max-w-[720px] overflow-y-auto rounded-2xl bg-white shadow-[0_18px_60px_rgba(26,31,44,0.18)] dark:bg-slate-900">
+    <div className="fixed inset-0 z-[300] grid place-items-center bg-black/40 px-6 py-8 backdrop-blur-[2px]">
+      <div className="max-h-full w-full max-w-[720px] overflow-y-auto rounded-2xl bg-white shadow-[0_20px_60px_rgba(26,31,44,0.22)] dark:bg-slate-900">
         <div className="flex items-center justify-between px-5 py-4">
           <button
             className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"
@@ -530,7 +561,7 @@ function ProductDetailModal({
           </button>
           <h3 className="text-base font-bold dark:text-slate-100">Detail Product</h3>
           <button
-            className="grid h-8 w-8 place-items-center text-slate-500 dark:text-slate-400"
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"
             type="button"
             onClick={onClose}
           >
@@ -539,37 +570,39 @@ function ProductDetailModal({
         </div>
 
         <div className="grid gap-5 px-5 pb-5 md:grid-cols-[minmax(0,1fr)_1.1fr]">
-          <DishImage className="min-h-[500px] w-full rounded-2xl md:h-[340px]" item={item} />
+          <DishImage className="min-h-[220px] w-full rounded-2xl md:h-[320px]" item={item} />
+
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 dark:border-slate-800">
               <div className="min-w-0">
                 <h4 className="truncate text-xl font-bold dark:text-slate-100">{item.name}</h4>
-                <p className="text-sm text-slate-400">{item.category}</p>
+                <p className="text-sm capitalize text-slate-400">{item.category}</p>
               </div>
               <p className="flex-shrink-0 text-xl font-bold text-[#6066ed]">{money(item.price)}</p>
             </div>
 
             <div className="py-4">
-              <p className="mb-2 text-sm font-semibold dark:text-slate-100">Description</p>
+              <p className="mb-1.5 text-sm font-semibold dark:text-slate-100">Description</p>
               <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">
                 {item.description}
               </p>
             </div>
 
-            <div className="space-y-2 border-t border-slate-100 py-4 dark:border-slate-800">
-              <p className="text-sm font-semibold dark:text-slate-100">Spicy Level</p>
+            <div className="space-y-1.5 border-t border-slate-100 py-4 dark:border-slate-800">
+              <p className="mb-2 text-sm font-semibold dark:text-slate-100">Spicy Level</p>
               {[0, 1, 2, 3].map((level) => (
                 <label
                   key={level}
-                  className="flex items-center justify-between rounded-lg py-1 text-sm text-slate-500 dark:text-slate-400"
+                  className="flex cursor-pointer items-center justify-between rounded-lg py-1 text-sm"
                 >
-                  <span>{spicyLabel(level)}</span>
-                  <span className="flex items-center gap-2">
-                    <span className="text-xs">Free</span>
+                  <span className="text-slate-500 dark:text-slate-400">{spicyLabel(level)}</span>
+                  <span className="flex items-center gap-2 text-xs text-slate-400">
+                    Free
                     <input
                       type="radio"
                       checked={spicyLevel === level}
                       onChange={() => setSpicyLevel(level)}
+                      className="accent-[#6066ed]"
                     />
                   </span>
                 </label>
@@ -580,29 +613,29 @@ function ProductDetailModal({
               <label className="block text-sm font-semibold dark:text-slate-100">
                 Notes
                 <input
-                  className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+                  className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none placeholder:text-slate-400 focus:border-[#6066ed] focus:ring-1 focus:ring-[#6066ed]/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                   placeholder="Type notes here..."
                   value={note}
-                  onChange={(event) => setNote(event.target.value)}
+                  onChange={(e) => setNote(e.target.value)}
                 />
               </label>
             </div>
 
             <div className="flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
               <p className="text-sm font-semibold dark:text-slate-100">Order Quantity</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
-                  className="grid h-7 w-7 place-items-center rounded-md bg-slate-100 dark:bg-slate-700 dark:text-slate-100"
+                  className="grid h-8 w-8 place-items-center rounded-lg bg-slate-100 text-slate-700 transition hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200"
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 >
-                  -
+                  −
                 </button>
-                <span className="w-6 text-center text-sm font-semibold dark:text-slate-100">
+                <span className="w-5 text-center text-sm font-bold dark:text-slate-100">
                   {quantity}
                 </span>
                 <button
-                  className="grid h-7 w-7 place-items-center rounded-md bg-[#6066ed] text-white"
+                  className="grid h-8 w-8 place-items-center rounded-lg bg-[#6066ed] text-white transition hover:bg-[#4e54d4]"
                   type="button"
                   onClick={() => setQuantity((q) => q + 1)}
                 >
@@ -612,7 +645,7 @@ function ProductDetailModal({
             </div>
 
             <button
-              className="mt-4 h-11 w-full rounded-lg bg-[#6066ed] text-sm font-semibold text-white"
+              className="mt-4 h-11 w-full rounded-xl bg-[#6066ed] text-sm font-semibold text-white transition hover:bg-[#4e54d4] active:scale-[0.98]"
               type="button"
               onClick={() =>
                 onAddToCart({
@@ -651,29 +684,33 @@ function CartDrawer({
   onPlaceOrder: () => void
 }) {
   return (
-    <div className="fixed inset-0 bg-black/20 xl:hidden">
-      <div className="ml-auto h-full w-full max-w-[380px] overflow-y-auto bg-white p-4 shadow-[0_18px_60px_rgba(26,31,44,0.18)] dark:bg-slate-900">
-        <div className="mb-4 flex items-center justify-between">
+    <div className="fixed inset-0 z-[250] bg-black/30 backdrop-blur-[1px] xl:hidden">
+      <div className="ml-auto flex h-full w-full max-w-[380px] flex-col bg-white shadow-[0_0_40px_rgba(26,31,44,0.18)] dark:bg-slate-900">
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
           <h2 className="text-base font-bold dark:text-slate-100">Detail Items</h2>
           <button
-            className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"
             type="button"
             onClick={onClose}
-            aria-label="Close cart"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="space-y-3">
-          {cartLines.map((line) => (
-            <CartLineRow
-              key={line.itemId}
-              line={line}
-              onDecrement={() => onRemoveItem(line.itemId)}
-              onIncrement={() => onIncrementItem(line.itemId)}
-            />
-          ))}
+
+        <div className="flex-1 overflow-y-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="space-y-1">
+            {cartLines.map((line) => (
+              <CartLineRow
+                key={line.itemId}
+                line={line}
+                onEdit={() => onEditItem(line.item)}
+                onDecrement={() => onRemoveItem(line.itemId)}
+                onIncrement={() => onIncrementItem(line.itemId)}
+              />
+            ))}
+          </div>
         </div>
+
         <CartSummary summary={summary} isMember={isMember} onPlaceOrder={onPlaceOrder} />
       </div>
     </div>

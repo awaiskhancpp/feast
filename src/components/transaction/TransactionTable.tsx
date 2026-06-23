@@ -150,6 +150,13 @@ function TransactionTableToolbar({
   sortBy: SortKey
   setSortBy: (value: SortKey) => void
 }) {
+  const sortLabels: Record<SortKey, string> = {
+    date: 'Date',
+    table: 'Table',
+    items: 'Order Items',
+    amount: 'Total Amount',
+    status: 'Status',
+  }
   return (
     <div className="flex flex-col gap-4 md:flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
       <div>
@@ -178,13 +185,19 @@ function TransactionTableToolbar({
 
         <div className="flex gap-3">
           <button className="relative flex items-center whitespace-nowrap gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:text-gray-100 dark:hover:bg-slate-800">
-            Sort by
+            {sortLabels[sortBy]}
             <ChevronDown className="w-4 h-4" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortKey)}
               className="absolute inset-0 opacity-0 w-full cursor-pointer"
-            />
+            >
+              <option value="date">Date</option>
+              <option value="table">Table</option>
+              <option value="items">Order Items</option>
+              <option value="amount">Total Amount</option>
+              <option value="status">Status</option>
+            </select>
           </button>
         </div>
       </div>
