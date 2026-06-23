@@ -162,7 +162,7 @@ export default function AddOrderModal({
                   type="button"
                   onClick={() => setCustomerMenuOpen(false)}
                 >
-                  Custom...
+                  Guest
                 </button>
               </div>
             ) : null}

@@ -145,9 +145,9 @@ export default function DishesListPage({
                         ${dish.price.toFixed(2)}
                       </span>
                     </div>
-                    <p className="mt-0.5 text-xs text-gray-400 dark:text-slate-500">
+                    {/* <p className="mt-0.5 text-xs text-gray-400 dark:text-slate-500">
                       {categoryLabel(dish.category)}
-                    </p>
+                    </p> */}
                     <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-slate-400">
                       {dish.description}
                     </p>
