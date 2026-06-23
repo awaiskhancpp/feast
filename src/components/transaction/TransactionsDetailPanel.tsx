@@ -61,7 +61,7 @@ export function TransactionDetailsPanel({ transaction }: TransactionDetailsPanel
         <div className="space-y-2 text-sm">
           <Row label="Sub total" value={money(subtotal)} />
           <Row label="Tax 10%" value={money(tax)} />
-          <Row label="Diskon 50%" value={`-${money(discount)}`} />
+          <Row label="Discount 50%" value={`-${money(discount)}`} />
         </div>
 
         <div className="my-4 border-t border-dashed border-gray-200 dark:border-slate-700" />
@@ -70,6 +70,10 @@ export function TransactionDetailsPanel({ transaction }: TransactionDetailsPanel
       </div>
 
       <button
+        onClick={() => {
+          // For now, we'll enhance it to show full invoice
+          window.open(`/history/invoice/${transaction.id}`, '_blank')
+        }}
         className="mt-4 h-11 w-full rounded-lg bg-[#6066ed] text-sm font-semibold text-white shadow-[0_8px_18px_rgba(96,102,237,0.28)] hover:bg-[#555beb]"
         type="button"
       >
