@@ -74,9 +74,7 @@ export default function Invoice({ transaction, customer, tableNumber }: InvoiceP
         <div>
           <div className="uppercase text-xs tracking-widest text-gray-500 mb-1">Billed To</div>
           <div className="font-medium">{customer?.name || 'Walk-in Customer'}</div>
-          {customer?.isMember && (
-            <div className="text-sm text-emerald-600 font-medium">⭐ Member</div>
-          )}
+          {customer?.isMember && <div className="text-sm text-emerald-600 font-medium">Member</div>}
         </div>
         <div className="text-right">
           <div className="uppercase text-xs tracking-widest text-gray-500 mb-1">Table</div>
