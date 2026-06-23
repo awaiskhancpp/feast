@@ -7,7 +7,7 @@ export const Dishes: CollectionConfig = {
     defaultColumns: ['name', 'category', 'price'],
   },
   fields: [
-    { name: 'name', type: 'text', required: true },
+    { name: 'name', type: 'text', required: true, unique: true },
     { name: 'category', type: 'relationship', required: true, relationTo: 'dish-categories' },
     { name: 'price', type: 'number', required: true, min: 0 },
     { name: 'description', type: 'textarea', required: true },

@@ -2,7 +2,7 @@
 import PaymentModal from './PaymentModal'
 import { useMemo, useState } from 'react'
 import { ArrowLeft, Grid2X2, ShoppingCart, UtensilsCrossed, X } from 'lucide-react'
-
+import Image from 'next/image'
 import type { CartLine, MenuCategory, MenuItem, TableOrder } from './types'
 import { cn } from './utils'
 
@@ -154,7 +154,7 @@ export default function OrderMenu({ dishes, order, onBack, categories }: OrderMe
         )}
       >
         {/* ── Category sidebar ── */}
-        <aside className="space-y-2 max-lg:flex max-lg:overflow-x-auto max-lg:space-x-2 max-lg:space-y-0 max-lg:pb-1">
+        <aside className="space-y-2 max-lg:flex max-lg:overflow-x-auto max-lg:space-x-2 max-lg:space-y-0 max-lg:pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categoryList.map((category) => (
             <CategoryButton
               active={activeCategory === category.id}
@@ -458,7 +458,7 @@ function CategoryButton({
       <span
         className={cn(
           'relative grid h-9 w-9 shrink-0 place-items-center rounded-lg transition-all duration-150',
-          active ? 'bg-white/20' : 'bg-slate-50 group-hover:bg-white/20 dark:bg-slate-700',
+          active ? 'bg-white' : 'bg-slate-50 group-hover:bg-white dark:bg-slate-700',
         )}
       >
         {hasSvg ? (
@@ -486,12 +486,7 @@ function CategoryButton({
           </>
         ) : (
           // "All Menu" has no DB icon — use Lucide fallback
-          <Grid2X2
-            className={cn(
-              'h-5 w-5 transition-all duration-150',
-              active ? 'text-white' : 'text-slate-500 group-hover:text-white dark:text-slate-400',
-            )}
-          />
+          <Image src={active ? '/allHighlighted.svg' : '/all.svg'} alt="" width={20} height={20} />
         )}
       </span>
 
@@ -585,7 +580,7 @@ function ProductDetailModal({
         </div>
 
         <div className="grid gap-5 px-5 pb-5 md:grid-cols-[minmax(0,1fr)_1.1fr]">
-          <DishImage className="min-h-[220px] w-full rounded-2xl md:h-[320px]" item={item} />
+          <DishImage className="h-full w-full rounded-2xl" item={item} />
 
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 dark:border-slate-800">

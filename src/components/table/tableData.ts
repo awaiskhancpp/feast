@@ -25,10 +25,10 @@ export const STATUS_META: Record<TableStatus, TableStatusMeta> = {
   },
   dine: {
     label: 'Dine in',
-    color: '#f4f5f9',
+    color: '#F6F7FA',
     short: 'Dine',
-    dotClass: 'bg-[#f4f5f9] ring-1 ring-slate-200/70',
-    badgeClass: 'bg-[#f4f5f9] text-[#858b96]',
+    dotClass: 'bg-[#F6F7FA]',
+    badgeClass: 'bg-[#F6F7FA] text-white',
   },
 }
 

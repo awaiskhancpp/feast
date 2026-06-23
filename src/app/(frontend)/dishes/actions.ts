@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import config from '@/payload.config'
 
 import { isPositiveMoney, isRequired } from '@/lib/validation'
+import { isDuplicateKeyError } from '@/lib/payloadErrors'
 
 export interface DishFormState {
   error?: string
@@ -114,6 +115,29 @@ export async function createDishCategory(
   }
 }
 
+async function findDishByName(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  name: string,
+  excludeId?: string,
+) {
+  // Payload's `where: { name: { equals } }` is case-sensitive on Postgres, so
+  // "Bruschetta" wouldn't catch a duplicate "bruschetta". Fetching just the
+  // id/name columns and comparing in JS keeps this correct without depending
+  // on adapter-specific case-insensitive operators, and dish catalogs are
+  // small enough that this stays cheap.
+  const existing = await payload.find({
+    collection: 'dishes',
+    limit: 0,
+    pagination: false,
+    select: { name: true },
+  })
+
+  const normalized = name.trim().toLowerCase()
+  return existing.docs.find(
+    (doc) => String(doc.id) !== excludeId && doc.name.trim().toLowerCase() === normalized,
+  )
+}
+
 export async function createDish(_prev: DishFormState, formData: FormData): Promise<DishFormState> {
   const { name, category, price, description, inStock } = readDishFields(formData)
 
@@ -123,6 +147,10 @@ export async function createDish(_prev: DishFormState, formData: FormData): Prom
 
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
+
+  if (await findDishByName(payload, name)) {
+    return { error: `A dish named "${name}" already exists.` }
+  }
 
   try {
     const image = await uploadImageIfPresent(payload, formData, name)
@@ -137,7 +165,13 @@ export async function createDish(_prev: DishFormState, formData: FormData): Prom
         image,
       },
     })
-  } catch {
+  } catch (error) {
+    // The pre-check above closes the common case; this catches the rare
+    // race where two submissions for the same name land at almost the same
+    // moment, so the unique constraint is still the actual source of truth.
+    if (isDuplicateKeyError(error)) {
+      return { error: `A dish named "${name}" already exists.` }
+    }
     return { error: 'Could not create the dish. Please try again.' }
   }
 
@@ -159,6 +193,10 @@ export async function updateDish(
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
+  if (await findDishByName(payload, name, dishId)) {
+    return { error: `A dish named "${name}" already exists.` }
+  }
+
   try {
     const image = await uploadImageIfPresent(payload, formData, name)
     await payload.update({
@@ -168,7 +206,10 @@ export async function updateDish(
         ? { name, category, price, description, inStock, image }
         : { name, category, price, description, inStock },
     })
-  } catch {
+  } catch (error) {
+    if (isDuplicateKeyError(error)) {
+      return { error: `A dish named "${name}" already exists.` }
+    }
     return { error: 'Could not update the dish. Please try again.' }
   }
 

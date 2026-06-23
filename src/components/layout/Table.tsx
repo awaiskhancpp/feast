@@ -119,11 +119,21 @@ export default function Table({ initialTables, customers, dishes, categories }: 
       createdAt: new Date().toISOString(),
     }
 
-    const time = '03:22'
+    // Dine-in occupies the table - it switches to 'dine' (now styled the
+    // same as billed) and starts the time counter shown on the floor plan.
+    // Takeaway never sat anyone down, so the table has nothing to occupy it
+    // and goes straight back to 'available' with no counter running.
+    const nextStatus = draft.orderType === 'dine-in' ? 'dine' : 'available'
+    const time = draft.orderType === 'dine-in' ? '03:22' : undefined
+
     setTables((current) =>
       current.map((table) =>
         table.id === draft.tableId
-          ? { ...table, status: 'billed', time: table.time || time }
+          ? {
+              ...table,
+              status: nextStatus,
+              time: nextStatus === 'dine' ? table.time || time : undefined,
+            }
           : table,
       ),
     )
@@ -131,7 +141,7 @@ export default function Table({ initialTables, customers, dishes, categories }: 
     setActiveOrder(createdOrder)
 
     startTransition(async () => {
-      await updateTableStatus(draft.tableId, 'billed', time)
+      await updateTableStatus(draft.tableId, nextStatus, nextStatus === 'dine' ? time : undefined)
       router.refresh()
     })
   }

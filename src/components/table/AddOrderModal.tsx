@@ -26,12 +26,12 @@ export default function AddOrderModal({
   const [customerMenuOpen, setCustomerMenuOpen] = useState(false)
 
   useEffect(() => {
-    if (!open) return
+    if (!open || !table) return
     setOrderType('dine-in')
     setCustomerName('')
-    setGuestCount(2)
+    setGuestCount(Math.min(2, table.chairs))
     setCustomerMenuOpen(false)
-  }, [open, table?.id])
+  }, [open, table?.id, table?.chairs])
 
   const visibleCustomers = useMemo(() => {
     const query = customerName.trim().toLowerCase()
@@ -169,8 +169,11 @@ export default function AddOrderModal({
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold text-slate-950 dark:text-slate-200">
+            <span className="mb-1.5 flex items-center justify-between text-xs font-semibold text-slate-950 dark:text-slate-200">
               Guest
+              <span className="font-normal text-slate-400 dark:text-slate-500">
+                Max {table.chairs} (table seats)
+              </span>
             </span>
             <div className="flex h-10 w-full items-center justify-between rounded-md border border-slate-200 bg-white px-2 dark:border-slate-700 dark:bg-slate-800">
               <button
@@ -187,9 +190,10 @@ export default function AddOrderModal({
               </span>
 
               <button
-                className="grid h-6 w-6 place-items-center rounded bg-[#6066ed] text-white"
+                className="grid h-6 w-6 place-items-center rounded bg-[#6066ed] text-white disabled:opacity-40"
                 type="button"
-                onClick={() => setGuestCount((count) => count + 1)}
+                disabled={guestCount >= table.chairs}
+                onClick={() => setGuestCount((count) => Math.min(table.chairs, count + 1))}
               >
                 <Plus className="h-3.5 w-3.5" />
               </button>

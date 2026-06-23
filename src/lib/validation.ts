@@ -4,8 +4,7 @@ export type ValidationResult = {
 }
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const usPhonePattern =
-  /^(\+1[\s.-]?)?(\([2-9]\d{2}\)|[2-9]\d{2})[\s.-]?[2-9]\d{2}[\s.-]?\d{4}$/
+const usPhonePattern = /^(\+1[\s.-]?)?(\([2-9]\d{2}\)|[2-9]\d{2})[\s.-]?[2-9]\d{2}[\s.-]?\d{4}$/
 
 export function isRequired(value: string) {
   return value.trim().length > 0
@@ -17,6 +16,15 @@ export function isValidEmail(value: string) {
 
 export function isValidUSPhone(value: string) {
   return usPhonePattern.test(value.trim())
+}
+
+// Strips formatting down to a canonical 10-digit US number, dropping a
+// leading "1" country code if present. Used so "(319) 555-0115" and
+// "1-319-555-0115" are recognized as the same number for uniqueness checks,
+// rather than comparing the raw formatted strings.
+export function normalizeUSPhone(value: string) {
+  const digits = value.replace(/\D/g, '')
+  return digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits
 }
 
 export function isValidName(value: string) {

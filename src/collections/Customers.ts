@@ -9,7 +9,7 @@ export const Customers: CollectionConfig = {
   fields: [
     { name: 'firstName', type: 'text', required: true },
     { name: 'lastName', type: 'text', required: true },
-    { name: 'phoneNumber', type: 'text', required: true },
+    { name: 'phoneNumber', type: 'text', required: true, unique: true },
     { name: 'address', type: 'text', required: true },
     {
       name: 'status',
