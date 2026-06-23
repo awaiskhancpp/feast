@@ -262,9 +262,25 @@ function GeneralSettingsPanel({
       return
     }
 
-    const dataUrl = await fileToDataUrl(file)
-    setGeneral((prev) => ({ ...prev, employeeAvatarUrl: dataUrl }))
-    setProfileError('')
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!res.ok) {
+      setProfileError('Upload failed')
+      return
+    }
+
+    const data = await res.json()
+
+    setGeneral((prev) => ({
+      ...prev,
+      employeeAvatarUrl: data.url, // 👈 REAL blob URL
+    }))
   }
 
   async function handleCreateEmployeePhoto(file: File | null) {
@@ -284,47 +300,47 @@ function GeneralSettingsPanel({
 
   async function saveProfile() {
     if (!currentEmployee) return
-
-    const name = general.employeeName.trim()
-    const email = general.employeeEmail.trim()
-    const phone = general.employeePhone.trim()
-    const pin = general.employeePin.trim()
-    const role =
+    const role: EmployeeRole =
       currentEmployee.role === 'admin'
-        ? (general.employeeRole as EmployeeRole) || currentEmployee.role
+        ? (general.employeeRole as EmployeeRole)
         : currentEmployee.role
-    const avatarUrl = general.employeeAvatarUrl || currentEmployee.avatarUrl || '/person.jpg'
+    const payload = {
+      id: currentEmployee.id,
+      name: general.employeeName.trim(),
+      email: general.employeeEmail.trim(),
+      phone: general.employeePhone.trim(),
+      role,
+      avatarUrl: general.employeeAvatarUrl || currentEmployee.avatarUrl,
+      pin: general.employeePin.trim(),
+    }
 
-    if (!isValidName(name)) {
-      setProfileError('Enter a valid employee name.')
-      return
-    }
-    if (!isValidEmail(email)) {
-      setProfileError('Enter a valid email address.')
-      return
-    }
-    if (!isValidUSPhone(phone)) {
-      setProfileError('Enter a valid US phone number.')
-      return
-    }
-    if (!isValidPin(pin)) {
-      setProfileError('PIN must be exactly 6 digits.')
-      return
-    }
+    // validations (keep yours)
+    if (!isValidName(payload.name)) return setProfileError('Invalid name')
+    if (!isValidEmail(payload.email)) return setProfileError('Invalid email')
+    if (!isValidUSPhone(payload.phone)) return setProfileError('Invalid phone')
+    if (!isValidPin(payload.pin)) return setProfileError('Invalid PIN')
 
     setProfileSaving(true)
+
     try {
-      updateEmployee(currentEmployee.id, {
-        name,
-        email,
-        phone,
-        role,
-        avatarUrl,
-        pin,
+      const res = await fetch('/api/employees', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       })
+
+      if (!res.ok) throw new Error('Failed to save')
+
+      // optional: still keep localStorage in sync
+      updateEmployee(currentEmployee.id, payload)
+
       refreshEmployees()
+      onSaved('Profile saved to server')
       setProfileError('')
-      onSaved('Personal settings saved')
+    } catch (err) {
+      setProfileError('Failed to save profile')
     } finally {
       setProfileSaving(false)
     }
@@ -353,13 +369,29 @@ function GeneralSettingsPanel({
     }
 
     let avatarUrl = '/person.jpg'
+
     if (newEmployeeAvatar) {
       const validation = validateImageFile(newEmployeeAvatar)
       if (!validation.valid) {
         setCreateError(validation.message ?? 'Invalid image.')
         return
       }
-      avatarUrl = employeePreview || (await fileToDataUrl(newEmployeeAvatar))
+
+      const formData = new FormData()
+      formData.append('file', newEmployeeAvatar)
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!res.ok) {
+        setCreateError('Image upload failed')
+        return
+      }
+
+      const data = await res.json()
+      avatarUrl = data.url // 👈 blob / cloud URL
     }
 
     setEmployeeSaving(true)

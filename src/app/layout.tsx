@@ -19,7 +19,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en">
       <body className="w-full bg-[#f5f7fb] text-gray-900 dark:bg-slate-950 dark:text-gray-100">
         <ThemeBootstrap />
-        <main>{children}</main>
+        {children}
       </body>
     </html>
   )
