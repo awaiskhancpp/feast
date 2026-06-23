@@ -59,7 +59,12 @@ export default async function TablePage() {
       customers={customers}
       dishes={dishes}
       initialTables={tables}
-      categories={categories.map((c) => ({ id: c.id, label: c.label }))}
+      categories={categories.map((c) => ({
+        id: c.id,
+        label: c.label,
+        iconUrl: c.iconUrl,
+        iconHighlightedUrl: c.iconHighlightedUrl,
+      }))}
     />
   )
 }

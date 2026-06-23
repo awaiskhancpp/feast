@@ -20,6 +20,13 @@ export const DishCategories: CollectionConfig = {
     },
     {
       name: 'icon',
+      label: 'Icon (Default / Inactive state)',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
+      name: 'iconHighlighted',
+      label: 'Icon (Highlighted / Active state)',
       type: 'upload',
       relationTo: 'media',
     },

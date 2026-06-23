@@ -1,30 +1,23 @@
 'use client'
 import PaymentModal from './PaymentModal'
 import { useMemo, useState } from 'react'
-import {
-  ArrowLeft,
-  ChefHat,
-  Coffee,
-  CupSoda,
-  Edit3,
-  Grid2X2,
-  IceCreamBowl,
-  Salad,
-  ShoppingCart,
-  Soup,
-  UtensilsCrossed,
-  Waves,
-  X,
-} from 'lucide-react'
+import { ArrowLeft, Grid2X2, ShoppingCart, UtensilsCrossed, X } from 'lucide-react'
 
 import type { CartLine, MenuCategory, MenuItem, TableOrder } from './types'
 import { cn } from './utils'
+
+type CategoryMeta = {
+  id: string
+  label: string
+  iconUrl?: string // default (inactive) icon
+  iconHighlightedUrl?: string // highlighted (active/hover) icon
+}
 
 type OrderMenuProps = {
   dishes: MenuItem[]
   order: TableOrder
   onBack: () => void
-  categories: { id: string; label: string }[] // simple — no external type dependency
+  categories: CategoryMeta[]
 }
 
 export default function OrderMenu({ dishes, order, onBack, categories }: OrderMenuProps) {
@@ -37,13 +30,21 @@ export default function OrderMenu({ dishes, order, onBack, categories }: OrderMe
 
   const orderableDishes = useMemo(() => dishes.filter((d) => d.inStock), [dishes])
 
-  const categoryList: MenuCategory[] = useMemo(() => {
+  const categoryList = useMemo(() => {
     return [
-      { id: 'all', label: 'All Menu', count: orderableDishes.length },
+      {
+        id: 'all',
+        label: 'All Menu',
+        count: orderableDishes.length,
+        iconUrl: undefined,
+        iconHighlightedUrl: undefined,
+      },
       ...categories.map((c) => ({
-        id: String(c.id), // coerce — Payload IDs come back as numbers at runtime
+        id: String(c.id),
         label: c.label,
         count: orderableDishes.filter((d) => d.category === String(c.id)).length,
+        iconUrl: c.iconUrl,
+        iconHighlightedUrl: c.iconHighlightedUrl,
       })),
     ]
   }, [orderableDishes, categories])
@@ -303,18 +304,6 @@ export default function OrderMenu({ dishes, order, onBack, categories }: OrderMe
 }
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
-const categoryIcons = {
-  all: Grid2X2,
-  appetizers: ChefHat,
-  drink: CupSoda,
-  desserts: IceCreamBowl,
-  coffee: Coffee,
-  main: UtensilsCrossed,
-  salads: Salad,
-  seafood: Waves,
-  soup: Soup,
-} as const
-type MenuCategoryIcon = keyof typeof categoryIcons
 
 function DishImage({ item, className }: { item: MenuItem; className?: string }) {
   if (!item.image) {
@@ -443,10 +432,16 @@ function CategoryButton({
   onClick,
 }: {
   active: boolean
-  category: MenuCategory
+  category: {
+    id: string
+    label: string
+    count: number
+    iconUrl?: string
+    iconHighlightedUrl?: string
+  }
   onClick: () => void
 }) {
-  const Icon = getCategoryIcon(category.id as MenuCategoryIcon)
+  const hasSvg = Boolean(category.iconUrl)
 
   return (
     <button
@@ -459,15 +454,45 @@ function CategoryButton({
       type="button"
       onClick={onClick}
     >
+      {/* Icon container */}
       <span
         className={cn(
-          'grid h-9 w-9 shrink-0 place-items-center rounded-lg transition-all duration-150',
-          active
-            ? 'bg-white/20 text-white'
-            : 'bg-slate-50 text-slate-500 group-hover:bg-white/20 group-hover:text-white dark:bg-slate-700 dark:text-slate-400',
+          'relative grid h-9 w-9 shrink-0 place-items-center rounded-lg transition-all duration-150',
+          active ? 'bg-white/20' : 'bg-slate-50 group-hover:bg-white/20 dark:bg-slate-700',
         )}
       >
-        <Icon className="h-5 w-5" />
+        {hasSvg ? (
+          <>
+            {/* Default icon — shown when inactive and not hovered */}
+            <img
+              src={category.iconUrl}
+              alt=""
+              aria-hidden
+              className={cn(
+                'absolute h-5 w-5 object-contain transition-opacity duration-150',
+                active ? 'opacity-0' : 'opacity-100 group-hover:opacity-0',
+              )}
+            />
+            {/* Highlighted icon — shown when active or on hover */}
+            <img
+              src={category.iconHighlightedUrl ?? category.iconUrl}
+              alt=""
+              aria-hidden
+              className={cn(
+                'absolute h-5 w-5 object-contain transition-opacity duration-150',
+                active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+              )}
+            />
+          </>
+        ) : (
+          // "All Menu" has no DB icon — use Lucide fallback
+          <Grid2X2
+            className={cn(
+              'h-5 w-5 transition-all duration-150',
+              active ? 'text-white' : 'text-slate-500 group-hover:text-white dark:text-slate-400',
+            )}
+          />
+        )}
       </span>
 
       <span className="min-w-0">
@@ -485,21 +510,6 @@ function CategoryButton({
       </span>
     </button>
   )
-}
-
-function getCategoryIcon(icon: MenuCategoryIcon) {
-  const icons: Record<MenuCategoryIcon, React.ElementType> = {
-    all: Grid2X2,
-    appetizers: ChefHat,
-    drink: CupSoda,
-    desserts: IceCreamBowl,
-    coffee: Coffee,
-    main: UtensilsCrossed,
-    salads: Salad,
-    seafood: Waves,
-    soup: Soup,
-  }
-  return icons[icon] ?? Grid2X2
 }
 
 function spicyLabel(level: number) {

@@ -1,12 +1,12 @@
 import { getPayload } from 'payload'
 import configPromise from '@/payload.config'
-import type { Media } from '@/payload-types'
 
 export interface CategoryOption {
   id: string
   label: string
-  value: string
-  icon?: number | Media
+  value: string // slug
+  iconUrl?: string // default (gray/dark) state SVG URL
+  iconHighlightedUrl?: string // active/highlighted (white) state SVG URL
 }
 
 export async function getDishCategories(): Promise<CategoryOption[]> {
@@ -24,7 +24,16 @@ export async function getDishCategories(): Promise<CategoryOption[]> {
       id: String(doc.id),
       label: doc.name,
       value: doc.slug,
-      icon: doc.icon ?? undefined,
+      iconUrl:
+        typeof doc.icon === 'object' && doc.icon !== null && doc.icon.url
+          ? String(doc.icon.url)
+          : undefined,
+      iconHighlightedUrl:
+        typeof doc.iconHighlighted === 'object' &&
+        doc.iconHighlighted !== null &&
+        doc.iconHighlighted.url
+          ? String(doc.iconHighlighted.url)
+          : undefined,
     }))
   } catch (error) {
     console.error('Failed to fetch dish categories:', error)

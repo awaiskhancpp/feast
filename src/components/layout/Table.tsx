@@ -29,8 +29,8 @@ interface TableProps {
   initialTables: TableItem[]
   customers: Customer[]
   dishes: MenuItem[]
-  // Simple shape — only id+label needed; count computed in OrderMenu
-  categories: { id: string; label: string }[]
+  // id, label + both icon URLs forwarded to OrderMenu
+  categories: { id: string; label: string; iconUrl?: string; iconHighlightedUrl?: string }[]
 }
 
 // NOT async — client components cannot be async

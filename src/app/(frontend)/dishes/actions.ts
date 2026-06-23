@@ -50,32 +50,48 @@ export async function createDishCategory(
   const name = String(formData.get('name') || '').trim()
   const slug = String(formData.get('slug') || '').trim()
 
-  const file = formData.get('icon')
+  const iconFile = formData.get('icon')
+  const iconHighlightedFile = formData.get('iconHighlighted')
 
   if (!name || !slug) {
     return { error: 'Name and slug are required.' }
   }
 
-  if (!(file instanceof File) || file.size === 0) {
-    return { error: 'Category icon is required.' }
+  if (!(iconFile instanceof File) || iconFile.size === 0) {
+    return { error: 'Default icon is required.' }
+  }
+
+  if (!(iconHighlightedFile instanceof File) || iconHighlightedFile.size === 0) {
+    return { error: 'Highlighted icon is required.' }
   }
 
   try {
     const payloadConfig = await config
     const payload = await getPayload({ config: payloadConfig })
 
-    const buffer = Buffer.from(await file.arrayBuffer())
-
-    const media = await payload.create({
+    // Upload default icon
+    const iconBuffer = Buffer.from(await iconFile.arrayBuffer())
+    const iconMedia = await payload.create({
       collection: 'media',
-      data: {
-        alt: name,
-      },
+      data: { alt: name },
       file: {
-        data: buffer,
-        mimetype: file.type,
-        name: file.name,
-        size: file.size,
+        data: iconBuffer,
+        mimetype: iconFile.type,
+        name: iconFile.name,
+        size: iconFile.size,
+      },
+    })
+
+    // Upload highlighted icon
+    const highlightedBuffer = Buffer.from(await iconHighlightedFile.arrayBuffer())
+    const iconHighlightedMedia = await payload.create({
+      collection: 'media',
+      data: { alt: `${name} highlighted` },
+      file: {
+        data: highlightedBuffer,
+        mimetype: iconHighlightedFile.type,
+        name: iconHighlightedFile.name,
+        size: iconHighlightedFile.size,
       },
     })
 
@@ -84,7 +100,8 @@ export async function createDishCategory(
       data: {
         name,
         slug,
-        icon: media.id,
+        icon: iconMedia.id,
+        iconHighlighted: iconHighlightedMedia.id,
       },
     })
 

@@ -207,6 +207,7 @@ export interface DishCategory {
   name: string;
   slug: string;
   icon?: (number | null) | Media;
+  iconHighlighted?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -406,6 +407,7 @@ export interface DishCategoriesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   icon?: T;
+  iconHighlighted?: T;
   updatedAt?: T;
   createdAt?: T;
 }
