@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useEffect, useState } from 'react'
-import { DISH_CATEGORIES } from '@/lib/dishCategories'
+import type { CategoryOption } from '@/lib/dishCategories'
 import { createDish, updateDish, type DishFormState } from '@/app/(frontend)/dishes/actions'
 import { Button } from '@/components/ui/button'
 
@@ -18,11 +18,12 @@ export interface DishDefaults {
 }
 
 interface DishFormProps {
+  categories: CategoryOption[]
   defaults?: DishDefaults
   onSuccess: () => void
 }
 
-export function DishForm({ defaults, onSuccess }: DishFormProps) {
+export function DishForm({ categories, defaults, onSuccess }: DishFormProps) {
   const action = defaults ? updateDish.bind(null, defaults.id) : createDish
   const [state, formAction, isPending] = useActionState(action, initialState)
   const [preview, setPreview] = useState<string | undefined>(defaults?.imageUrl)
@@ -61,11 +62,11 @@ export function DishForm({ defaults, onSuccess }: DishFormProps) {
           <select
             id="category"
             name="category"
-            defaultValue={defaults?.category ?? DISH_CATEGORIES[0].value}
+            defaultValue={defaults?.category ?? categories[0]?.id}
             className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/40 dark:border-slate-700 dark:bg-slate-950 dark:text-gray-100"
           >
-            {DISH_CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value}>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
                 {c.label}
               </option>
             ))}

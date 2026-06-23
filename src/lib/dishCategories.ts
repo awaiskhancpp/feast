@@ -1,19 +1,37 @@
-// Matches the category set OrderMenu already renders icons for. 'all' is a
-// client-side filter value only, not a real stored category, so it isn't
-// listed here.
-export const DISH_CATEGORIES = [
-  { label: 'Appetizers', value: 'appetizers' },
-  { label: 'Drink', value: 'drink' },
-  { label: 'Desserts', value: 'desserts' },
-  { label: 'Coffee', value: 'coffee' },
-  { label: 'Main Courses', value: 'main' },
-  { label: 'Salads', value: 'salads' },
-  { label: 'Seafood', value: 'seafood' },
-  { label: 'Soup', value: 'soup' },
-] as const
+import { getPayload } from 'payload'
+import configPromise from '@/payload.config'
+import type { Media } from '@/payload-types'
 
-export type DishCategoryValue = (typeof DISH_CATEGORIES)[number]['value']
+export interface CategoryOption {
+  id: string
+  label: string
+  value: string
+  icon?: number | Media
+}
 
-export function dishCategoryLabel(value: string) {
-  return DISH_CATEGORIES.find((c) => c.value === value)?.label ?? value
+export async function getDishCategories(): Promise<CategoryOption[]> {
+  try {
+    const payloadConfig = await configPromise
+    const payload = await getPayload({ config: payloadConfig })
+
+    const result = await payload.find({
+      collection: 'dish-categories',
+      pagination: false,
+      depth: 1,
+    })
+
+    return result.docs.map((doc: any) => ({
+      id: String(doc.id),
+      label: doc.name,
+      value: doc.slug,
+      icon: doc.icon ?? undefined,
+    }))
+  } catch (error) {
+    console.error('Failed to fetch dish categories:', error)
+    return []
+  }
+}
+
+export function getDishCategoryLabel(value: string, categories: CategoryOption[]): string {
+  return categories.find((c) => c.value === value)?.label ?? value
 }

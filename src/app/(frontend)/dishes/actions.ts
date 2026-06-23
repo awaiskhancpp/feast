@@ -3,10 +3,15 @@
 import { getPayload } from 'payload'
 import { revalidatePath } from 'next/cache'
 import config from '@/payload.config'
-import { DISH_CATEGORIES, type DishCategoryValue } from '@/lib/dishCategories'
+
 import { isPositiveMoney, isRequired } from '@/lib/validation'
 
 export interface DishFormState {
+  error?: string
+  success?: boolean
+}
+
+export interface CategoryFormState {
   error?: string
   success?: boolean
 }
@@ -20,37 +25,82 @@ async function uploadImageIfPresent(
   if (!(file instanceof File) || file.size === 0) return undefined
 
   const buffer = Buffer.from(await file.arrayBuffer())
+  const uniqueName = `${Date.now()}-${file.name}`
   const mediaDoc = await payload.create({
     collection: 'media',
     data: { alt: altText },
-    file: { data: buffer, mimetype: file.type, name: file.name, size: file.size },
+    file: { data: buffer, mimetype: file.type, name: uniqueName, size: file.size },
   })
   return mediaDoc.id
-}
-
-function isDishCategory(value: string): value is DishCategoryValue {
-  return DISH_CATEGORIES.some((c) => c.value === value)
 }
 
 function readDishFields(formData: FormData) {
   return {
     name: String(formData.get('name') || '').trim(),
-    category: String(formData.get('category') || ''),
+    category: Number(formData.get('category')),
     price: Number(formData.get('price')),
     description: String(formData.get('description') || '').trim(),
     inStock: formData.get('inStock') === 'on',
+  }
+}
+export async function createDishCategory(
+  _prev: CategoryFormState,
+  formData: FormData,
+): Promise<CategoryFormState> {
+  const name = String(formData.get('name') || '').trim()
+  const slug = String(formData.get('slug') || '').trim()
+
+  const file = formData.get('icon')
+
+  if (!name || !slug) {
+    return { error: 'Name and slug are required.' }
+  }
+
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: 'Category icon is required.' }
+  }
+
+  try {
+    const payloadConfig = await config
+    const payload = await getPayload({ config: payloadConfig })
+
+    const buffer = Buffer.from(await file.arrayBuffer())
+
+    const media = await payload.create({
+      collection: 'media',
+      data: {
+        alt: name,
+      },
+      file: {
+        data: buffer,
+        mimetype: file.type,
+        name: file.name,
+        size: file.size,
+      },
+    })
+
+    await payload.create({
+      collection: 'dish-categories',
+      data: {
+        name,
+        slug,
+        icon: media.id,
+      },
+    })
+
+    revalidatePath('/dishes')
+
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { error: 'Failed to create category.' }
   }
 }
 
 export async function createDish(_prev: DishFormState, formData: FormData): Promise<DishFormState> {
   const { name, category, price, description, inStock } = readDishFields(formData)
 
-  if (
-    !isRequired(name) ||
-    !isDishCategory(category) ||
-    !isRequired(description) ||
-    !isPositiveMoney(price)
-  ) {
+  if (!isRequired(name) || !category || !isRequired(description) || !isPositiveMoney(price)) {
     return { error: 'Please fill in every field with a valid positive price.' }
   }
 
@@ -61,7 +111,14 @@ export async function createDish(_prev: DishFormState, formData: FormData): Prom
     const image = await uploadImageIfPresent(payload, formData, name)
     await payload.create({
       collection: 'dishes',
-      data: { name, category, price, description, inStock, image },
+      data: {
+        name,
+        category,
+        price,
+        description,
+        inStock,
+        image,
+      },
     })
   } catch {
     return { error: 'Could not create the dish. Please try again.' }
@@ -78,12 +135,7 @@ export async function updateDish(
 ): Promise<DishFormState> {
   const { name, category, price, description, inStock } = readDishFields(formData)
 
-  if (
-    !isRequired(name) ||
-    !isDishCategory(category) ||
-    !isRequired(description) ||
-    !isPositiveMoney(price)
-  ) {
+  if (!isRequired(name) || !category || !isRequired(description) || !isPositiveMoney(price)) {
     return { error: 'Please fill in every field with a valid positive price.' }
   }
 

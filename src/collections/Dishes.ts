@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { DISH_CATEGORIES } from '@/lib/dishCategories'
 
 export const Dishes: CollectionConfig = {
   slug: 'dishes',
@@ -9,7 +8,7 @@ export const Dishes: CollectionConfig = {
   },
   fields: [
     { name: 'name', type: 'text', required: true },
-    { name: 'category', type: 'select', required: true, options: [...DISH_CATEGORIES] },
+    { name: 'category', type: 'relationship', required: true, relationTo: 'dish-categories' },
     { name: 'price', type: 'number', required: true, min: 0 },
     { name: 'description', type: 'textarea', required: true },
     { name: 'image', type: 'upload', relationTo: 'media' },

@@ -9,8 +9,8 @@ import { Pagination } from '@/components/ui/Pagination'
 import { DishForm, type DishDefaults } from '@/components/dishes/DishForm'
 import { DishFilters } from '@/components/dishes/DishFilters'
 import { deleteDish } from '@/app/(frontend)/dishes/actions'
-import { DISH_CATEGORIES } from '@/lib/dishCategories'
-
+import type { CategoryOption } from '@/lib/dishCategories'
+import { CategoryModal } from '@/components/dishes/CategoryModal'
 export interface DishRow {
   id: string
   name: string
@@ -23,17 +23,16 @@ export interface DishRow {
 
 interface DishesListPageProps {
   dishes: DishRow[]
+  categories: CategoryOption[]
   currentPage: number
   totalPages: number
   query: string
   category: string
 }
 
-const categoryLabel = (value: string) =>
-  DISH_CATEGORIES.find((c) => c.value === value)?.label ?? value
-
 export default function DishesListPage({
   dishes,
+  categories,
   currentPage,
   totalPages,
   query,
@@ -42,7 +41,7 @@ export default function DishesListPage({
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<DishDefaults | undefined>(undefined)
   const [isPending, startTransition] = useTransition()
-
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false)
   function buildHref(page: number) {
     const params = new URLSearchParams()
     if (query) params.set('q', query)
@@ -71,6 +70,7 @@ export default function DishesListPage({
       deleteDish(id)
     })
   }
+  const categoryLabel = (value: string) => categories.find((c) => c.value === value)?.label ?? value
 
   return (
     <div className="px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 min-h-full dark:bg-slate-950">
@@ -82,19 +82,27 @@ export default function DishesListPage({
               Manage every item on the menu — name, price, photo, and availability.
             </p>
           </div>
-          <button
-            onClick={() => {
-              setEditing(undefined)
-              setFormOpen(true)
-            }}
-            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition whitespace-nowrap"
-          >
-            + Add Dish
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="px-4 py-2 rounded-lg border"
+              onClick={() => setCategoryModalOpen(true)}
+            >
+              Manage Categories
+            </button>
+            <button
+              onClick={() => {
+                setEditing(undefined)
+                setFormOpen(true)
+              }}
+              className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition whitespace-nowrap"
+            >
+              + Add Dish
+            </button>
+          </div>
         </div>
 
         <div className="mb-6">
-          <DishFilters initialQuery={query} initialCategory={category} />
+          <DishFilters initialQuery={query} initialCategory={category} categories={categories} />
         </div>
 
         {dishes.length === 0 ? (
@@ -177,8 +185,9 @@ export default function DishesListPage({
         onClose={() => setFormOpen(false)}
         title={editing ? 'Edit Dish' : 'Add Dish'}
       >
-        <DishForm defaults={editing} onSuccess={() => setFormOpen(false)} />
+        <DishForm categories={categories} defaults={editing} onSuccess={() => setFormOpen(false)} />
       </Modal>
+      <CategoryModal open={categoryModalOpen} onClose={() => setCategoryModalOpen(false)} />
     </div>
   )
 }

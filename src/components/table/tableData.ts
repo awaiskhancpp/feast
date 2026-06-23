@@ -1,6 +1,4 @@
 import type { TableStatus, TableStatusMeta } from './types'
-import { DISH_CATEGORIES } from '@/lib/dishCategories'
-
 export const STATUS_ORDER: TableStatus[] = ['available', 'billed', 'reserved', 'dine']
 
 export const STATUS_META: Record<TableStatus, TableStatusMeta> = {
@@ -49,7 +47,3 @@ export type MenuCategoryIcon =
 // is no longer baked in here as a hardcoded number. It's real data now, so
 // OrderMenu computes counts at render time from the actual dishes it was
 // given, instead of trusting a number that could silently drift from reality.
-export const MENU_CATEGORY_META: { id: MenuCategoryIcon; label: string }[] = [
-  { id: 'all', label: 'All Menu' },
-  ...DISH_CATEGORIES.map((c) => ({ id: c.value as MenuCategoryIcon, label: c.label })),
-]

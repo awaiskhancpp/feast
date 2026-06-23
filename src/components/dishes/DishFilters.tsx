@@ -2,14 +2,15 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useEffect, useState, useTransition } from 'react'
-import { DISH_CATEGORIES } from '@/lib/dishCategories'
+import type { CategoryOption } from '@/lib/dishCategories'
 
 interface DishFiltersProps {
   initialQuery: string
   initialCategory: string
+  categories: CategoryOption[]
 }
 
-export function DishFilters({ initialQuery, initialCategory }: DishFiltersProps) {
+export function DishFilters({ initialQuery, initialCategory, categories }: DishFiltersProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -56,7 +57,7 @@ export function DishFilters({ initialQuery, initialCategory }: DishFiltersProps)
         >
           All
         </button>
-        {DISH_CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <button
             key={c.value}
             onClick={() => setCategory(c.value)}

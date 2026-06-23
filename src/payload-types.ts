@@ -72,6 +72,7 @@ export interface Config {
     customers: Customer;
     dishes: Dish;
     tables: Table;
+    'dish-categories': DishCategory;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     customers: CustomersSelect<false> | CustomersSelect<true>;
     dishes: DishesSelect<false> | DishesSelect<true>;
     tables: TablesSelect<false> | TablesSelect<true>;
+    'dish-categories': DishCategoriesSelect<false> | DishCategoriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -188,11 +190,23 @@ export interface Customer {
 export interface Dish {
   id: number;
   name: string;
-  category: 'appetizers' | 'drink' | 'desserts' | 'coffee' | 'main' | 'salads' | 'seafood' | 'soup';
+  category: number | DishCategory;
   price: number;
   description: string;
   image?: (number | null) | Media;
   inStock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dish-categories".
+ */
+export interface DishCategory {
+  id: number;
+  name: string;
+  slug: string;
+  icon?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -255,6 +269,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tables';
         value: number | Table;
+      } | null)
+    | ({
+        relationTo: 'dish-categories';
+        value: number | DishCategory;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -377,6 +395,17 @@ export interface TablesSelect<T extends boolean = true> {
   x?: T;
   y?: T;
   time?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dish-categories_select".
+ */
+export interface DishCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  icon?: T;
   updatedAt?: T;
   createdAt?: T;
 }

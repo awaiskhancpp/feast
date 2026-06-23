@@ -13,13 +13,17 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
   const { employee, ready } = useCurrentEmployee()
   useSessionTimeout(employee)
 
+  // Paths that should not show Sidebar/Navbar
+  const isAuthRoute = pathname === '/login' || pathname === '/onboarding'
+
   React.useEffect(() => {
-    if (ready && !employee) {
+    if (ready && !employee && !isAuthRoute) {
       router.replace(`/login?next=${encodeURIComponent(pathname || '/')}`)
     }
-  }, [employee, pathname, ready, router])
+  }, [employee, pathname, ready, router, isAuthRoute])
 
-  if (!ready || !employee) {
+  // Still show loading for auth routes if not ready
+  if (!ready) {
     return (
       <div className="grid min-h-screen place-items-center bg-[#f5f7fb] text-sm font-medium text-gray-500">
         Loading workspace...
@@ -27,10 +31,24 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
     )
   }
 
+  // If on auth route, just render children (no Sidebar/Navbar)
+  if (isAuthRoute) {
+    return children
+  }
+
+  // If not on auth route but no employee, redirect to login (handled by useEffect above)
+  if (!employee) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-[#f5f7fb] text-sm font-medium text-gray-500">
+        Loading workspace...
+      </div>
+    )
+  }
+
+  // Authenticated user on non-auth route: show full layout
   return (
     <div className="flex w-full min-h-screen">
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-      {/* overflow-x-clip only on the right column, NOT the outer wrapper */}
       <div className="flex flex-col flex-1 min-w-0 overflow-x-clip">
         <Navbar onMenuClick={() => setMobileOpen(!mobileOpen)} />
         <main className="flex-1">{children}</main>

@@ -44,7 +44,7 @@ export type Customer = {
 export type MenuCategory = {
   id: string
   label: string
-  count: number
+  count?: number
 }
 
 export type MenuItem = {

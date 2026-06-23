@@ -148,8 +148,8 @@ function TransactionTableToolbar({
 }: {
   searchTerm: string
   setSearchTerm: (value: string) => void
-  sortBy: SortKey
-  setSortBy: (value: SortKey) => void
+  sortBy: SortKey | ''
+  setSortBy: (value: SortKey | '') => void
 }) {
   const sortLabels: Record<SortKey | '', string> = {
     '': 'Sort By',

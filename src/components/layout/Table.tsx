@@ -29,9 +29,12 @@ interface TableProps {
   initialTables: TableItem[]
   customers: Customer[]
   dishes: MenuItem[]
+  // Simple shape — only id+label needed; count computed in OrderMenu
+  categories: { id: string; label: string }[]
 }
 
-export default function Table({ initialTables, customers, dishes }: TableProps) {
+// NOT async — client components cannot be async
+export default function Table({ initialTables, customers, dishes, categories }: TableProps) {
   const router = useRouter()
   const [, startTransition] = useTransition()
 
@@ -80,11 +83,8 @@ export default function Table({ initialTables, customers, dishes }: TableProps) 
     if (!table) return
 
     const newShape: TableShape = table.shape === 'vertical' ? 'horizontal' : 'vertical'
-    // Re-clamp because the footprint swaps — a table at the canvas edge could
-    // go out of bounds when width and height swap values.
     const clamped = clampTablePosition(table.x, table.y, newShape, table.chairs)
 
-    // Optimistic update — instant visual feedback, no waiting for server
     setTables((current) =>
       current.map((t) =>
         t.id === tableId ? { ...t, shape: newShape, x: clamped.x, y: clamped.y } : t,
@@ -197,7 +197,12 @@ export default function Table({ initialTables, customers, dishes }: TableProps) 
       />
 
       {activeOrder ? (
-        <OrderMenu dishes={dishes} order={activeOrder} onBack={() => setActiveOrder(null)} />
+        <OrderMenu
+          dishes={dishes}
+          order={activeOrder}
+          categories={categories}
+          onBack={() => setActiveOrder(null)}
+        />
       ) : null}
     </div>
   )

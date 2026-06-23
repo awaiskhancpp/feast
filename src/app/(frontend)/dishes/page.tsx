@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import type { Where } from 'payload'
 import config from '@/payload.config'
+import { getDishCategories } from '@/lib/dishCategories'
 import DishesListPage, { type DishRow } from '@/components/layout/Dishes'
 
 export const dynamic = 'force-dynamic'
@@ -20,9 +21,11 @@ export default async function Dishes({ searchParams }: DishesPageProps) {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
+  const [categories] = await Promise.all([getDishCategories()])
+
   const filters: Where[] = []
   if (query) filters.push({ name: { contains: query } })
-  if (category !== 'all') filters.push({ category: { equals: category } })
+  if (category !== 'all') filters.push({ 'category.slug': { equals: category } })
 
   const result = await payload.find({
     collection: 'dishes',
@@ -36,7 +39,10 @@ export default async function Dishes({ searchParams }: DishesPageProps) {
   const dishes: DishRow[] = result.docs.map((doc) => ({
     id: String(doc.id),
     name: doc.name,
-    category: doc.category,
+    category:
+      typeof doc.category === 'object' && doc.category !== null
+        ? String((doc.category as { id: number }).id)
+        : String(doc.category ?? ''),
     price: doc.price,
     description: doc.description,
     inStock: doc.inStock ?? true,
@@ -46,6 +52,7 @@ export default async function Dishes({ searchParams }: DishesPageProps) {
   return (
     <DishesListPage
       dishes={dishes}
+      categories={categories} // ← was missing
       currentPage={result.page ?? 1}
       totalPages={result.totalPages || 1}
       query={query}

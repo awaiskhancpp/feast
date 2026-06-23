@@ -16,7 +16,7 @@ import {
   Waves,
   X,
 } from 'lucide-react'
-import { MENU_CATEGORY_META, type MenuCategoryIcon } from './tableData'
+
 import type { CartLine, MenuCategory, MenuItem, TableOrder } from './types'
 import { cn } from './utils'
 
@@ -24,9 +24,10 @@ type OrderMenuProps = {
   dishes: MenuItem[]
   order: TableOrder
   onBack: () => void
+  categories: { id: string; label: string }[] // simple — no external type dependency
 }
 
-export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
+export default function OrderMenu({ dishes, order, onBack, categories }: OrderMenuProps) {
   const [activeCategory, setActiveCategory] = useState('all')
   const [search, setSearch] = useState('')
   const [selectedItems, setSelectedItems] = useState<Record<string, CartLine>>({})
@@ -36,18 +37,16 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
 
   const orderableDishes = useMemo(() => dishes.filter((d) => d.inStock), [dishes])
 
-  const categories: MenuCategory[] = useMemo(
-    () =>
-      MENU_CATEGORY_META.map((meta) => ({
-        id: meta.id,
-        label: meta.label,
-        count:
-          meta.id === 'all'
-            ? orderableDishes.length
-            : orderableDishes.filter((d) => d.category === meta.id).length,
+  const categoryList: MenuCategory[] = useMemo(() => {
+    return [
+      { id: 'all', label: 'All Menu', count: orderableDishes.length },
+      ...categories.map((c) => ({
+        id: String(c.id), // coerce — Payload IDs come back as numbers at runtime
+        label: c.label,
+        count: orderableDishes.filter((d) => d.category === String(c.id)).length,
       })),
-    [orderableDishes],
-  )
+    ]
+  }, [orderableDishes, categories])
 
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -155,7 +154,7 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
       >
         {/* ── Category sidebar ── */}
         <aside className="space-y-2 max-lg:flex max-lg:overflow-x-auto max-lg:space-x-2 max-lg:space-y-0 max-lg:pb-1">
-          {categories.map((category) => (
+          {categoryList.map((category) => (
             <CategoryButton
               active={activeCategory === category.id}
               category={category}
@@ -305,6 +304,18 @@ export default function OrderMenu({ dishes, order, onBack }: OrderMenuProps) {
 }
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
+const categoryIcons = {
+  all: Grid2X2,
+  appetizers: ChefHat,
+  drink: CupSoda,
+  desserts: IceCreamBowl,
+  coffee: Coffee,
+  main: UtensilsCrossed,
+  salads: Salad,
+  seafood: Waves,
+  soup: Soup,
+} as const
+type MenuCategoryIcon = keyof typeof categoryIcons
 
 function DishImage({ item, className }: { item: MenuItem; className?: string }) {
   if (!item.image) {
