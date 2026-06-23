@@ -17,7 +17,7 @@ export function TransactionTable({
   selectedTransactionId = null,
 }: TransactionTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState<SortKey>('date')
+  const [sortBy, setSortBy] = useState<SortKey | ''>('')
 
   const filteredData = useMemo(() => {
     return transactions.filter(
@@ -28,6 +28,7 @@ export function TransactionTable({
   }, [searchTerm])
 
   const sortedData = useMemo(() => {
+    if (!sortBy) return filteredData
     return [...filteredData].sort((a, b) => {
       if (sortBy === 'date') return new Date(b.date).getTime() - new Date(a.date).getTime()
       if (sortBy === 'table') return a.table.localeCompare(b.table)
@@ -150,7 +151,8 @@ function TransactionTableToolbar({
   sortBy: SortKey
   setSortBy: (value: SortKey) => void
 }) {
-  const sortLabels: Record<SortKey, string> = {
+  const sortLabels: Record<SortKey | '', string> = {
+    '': 'Sort By',
     date: 'Date',
     table: 'Table',
     items: 'Order Items',
@@ -192,6 +194,7 @@ function TransactionTableToolbar({
               onChange={(e) => setSortBy(e.target.value as SortKey)}
               className="absolute inset-0 opacity-0 w-full cursor-pointer"
             >
+              <option value="">Sort By</option>
               <option value="date">Date</option>
               <option value="table">Table</option>
               <option value="items">Order Items</option>
