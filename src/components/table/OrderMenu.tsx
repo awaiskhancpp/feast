@@ -187,8 +187,7 @@ export default function OrderMenu({ dishes, order, onBack, categories }: OrderMe
                     type="button"
                     onClick={() => setDetailItem(item)}
                   >
-                    {/* Image */}
-                    <DishImage className="h-48 w-full" item={item} />
+                    <DishImage className="h-50 w-full" item={item} />
 
                     {/* Info */}
                     <div className="py-4 px-1">
@@ -355,21 +354,16 @@ function CartLineRow({
           <p className="truncate text-sm font-bold leading-tight text-slate-900 dark:text-slate-100">
             {line.item.name}
           </p>
-          <button
-            type="button"
-            onClick={onEdit}
-            className="flex-shrink-0 rounded-md p-0.5 text-slate-300 transition hover:text-[#6066ed] dark:text-slate-600"
-            aria-label={`Edit ${line.item.name}`}
-          >
-            <Edit3 className="h-4 w-4" />
-          </button>
+          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            {money(line.item.price * line.quantity)}
+          </span>
         </div>
 
         {/* Note */}
         <p className="mt-0.5 truncate text-xs text-slate-400">{line.note}</p>
 
         {/* Qty + price */}
-        <div className="mt-1.5 flex items-center justify-between">
+        <div className="mt-1.5 flex items-center justify-end">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -389,9 +383,9 @@ function CartLineRow({
               +
             </button>
           </div>
-          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
+          {/* <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
             {money(line.item.price * line.quantity)}
-          </span>
+          </span> */}
         </div>
       </div>
     </div>
@@ -410,9 +404,9 @@ function CartSummary({
   return (
     <div className="border-t border-dashed border-slate-200 px-5 pb-5 pt-4 text-sm dark:border-slate-700">
       <SummaryRow label="Sub total" value={money(summary.subtotal)} />
-      <SummaryRow label="Tax 10%" value={money(summary.tax)} />
+      <SummaryRow label="Tax" value={money(summary.tax)} />
       {isMember && summary.discount > 0 && (
-        <SummaryRow label="Diskon 50%" value={`-${money(summary.discount)}`} negative />
+        <SummaryRow label="Discount " value={`-${money(summary.discount)}`} negative />
       )}
 
       <div className="my-3 border-t border-dashed border-slate-200 dark:border-slate-700" />
