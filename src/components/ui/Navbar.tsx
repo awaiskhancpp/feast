@@ -54,7 +54,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   }
 
   return (
-    <div className="sticky top-0 z-40 h-20 w-full border-b border-gray-200 bg-white px-4 flex items-center justify-between lg:h-24 lg:px-8 dark:border-slate-800 dark:bg-slate-900">
+    <div className="sticky top-0 z-[210] h-20 w-full border-b border-gray-200 bg-white px-4 flex items-center justify-between lg:h-24 lg:px-8 dark:border-slate-800 dark:bg-slate-900">
       <button onClick={onMenuClick} className="md:hidden mr-3">
         <Image src="/icons/loginIcon.svg" alt="Menu" width={36} height={36} />
       </button>
