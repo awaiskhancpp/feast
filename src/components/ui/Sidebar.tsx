@@ -106,7 +106,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           )
         })}
       </nav>
-      <div>
+      {/* <div>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path
             fillRule="evenodd"
@@ -115,7 +115,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             fill="#969696"
           />
         </svg>
-      </div>
+      </div> */}
     </div>
   )
 }

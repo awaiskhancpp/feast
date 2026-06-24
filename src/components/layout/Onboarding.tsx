@@ -49,12 +49,11 @@ export default function OnBoarding() {
   return (
     <section className="grid grid-cols-12 min-h-screen">
       {/* ── Left panel — carousel, lg and up only ── */}
-      <div className="hidden lg:block lg:col-span-6 xl:col-span-7 relative overflow-hidden">
-        {/* All images stacked; only the active one is visible */}
+      <div className="hidden lg:block lg:col-span-6 xl:col-span-7 relative">
         {reviews.map((r, i) => (
           <div
             key={i}
-            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+            className={`absolute inset-0 overflow-hidden transition-opacity duration-700 ease-in-out ${
               i === current ? 'opacity-100' : 'opacity-0'
             }`}
           >

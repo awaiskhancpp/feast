@@ -16,7 +16,13 @@ export function Keypad({ onPress, onDelete }: KeypadProps) {
 
       {/* Row 4 */}
       <button className="flex items-center justify-center w-[84px] h-[70px]">
-        <Image src="/fingerprint.svg" alt="Fingerprint" width={32} height={32} />
+        <Image
+          src="/fingerprint.svg"
+          alt="Fingerprint"
+          width={32}
+          height={32}
+          className="dark:invert"
+        />
       </button>
 
       <KeyButton onClick={() => onPress('0')} className="font-bold">
@@ -24,7 +30,13 @@ export function Keypad({ onPress, onDelete }: KeypadProps) {
       </KeyButton>
 
       <button onClick={onDelete} className="flex items-center justify-center w-[84px] h-[70px]">
-        <Image src="/backspace.svg" alt="Backspace" width={32} height={32} />
+        <Image
+          src="/backspace.svg"
+          alt="Backspace"
+          width={32}
+          height={32}
+          className="dark:invert"
+        />
       </button>
     </div>
   )

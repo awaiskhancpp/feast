@@ -82,7 +82,7 @@ export default function PinLoginLayout() {
       <div className="flex flex-col  justify-center items-center pt-10 mb-6">
         <Image src="/icons/loginIcon.svg" alt="" width={40} height={40} className="mb-6" />
         <h2 className="font-bold text-2xl">Enter Pin</h2>
-        <p className="text-secondary">Enter your PIN to validate yourself.</p>
+        <p className="text-secondary dark:text-slate-400">Enter your PIN to validate yourself.</p>
       </div>
       <PinInput pin={pin} />
       <Keypad onDelete={onDelete} onPress={onPress} />
@@ -102,7 +102,7 @@ export default function PinLoginLayout() {
               key={employee.id}
               type="button"
               onClick={() => signInMatchedEmployee(employee.id)}
-              className="flex items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-gray-50"
+              className="flex items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-slate-800"
             >
               <Image
                 src={employee.avatarUrl || '/person.jpg'}
@@ -113,8 +113,12 @@ export default function PinLoginLayout() {
                 unoptimized={employee.avatarUrl.startsWith('data:')}
               />
               <span>
-                <span className="block text-sm font-semibold text-gray-900">{employee.name}</span>
-                <span className="block text-xs capitalize text-gray-500">{employee.role}</span>
+                <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  {employee.name}
+                </span>
+                <span className="block text-xs capitalize text-gray-500 dark:text-slate-400">
+                  {employee.role}
+                </span>
               </span>
             </button>
           ))}
