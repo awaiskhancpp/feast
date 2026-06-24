@@ -1,4 +1,11 @@
-export type SettingsTabId = 'general' | 'notifications' | 'appearance' | 'privacy' | 'logout'
+export type SettingsTabId =
+  | 'general'
+  | 'workspace'
+  | 'employees'
+  | 'notifications'
+  | 'appearance'
+  | 'privacy'
+  | 'logout'
 
 export type NotificationKey =
   | 'outOfStockItems'

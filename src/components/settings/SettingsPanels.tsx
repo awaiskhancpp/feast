@@ -15,6 +15,7 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react'
+
 import {
   useEffect,
   useState,
@@ -184,6 +185,19 @@ export function SettingsPanels({
           onSaved={onSaved}
         />
       )
+    case 'workspace':
+      return (
+        <WorkspaceSettingsPanel general={general} setGeneral={setGeneral} employees={employees} />
+      )
+    case 'employees':
+      return (
+        <EmployeesPanel
+          employees={employees}
+          currentEmployee={currentEmployee}
+          refreshEmployees={refreshEmployees}
+          onSaved={onSaved}
+        />
+      )
     case 'notifications':
       return (
         <NotificationSettingsPanel
@@ -226,15 +240,6 @@ function GeneralSettingsPanel({
   const [profileError, setProfileError] = useState('')
   const [createError, setCreateError] = useState('')
   const [profileSaving, setProfileSaving] = useState(false)
-  const [employeeSaving, setEmployeeSaving] = useState(false)
-  const [employeePreview, setEmployeePreview] = useState<string>('')
-  const [newEmployee, setNewEmployee] = useState<EmployeeFormState>({
-    name: '',
-    email: '',
-    phone: '',
-    role: 'cashier',
-  })
-  const [newEmployeeAvatar, setNewEmployeeAvatar] = useState<File | null>(null)
 
   useEffect(() => {
     if (currentEmployee) {
@@ -283,21 +288,6 @@ function GeneralSettingsPanel({
     }))
   }
 
-  async function handleCreateEmployeePhoto(file: File | null) {
-    if (!file) return
-
-    const validation = validateImageFile(file)
-    if (!validation.valid) {
-      setCreateError(validation.message ?? 'Invalid image.')
-      return
-    }
-
-    const dataUrl = await fileToDataUrl(file)
-    setEmployeePreview(dataUrl)
-    setNewEmployeeAvatar(file)
-    setCreateError('')
-  }
-
   async function saveProfile() {
     if (!currentEmployee) return
     const role: EmployeeRole =
@@ -343,74 +333,6 @@ function GeneralSettingsPanel({
       setProfileError('Failed to save profile')
     } finally {
       setProfileSaving(false)
-    }
-  }
-
-  async function createTeamMember() {
-    const name = newEmployee.name.trim()
-    const email = newEmployee.email.trim()
-    const phone = newEmployee.phone.trim()
-
-    if (!canEditTeam) {
-      setCreateError('Only admins can create employees.')
-      return
-    }
-    if (!isValidName(name)) {
-      setCreateError('Enter a valid employee name.')
-      return
-    }
-    if (!isValidEmail(email)) {
-      setCreateError('Enter a valid employee email.')
-      return
-    }
-    if (!isValidUSPhone(phone)) {
-      setCreateError('Enter a valid US phone number.')
-      return
-    }
-
-    let avatarUrl = '/person.jpg'
-
-    if (newEmployeeAvatar) {
-      const validation = validateImageFile(newEmployeeAvatar)
-      if (!validation.valid) {
-        setCreateError(validation.message ?? 'Invalid image.')
-        return
-      }
-
-      const formData = new FormData()
-      formData.append('file', newEmployeeAvatar)
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!res.ok) {
-        setCreateError('Image upload failed')
-        return
-      }
-
-      const data = await res.json()
-      avatarUrl = data.url // 👈 blob / cloud URL
-    }
-
-    setEmployeeSaving(true)
-    try {
-      createEmployee({
-        name,
-        email,
-        phone,
-        role: newEmployee.role,
-        avatarUrl,
-      })
-      refreshEmployees()
-      setNewEmployee({ name: '', email: '', phone: '', role: 'cashier' })
-      setNewEmployeeAvatar(null)
-      setEmployeePreview('')
-      setCreateError('')
-      onSaved('Employee created with PIN 000000')
-    } finally {
-      setEmployeeSaving(false)
     }
   }
 
@@ -514,106 +436,216 @@ function GeneralSettingsPanel({
           />
         </div>
       </div>
-
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-800/60">
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="h-5 w-5 text-[#6066ed]" />
-            <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                Workspace details
-              </p>
-              <p className="text-xs text-gray-500 dark:text-slate-400">
-                This information is stored locally for the dashboard.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <Field
-              label="Business Name"
-              value={general.businessName}
-              onChange={(value) => setGeneral((prev) => ({ ...prev, businessName: value }))}
-            />
-            <Field
-              label="Business Email"
-              value={general.email}
-              onChange={(value) => setGeneral((prev) => ({ ...prev, email: value }))}
-            />
-            <Field
-              label="Business Phone"
-              value={general.phone}
-              onChange={(value) => setGeneral((prev) => ({ ...prev, phone: value }))}
-            />
-            <SelectField
-              label="Language"
-              value={general.language}
-              onChange={(value) => setGeneral((prev) => ({ ...prev, language: value }))}
-              options={['English', 'Arabic', 'French']}
-            />
-            <SelectField
-              label="Currency"
-              value={general.currency}
-              onChange={(value) => setGeneral((prev) => ({ ...prev, currency: value }))}
-              options={['USD', 'PKR', 'AED']}
-            />
-            <SelectField
-              label="Time Zone"
-              value={general.timezone}
-              onChange={(value) => setGeneral((prev) => ({ ...prev, timezone: value }))}
-              options={['America/New_York', 'Asia/Karachi', 'Asia/Dubai', 'UTC']}
-            />
+    </section>
+  )
+}
+export function WorkspaceSettingsPanel({
+  general,
+  setGeneral,
+  employees,
+}: {
+  general: GeneralSettingsState
+  setGeneral: React.Dispatch<React.SetStateAction<GeneralSettingsState>>
+  employees: Employee[]
+}) {
+  return (
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-800/60">
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="h-5 w-5 text-[#6066ed]" />
+          <div>
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              Workspace details
+            </p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">
+              This information is stored locally for the dashboard.
+            </p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Team members</p>
-              <p className="text-xs text-gray-500 dark:text-slate-400">
-                {employees.length} staff account{employees.length === 1 ? '' : 's'} stored locally.
-              </p>
-            </div>
-            <Users className="h-5 w-5 text-[#6066ed]" />
-          </div>
-
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {employees.map((employee) => (
-              <div
-                key={employee.id}
-                className="rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-slate-800 dark:bg-slate-800/60"
-              >
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={employee.avatarUrl || '/person.jpg'}
-                    alt={employee.name}
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 rounded-full object-cover"
-                    unoptimized={employee.avatarUrl.startsWith('data:')}
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      {employee.name}
-                    </p>
-                    <p className="text-xs capitalize text-gray-500 dark:text-slate-400">
-                      {employee.role}
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-3 truncate text-xs text-gray-500 dark:text-slate-400">
-                  {employee.email}
-                </p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
-                  PIN: {employee.pin === '000000' ? '000000' : '******'}
-                </p>
-              </div>
-            ))}
-          </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <Field
+            label="Business Name"
+            value={general.businessName}
+            onChange={(value) => setGeneral((prev) => ({ ...prev, businessName: value }))}
+          />
+          <Field
+            label="Business Email"
+            value={general.email}
+            onChange={(value) => setGeneral((prev) => ({ ...prev, email: value }))}
+          />
+          <Field
+            label="Business Phone"
+            value={general.phone}
+            onChange={(value) => setGeneral((prev) => ({ ...prev, phone: value }))}
+          />
+          <SelectField
+            label="Language"
+            value={general.language}
+            onChange={(value) => setGeneral((prev) => ({ ...prev, language: value }))}
+            options={['English', 'Arabic', 'French']}
+          />
+          <SelectField
+            label="Currency"
+            value={general.currency}
+            onChange={(value) => setGeneral((prev) => ({ ...prev, currency: value }))}
+            options={['USD', 'PKR', 'AED']}
+          />
+          <SelectField
+            label="Time Zone"
+            value={general.timezone}
+            onChange={(value) => setGeneral((prev) => ({ ...prev, timezone: value }))}
+            options={['America/New_York', 'Asia/Karachi', 'Asia/Dubai', 'UTC']}
+          />
         </div>
       </div>
 
-      {canEditTeam ? (
+      <div className="rounded-2xl border border-gray-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Team members</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">
+              {employees.length} staff account{employees.length === 1 ? '' : 's'} stored locally.
+            </p>
+          </div>
+          <Users className="h-5 w-5 text-[#6066ed]" />
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {employees.map((employee) => (
+            <div
+              key={employee.id}
+              className="rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-slate-800 dark:bg-slate-800/60"
+            >
+              <div className="flex items-center gap-3">
+                <Image
+                  src={employee.avatarUrl || '/person.jpg'}
+                  alt={employee.name}
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 rounded-full object-cover"
+                  unoptimized={employee.avatarUrl.startsWith('data:')}
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    {employee.name}
+                  </p>
+                  <p className="text-xs capitalize text-gray-500 dark:text-slate-400">
+                    {employee.role}
+                  </p>
+                </div>
+              </div>
+              <p className="mt-3 truncate text-xs text-gray-500 dark:text-slate-400">
+                {employee.email}
+              </p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
+                PIN: {employee.pin === '000000' ? '000000' : '******'}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+export function EmployeesPanel({ employees, currentEmployee, refreshEmployees, onSaved }: any) {
+  const [profileError, setProfileError] = useState('')
+  const [createError, setCreateError] = useState('')
+  const [employeeSaving, setEmployeeSaving] = useState(false)
+  const [employeePreview, setEmployeePreview] = useState<string>('')
+  const [newEmployee, setNewEmployee] = useState<EmployeeFormState>({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'cashier',
+  })
+  const [newEmployeeAvatar, setNewEmployeeAvatar] = useState<File | null>(null)
+  const canEdit = currentEmployee?.role === 'admin'
+  async function createTeamMember() {
+    const name = newEmployee.name.trim()
+    const email = newEmployee.email.trim()
+    const phone = newEmployee.phone.trim()
+
+    if (!canEdit) {
+      setCreateError('Only admins can create employees.')
+      return
+    }
+    if (!isValidName(name)) {
+      setCreateError('Enter a valid employee name.')
+      return
+    }
+    if (!isValidEmail(email)) {
+      setCreateError('Enter a valid employee email.')
+      return
+    }
+    if (!isValidUSPhone(phone)) {
+      setCreateError('Enter a valid US phone number.')
+      return
+    }
+
+    let avatarUrl = '/person.jpg'
+
+    if (newEmployeeAvatar) {
+      const validation = validateImageFile(newEmployeeAvatar)
+      if (!validation.valid) {
+        setCreateError(validation.message ?? 'Invalid image.')
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('file', newEmployeeAvatar)
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!res.ok) {
+        setCreateError('Image upload failed')
+        return
+      }
+
+      const data = await res.json()
+      avatarUrl = data.url // 👈 blob / cloud URL
+    }
+
+    setEmployeeSaving(true)
+    try {
+      createEmployee({
+        name,
+        email,
+        phone,
+        role: newEmployee.role,
+        avatarUrl,
+      })
+      refreshEmployees()
+      setNewEmployee({ name: '', email: '', phone: '', role: 'cashier' })
+      setNewEmployeeAvatar(null)
+      setEmployeePreview('')
+      setCreateError('')
+      onSaved('Employee created with PIN 000000')
+    } finally {
+      setEmployeeSaving(false)
+    }
+  }
+  async function handleCreateEmployeePhoto(file: File | null) {
+    if (!file) return
+
+    const validation = validateImageFile(file)
+    if (!validation.valid) {
+      setCreateError(validation.message ?? 'Invalid image.')
+      return
+    }
+
+    const dataUrl = await fileToDataUrl(file)
+    setEmployeePreview(dataUrl)
+    setNewEmployeeAvatar(file)
+    setCreateError('')
+  }
+
+  return (
+    <>
+      {canEdit ? (
         <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-800/60">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -700,7 +732,7 @@ function GeneralSettingsPanel({
       ) : null}
 
       {profileError ? <p className="text-sm text-red-600">{profileError}</p> : null}
-    </section>
+    </>
   )
 }
 
